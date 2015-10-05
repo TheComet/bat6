@@ -13,7 +13,7 @@ AllowPortNetNames=0
 AllowSheetEntryNetNames=1
 AppendSheetNumberToLocalNets=0
 [Document1]
-DocumentPath=PV-Simulator.SCHDOC
+DocumentPath=Sheet1.SCHDOC
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
