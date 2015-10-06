@@ -1,0 +1,19 @@
+Lösungsansatz
+
+Das Kernstück des Gerätes besteht aus dem CVCC Spannungswandler und der Mikrocontroller. Der Mikrocontroller misst Ausgangsstrom und Ausgangsspannung. Aus diesen Werten berechnet er Sollspannung und Strom. Durch zwei digital einstellbare Widerstände stellt er die Spannungs- und Stromlimite des Wandlers. Damit bildet er die I-V Kennlinie eines PV-Moduls nach.
+Als Model für die Solarzelle dient die Formel Id = Isc * ((G/G0) - e^((Vd - Voc)/Vt)). Dabei ist Id der momentane Strom, Isc der Kurzschlussstrom, (G/G0) das Beleuchtungsverhältnis, Vd die momentane Ausgangsspannung, Voc die Leerlaufspannung und Vt die Dunkelspannung aller Zellen in Serie. Die Formal beachtet nicht den Einfluss der Temperatur und ist nur gültig wenn Voc > 5 * Vt. 
+Das Gerät wird über einen Text-LCD und einen Dreh-Drück-Taster bedient. Weiter ist ein Ein-Aus Schalter vorgesehen. Auf dem LCD werden die Werte der momentanenen Spannung und des momentanen Stromes, sowie die eingestellte Belechtungsstärke angezeigt. Dreht man den Drehtaster wird die Beleuchtungsstärke verändert. Durch Drücken des Tasters gelangt man in Untermenüs, in denen man die anderen Parameter (Isc, Voc und Vt) verändern kann.
+
+Technische Daten
+
+Maximale Ausgangsspannung	24V
+Maximaler Ausgangsstrom		3.5A
+Effizienz bei Volllast		80%
+Leistungsverbrauch Leerlauf	3W
+Nachregelzeit				1ms
+Genauikeit Spannung			2%
+Genauikeit Strom			2%
+Rippel Spannung				300mV
+Rippel Strom				100mA
+Stufen Kennlinie			3
+
