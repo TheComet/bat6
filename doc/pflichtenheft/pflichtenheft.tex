@@ -1,0 +1,111 @@
+\documentclass{article}
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+\usepackage{spreadtab}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[left=25mm,right=25mm,top=25mm,bottom=25mm]{geometry}
+
+\title{Pflichtenheft, provisorisch}
+\date{\today}
+\author{Projekt 3 EIT, Team 2: Reto Freivogel, Alexander Murray, Raphael Frey}
+
+\begin{document}
+\maketitle
+
+\section{L\"osungskonzept}
+\begin{figure}[h!]
+    \begin{centering}
+    \includegraphics[width=.667\textwidth]{grob-blockdiagramm.pdf}
+    \caption{Blockdiagramm des L\"osungsansatzes}
+    \end{centering}
+\end{figure}
+
+Das  Kernst\"uck   des  Ger\"ates   besteht  aus  dem   CVCC  Spannungswandler
+und   dem  Mikrocontroller. Der   Mikrocontroller   misst  Ausgangsstrom   und
+Ausgangsspannung. Aus diesen Werten berechnet er Sollspannung und Strom. Durch
+zwei  digital   einstellbare  Widerst\"ande  stellt  er   die  Spannungs-  und
+Stromlimite des  Wandlers. Damit bildet er  die I-V Kennlinie  eines PV-Moduls
+nach.
+
+Die Solarzelle wird mit folgender Formel modelliert:
+\begin{equation}
+I_d = I_{sc} \cdot \left(\frac{G}{G_0} - exp\left(\frac{V_d-V_{oc}}{V_t}\right)\right)
+\end{equation}
+
+Wobei   $I_{d}$   der   momentane  Strom,   $I_{sc}$   der   Kurzschlussstrom,
+$\frac{G}{G_0}$    das   Beleuchtungsverh\"altnis,    $V_d$   die    momentane
+Ausgangsspannung, $V_{oc}$  die Leerlaufspannung und $V_t$  die Dunkelspannung
+aller Zellen in Serie sind. Der Einfluss der Temperatur wird in dieser Formel
+vernachl\"assigt und sie gilt lediglich falls $V_{oc} > 5 \cdot V_t$.
+
+Das   Ger\"at  wird   \"uber  ein   Text-LCD  und   einen  Dreh-Dr\"uck-Taster
+bedient. Weiter  ist  ein  Ein-Aus  Schalter vorgesehen. Auf  dem  LCD  werden
+die  Werte der  momentanenen Spannung  und  des momentanen  Stromes sowie  die
+eingestellte Belechtungsst\"arke angezeigt. Dreht man  den Drehtaster wird die
+Beleuchtungsst\"arke ver\"andert. Durch  Dr\"ucken des Tasters gelangt  man in
+Untermen\"us,  in denen  man  die anderen  Parameter  ($I_{sc}$, $V_{oc}$  und
+$V_t$) ver\"andern kann.
+
+\section{Ziel-Spezifikationen}
+\begin{center}
+\begin{tabular}{lr}
+    Maximale Ausgangsspannung	& 24V    \\
+    Maximaler Ausgangsstrom		& 3.5A   \\
+    Effizienz bei Volllast		& 80\%   \\
+    Leistungsverbrauch Leerlauf	& 3W     \\
+    Nachregelzeit				& 1ms    \\
+    Genauikeit Spannung			& 2\%    \\
+    Genauikeit Strom			& 2\%    \\
+    Rippel Spannung				& 300mV  \\
+    Rippel Strom				& 100mA  \\
+    Stufen Kennlinie			& 3      \\
+\end{tabular}
+\end{center}
+
+\section{Komponenten}
+
+\begin{center}
+\begin{spreadtab}{{tabular}{llrrr}}
+    \toprule
+    @ Digikey & @ Beschreibung & @ Preis & @ Anzahl & @ Betrag \\
+    \midrule
+    %1 & 2 & 3 & 4 & 5 \\
+    @ DSPIC33EP16GS506-I/PT-ND & @ dsPIC33 microcontroller         & 4.91  & 1 & [-2,0] * [-1,0] \\
+    @ 768-1008-1-ND            & @  FT232RQ (UART to serial)       & 4.5   & 1 & [-2,0] * [-1,0] \\
+    @ NHD-0440WH-ATMI-JT\#-ND  & @ LCD Display, 160 (4x40) chars   & 24.9  & 1 & [-2,0] * [-1,0] \\
+    @ H11N1SR2MCT-ND           & @ optocouplers                    & 5.94  & 2 & [-2,0] * [-1,0] \\
+    @ 811-1673-5-ND            & @ DCDC isolated converter         & 7.95  & 1 & [-2,0] * [-1,0] \\
+    @ 285-1829-ND              & @ ACDC 230V to 36V supply module  & 27.41 & 1 & [-2,0] * [-1,0] \\
+    @ LTM8026EV\#PBF-ND        & @ CVCC buck converter, for output & 21.49 & 1 & [-2,0] * [-1,0] \\
+    @ J151-ND                  & @ Banana Plugs                    & 0.70  & 2 & [-2,0] * [-1,0] \\
+    @ TBD                      & @ Twistbutton                     & 10    & 1 & [-2,0] * [-1,0] \\
+    @ TBD                      & @ Misc. components                & 20    & 1 & [-2,0] * [-1,0] \\
+    \midrule
+    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e2:e11)     \\
+    \midrule
+    @ Jackaltac                & @ Printed Circuit Board           & 40    & 1 & [-2,0] * [-1,0] \\
+    @ TBD                      & @ Housing                         & 50    & 1 & [-2,0] * [-1,0] \\
+    \midrule
+    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e12:e14)    \\
+    \bottomrule
+\end{spreadtab}
+\end{center}
+
+\section{Testkonzept}
+
+\begin{itemize}
+    \item
+        Verhalten  von  Strom  und   Spannung  bei  verschiedenen  resistiven,
+        kapazitiven und induktiven Lasten (und Kombinationen davon).
+    \item
+        Verhalten von  Floating Potential und Stromaufnahme  bei verschiedenen
+        resistiven,  kapazitiven  und  induktiven  Lasten  (und  Kombinationen
+        davon).
+    \item
+        Verifikation  der korrekten  Funktionsweise  des Interfaces  (Display,
+        Drehknopf).
+\end{itemize}
+\end{document}
