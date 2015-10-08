@@ -23,11 +23,11 @@
     \end{centering}
 \end{figure}
 
-Das  Kernst\"uck   des  Ger\"ates   besteht  aus  dem   CVCC  Spannungswandler
-und   dem  Mikrocontroller. Der   Mikrocontroller   misst  Ausgangsstrom   und
-Ausgangsspannung. Aus diesen Werten berechnet er Sollspannung und Strom. Durch
-zwei  digital   einstellbare  Widerst\"ande  stellt  er   die  Spannungs-  und
-Stromlimite des  Wandlers. Damit bildet er  die I-V Kennlinie  eines PV-Moduls
+Das  Kernst\"uck   des  Ger\"ates   besteht  aus  dem   CVCC  (Constant Voltage
+Constant Current) Spannungswandler und   dem  Mikrocontroller. Der   Mikrocontroller
+misst  Ausgangsstrom   und Ausgangsspannung und kann somit durch
+zwei  digital   einstellbare  Widerst\"ande  die  Spannungs-  und
+Stromlimite des  Wandlers einstellen beziehungsweise regeln. Damit bildet er  die I-V Kennlinie  eines PV-Moduls
 nach.
 
 Die Solarzelle wird mit folgender Formel modelliert:
@@ -76,20 +76,19 @@ $V_t$) ver\"andern kann.
     @ DSPIC33EP16GS506-I/PT-ND & @ dsPIC33 microcontroller         & 4.91  & 1 & [-2,0] * [-1,0] \\
     @ 768-1008-1-ND            & @  FT232RQ (UART to serial)       & 4.5   & 1 & [-2,0] * [-1,0] \\
     @ NHD-0440WH-ATMI-JT\#-ND  & @ LCD Display, 160 (4x40) chars   & 24.9  & 1 & [-2,0] * [-1,0] \\
-    @ H11N1SR2MCT-ND           & @ optocouplers                    & 5.94  & 2 & [-2,0] * [-1,0] \\
-    @ 811-1673-5-ND            & @ DCDC isolated converter         & 7.95  & 1 & [-2,0] * [-1,0] \\
+    @ LT3741EUF#PBF-ND         & @ CVCC buck converter             & 8.44  & 1 & [-2,0] * [-1,0] \\
+    @ (unknown)                & @ MOSFET                          & 5     & 2 & [-2,0] * [-1,0] \\
     @ 285-1829-ND              & @ ACDC 230V to 36V supply module  & 27.41 & 1 & [-2,0] * [-1,0] \\
-    @ LTM8026EV\#PBF-ND        & @ CVCC buck converter, for output & 21.49 & 1 & [-2,0] * [-1,0] \\
     @ J151-ND                  & @ Banana Plugs                    & 0.70  & 2 & [-2,0] * [-1,0] \\
     @ TBD                      & @ Twistbutton                     & 10    & 1 & [-2,0] * [-1,0] \\
-    @ TBD                      & @ Misc. components                & 20    & 1 & [-2,0] * [-1,0] \\
+    @ TBD                      & @ Misc. components                & 40    & 1 & [-2,0] * [-1,0] \\
     \midrule
-    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e2:e11)     \\
+    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e2:e10)     \\
     \midrule
     @ Jackaltac                & @ Printed Circuit Board           & 40    & 1 & [-2,0] * [-1,0] \\
     @ TBD                      & @ Housing                         & 50    & 1 & [-2,0] * [-1,0] \\
     \midrule
-    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e12:e14)    \\
+    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e11:e13)    \\
     \bottomrule
 \end{spreadtab}
 \end{center}
