@@ -188,31 +188,31 @@ OutputDefault9=0
 Name=Report Outputs
 Description=
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
-OutputType1=BOM_PartType
-OutputName1=Bill of Materials
+OutputType1=ReportHierarchy
+OutputName1=Report Project Hierarchy
 OutputDocumentPath1=
 OutputEnabled1=1
 OutputDefault1=0
-Configuration1_Name1=General
-Configuration1_Item1=OpenExported=False|ForceFit=False|TemplateFilename=|BatchMode=0|FormWidth=875|FormHeight=659
-Configuration1_Name2=GroupOrder
-Configuration1_Item2=LibRef=True
-Configuration1_Name3=SortOrder
-Configuration1_Item3=Designator=Up|Comment=Up|Footprint=Up
-Configuration1_Name4=VisibleOrder
-Configuration1_Item4=Quantity=38|Designator=74|Value=50|Value2=56|Supplier - Digikey=100|LibRef=261
-OutputType2=ComponentCrossReference
-OutputName2=Component Cross Reference Report
+OutputType2=SimpleBOM
+OutputName2=Simple BOM
 OutputDocumentPath2=
 OutputEnabled2=1
 OutputDefault2=0
-OutputType3=ReportHierarchy
-OutputName3=Report Project Hierarchy
+OutputType3=BOM_PartType
+OutputName3=Bill of Materials
 OutputDocumentPath3=
 OutputEnabled3=1
 OutputDefault3=0
-OutputType4=SimpleBOM
-OutputName4=Simple BOM
+Configuration3_Name1=General
+Configuration3_Item1=OpenExported=False|ForceFit=False|TemplateFilename=|BatchMode=0|FormWidth=875|FormHeight=659
+Configuration3_Name2=GroupOrder
+Configuration3_Item2=LibRef=True
+Configuration3_Name3=SortOrder
+Configuration3_Item3=Designator=Up|Comment=Up|Footprint=Up
+Configuration3_Name4=VisibleOrder
+Configuration3_Item4=Quantity=38|Designator=74|Value=50|Value2=56|Supplier - Digikey=100|LibRef=261
+OutputType4=ComponentCrossReference
+OutputName4=Component Cross Reference Report
 OutputDocumentPath4=
 OutputEnabled4=1
 OutputDefault4=0
