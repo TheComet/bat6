@@ -30,6 +30,12 @@ einstellbare  Widerst\"ande  die  Spannungs-   und  Stromlimite  des  Wandlers
 einstellen  beziehungsweise regeln. Damit  bildet er  die I-V  Kennlinie eines
 PV-Moduls nach.
 
+Neben den Ausgangsspannungs- und Ausgangsstromanforderungen und dynamisch
+einstellbare Strombegrenzung ist einer der wichtigsten Eigenschaften des
+Spannungswandlers die F\"ahigkeit, Strom aufnehmen zu k\"onnen, im Falle dass
+der Ausgang in Serie mit anderen Simulatoren h\"angt. Der LT3741 von Linear
+erf\"ullt alle Anforderungen und wird in diesem Projekt verwendet.
+
 Die Solarzelle wird mit folgender Formel modelliert:
 \begin{equation}
 I_d = I_{sc} \cdot \left(\frac{G}{G_0} - exp\left(\frac{V_d-V_{oc}}{V_t}\right)\right)
