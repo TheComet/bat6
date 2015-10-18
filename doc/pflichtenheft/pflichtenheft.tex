@@ -21,6 +21,7 @@
     \includegraphics[width=.667\textwidth]{grob-blockdiagramm.pdf}
     \caption{Blockdiagramm des L\"osungsansatzes}
     \end{centering}
+    \label{fig:grob-blockschaltbild}
 \end{figure}
 
 Das Kernst\"uck des Ger\"ates besteht  aus dem CVCC (Constant Voltage Constant
@@ -35,6 +36,11 @@ einstellbare Strombegrenzung ist einer der wichtigsten Eigenschaften des
 Spannungswandlers die F\"ahigkeit, Strom aufnehmen zu k\"onnen, im Falle dass
 der Ausgang in Serie mit anderen Simulatoren h\"angt. Der LT3741 von Linear
 erf\"ullt alle Anforderungen und wird in diesem Projekt verwendet.
+
+Der LT3741 arbeitet mit Steuerspannungen im Bereich von $0V$ bis $1.5V$. Damit
+die h\"ochstm\"oglichste Aufl\"osung der $ADC$s und $DAC$s erzielt werden kann,
+wird eine $1.5V$ Referenzspannung, ersichtlich in der Figur
+\ref{fig:grob-blockschaltbild}, verwendet.
 
 Die Solarzelle wird mit folgender Formel modelliert:
 \begin{equation}
