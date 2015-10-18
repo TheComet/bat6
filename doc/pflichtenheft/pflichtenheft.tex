@@ -26,10 +26,10 @@
 
 Das Kernst\"uck des Ger\"ates besteht  aus dem CVCC (Constant Voltage Constant
 Current) Spannungswandler  und dem Mikrocontroller. Der  Mikrocontroller misst
-Ausgangsstrom  und   Ausgangsspannung  und  kann  somit   durch  zwei  digital
-einstellbare  Widerst\"ande  die  Spannungs-   und  Stromlimite  des  Wandlers
-einstellen  beziehungsweise regeln. Damit  bildet er  die I-V  Kennlinie eines
-PV-Moduls nach.
+differentiell Ausgangsstrom  und Single-Ended Ausgangsspannung  anhand seiner
+eingebauten $ADC$s und  kann  somit   durch  zwei $DAC$s die  Spannungs-   und
+Stromlimite  des  Wandlers einstellen  beziehungsweise regeln. Damit  bildet
+er  die I-V  Kennlinie eines PV-Moduls nach.
 
 Neben den Ausgangsspannungs- und Ausgangsstromanforderungen und dynamisch
 einstellbare Strombegrenzung ist einer der wichtigsten Eigenschaften des
@@ -39,8 +39,18 @@ erf\"ullt alle Anforderungen und wird in diesem Projekt verwendet.
 
 Der LT3741 arbeitet mit Steuerspannungen im Bereich von $0V$ bis $1.5V$. Damit
 die h\"ochstm\"oglichste Aufl\"osung der $ADC$s und $DAC$s erzielt werden kann,
-wird eine $1.5V$ Referenzspannung, ersichtlich in der Figur
+wird eine $1.5V$ Referenzspannung, ersichtlich in der Abbildung
 \ref{fig:grob-blockschaltbild}, verwendet.
+
+Die Ausgangsspannung ist mit Hilfe einer Diode Verpolungsgesch\"utzt, sprich,
+die Kennlinie der Solarzelle geht nicht ins Negative, sondern flacht bei 0V
+ab.
+
+Der LT3741 kann per Software ein- oder ausgeschalten werden, und wird
+zus\"atzlich (mit Vorrang) in Hardware ausgeschaltet falls die
+$36V$-Speisung unter ca. $25V$ f\"allt. Das erlaubt ein kontrolliertes und
+Vorhersehbares Verhalten des Spannungswandlers w\"ahrend Ein- und
+Ausschaltvorg\"angen des Endproduktes.
 
 Die Solarzelle wird mit folgender Formel modelliert:
 \begin{equation}
@@ -60,6 +70,11 @@ eingestellte Belechtungsst\"arke angezeigt. Dreht man  den Drehtaster wird die
 Beleuchtungsst\"arke ver\"andert. Durch  Dr\"ucken des Tasters gelangt  man in
 Untermen\"us,  in denen  man  die anderen  Parameter  ($I_{sc}$, $V_{oc}$  und
 $V_t$) ver\"andern kann.
+
+Es wird ein galvanisch getrennter USB micro B Anschluss eingebaut um
+Kommunikation mit einem externen Ger\"at zu erlauben. Zum Debuggen des Systems
+wird diese Funktionalit\"at sehr n\"utzlich sein.
+
 
 \section{Ziel-Spezifikationen}
 \begin{center}
