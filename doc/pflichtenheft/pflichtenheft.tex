@@ -92,30 +92,40 @@ wird diese Funktionalit\"at sehr n\"utzlich sein.
 \end{tabular}
 \end{center}
 
-\section{Komponenten}
+
+\section{Kostensch\"atzung}
+
+Die wichtigsten Komponenten sind in der folgenden Tabelle aufgelistet.
 
 \begin{center}
-\begin{spreadtab}{{tabular}{llrrr}}
+\begin{spreadtab}{{tabular}{lrrr}}
     \toprule
-    @ Digikey & @ Beschreibung & @ Preis & @ Anzahl & @ Betrag \\
+    @ Beschreibung & @ Preis & @ Anzahl & @ Betrag \\
     \midrule
-    %1 & 2 & 3 & 4 & 5 \\
-    @ DSPIC33EP16GS506-I/PT-ND & @ dsPIC33 microcontroller         & 4.91  & 1 & [-2,0] * [-1,0] \\
-    @ 768-1008-1-ND            & @ FT232RQ (UART to serial)        & 4.5   & 1 & [-2,0] * [-1,0] \\
-    @ NHD-0440WH-ATMI-JT\#-ND  & @ LCD Display, 160 (4x40) chars   & 24.9  & 1 & [-2,0] * [-1,0] \\
-    @ LT3741EUF\#PBF-ND        & @ CVCC buck converter             & 8.44  & 1 & [-2,0] * [-1,0] \\
-    @ (unknown)                & @ MOSFET                          & 5     & 2 & [-2,0] * [-1,0] \\
-    @ 285-1829-ND              & @ ACDC 230V to 36V supply module  & 27.41 & 1 & [-2,0] * [-1,0] \\
-    @ J151-ND                  & @ Banana Plugs                    & 0.70  & 2 & [-2,0] * [-1,0] \\
-    @ TBD                      & @ Twistbutton                     & 10    & 1 & [-2,0] * [-1,0] \\
-    @ TBD                      & @ Misc. components                & 40    & 1 & [-2,0] * [-1,0] \\
+    % Logik
+    @ dsPIC33 microcontroller         & 4.91  & 1 & [-2,0] * [-1,0] \\
+    @ ADuM5241 (Digital Isolator)     & 6.96  & 1 & [-2,0] * [-1,0] \\
+    @ FT232RQ (UART to serial)        & 4.5   & 1 & [-2,0] * [-1,0] \\
+    @ LCD Display, 80 (4x20) chars    & 27    & 1 & [-2,0] * [-1,0] \\
+    @ Twist/Pushbutton                & 4.21  & 1 & [-2,0] * [-1,0] \\
+    @ \SThiderow                      & @     & @ & sum(d2:d6)      \\
+    % Schaltregler
+    @ CVCC buck converter             & 8.44  & 1 & [-2,0] * [-1,0] \\
+    @ MOSFET                          & 5     & 2 & [-2,0] * [-1,0] \\
+    @ \SThiderow                      & @     & @ & sum(d8:d9)     \\
+    % Speisungen
+    @ ACDC 230V to 36V supply module  & 27.41 & 1 & [-2,0] * [-1,0] \\
+    @ Power entry connector           & 15.96 & 1 & [-2,0] * [-1,0] \\
+    @ LT3973 (36V to 5V buck)         & 5.88  & 1 & [-2,0] * [-1,0] \\
+    @ \SThiderow                      & @     & @ & sum(d11:d13)    \\
+    % Misc
+    @ Housing                         & 26.92 & 1 & [-2,0] * [-1,0] \\
+    @ Misc. components                & 75    & 1 & [-2,0] * [-1,0] \\
+    @ Printed Circuit Board           & 40    & 1 & [-2,0] * [-1,0] \\
+    @ \SThiderow                      & @     & @ & sum(d15:d17)    \\
+    \\
     \midrule
-    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e2:e10)     \\
-    \midrule
-    @ Jackaltac                & @ Printed Circuit Board           & 40    & 1 & [-2,0] * [-1,0] \\
-    @ TBD                      & @ Housing                         & 40    & 1 & [-2,0] * [-1,0] \\
-    \midrule
-    @ \textbf{Subtotal}        & @                                 & @     & @ & sum(e11:e13)    \\
+    @ \textbf{Total}                  & @     & @ & d7+d10+14+d18   \\
     \bottomrule
 \end{spreadtab}
 \end{center}
