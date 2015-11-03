@@ -54,13 +54,6 @@ AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
-[Document7]
-DocumentPath=Buttons.SCHDOC
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotateSuffix=
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
 [Generic_SmartPDF]
 AutoOpenFile=-1
 AutoOpenOutJob=-1
