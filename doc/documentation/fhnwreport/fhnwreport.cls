@@ -21,7 +21,7 @@
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{fhnwreport}[2013/10/07 v2.0 PDF-LaTeX class for FHNW reports]
+\ProvidesClass{fhnwreport/fhnwreport}[2013/10/07 v2.0 PDF-LaTeX class for FHNW reports]
 \LoadClass{article}
 \RequirePackage{geometry}
 \RequirePackage{calc}
