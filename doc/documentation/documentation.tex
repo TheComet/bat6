@@ -1,0 +1,78 @@
+\documentclass{fhnwreport/fhnwreport}
+
+\input{preamble/packages.tex}
+\input{preamble/hyperref.tex}
+\input{preamble/title.tex}
+%\input{preamble/colfigure.tex}
+%\input{preamble/enumerate.tex}
+\input{preamble/code.tex}
+\input{preamble/siunitx.tex}
+
+
+\begin{document}
+
+\input{titlepage/titlepage.tex}
+
+% **************************************************************************** %
+\clearpage
+\section*{Abstract}
+\label{sec:abstract}
+% **************************************************************************** %
+\input{sections/abstract.tex}
+
+
+% **************************************************************************** %
+\clearpage
+\pagestyle{empty}
+{
+    \renewcommand{\thispagestyle}[1]{}
+    \tableofcontents
+    \vspace{30mm}
+    \subsection*{Versionsgeschichte}
+    \begin{itemize}
+        \item[]
+            %\emph{20.10.2015:} \texttt{Version 1}
+            \emph{\today} \texttt{Version 1}
+    \end{itemize}
+}
+
+\clearpage
+\setcounter{page}{1}
+\pagestyle{headings}
+% **************************************************************************** %
+
+% **************************************************************************** %
+\clearpage
+\section{Some Stuff}
+\label{sec:somestuff}
+% **************************************************************************** %
+\input{sections/somestuff.tex}
+
+
+% **************************************************************************** %
+%\clearpage
+%\section*{Unterschrift}
+%\label{sec:signature}
+% **************************************************************************** %
+%\input{sections/signature.tex}
+
+
+% **************************************************************************** %
+%\clearpage
+%\begin{appendices}
+%    %\appendixpage
+%    %\addappheadtotoc
+%    %\appendix
+%    %\section{Anhang}
+%    \label{sec:appendix}
+%    % ************************************************************************ %
+%    \input{sections/appendix.tex}
+%\end{appendices}
+
+% **************************************************************************** %
+%\clearpage
+%\phantomsection
+%\addcontentsline{toc}{section}{\bibname}
+%\bibliography{bibliography/bibliography}{\bibliographystyle{bibliography/deIEEEtran.bst}}
+% **************************************************************************** %
+\end{document}
