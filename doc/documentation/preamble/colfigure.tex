@@ -1,0 +1,12 @@
+\newcommand{\colfigure}[3]{%
+    \begin{minipage}[c][][b]{0.485\textwidth}
+        #1
+    \end{minipage}
+    \hspace{0.03\textwidth}
+    \begin{minipage}[c][][b]{0.485\textwidth}
+        {\raggedleft%
+            \includegraphics[width=0.9\textwidth]{#2}%
+        }
+        \captionof{figure}{#3}
+    \end{minipage}\\%
+}
