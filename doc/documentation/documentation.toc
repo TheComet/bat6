@@ -1,9 +1,0 @@
-\select@language {ngerman}
-\contentsline {section}{\numberline {1}Some Stuff}{1}{section.1}
-\contentsline {section}{\numberline {2}Aufgabenstellung}{3}{section.2}
-\contentsline {section}{\numberline {3}Grundkonzept}{4}{section.3}
-\contentsline {section}{\numberline {4}Komponenten}{5}{section.4}
-\contentsline {section}{\numberline {5}PCB}{6}{section.5}
-\contentsline {section}{\numberline {6}Software}{7}{section.6}
-\contentsline {section}{\numberline {7}Verifikation}{8}{section.7}
-\contentsline {section}{\numberline {8}Fazit}{9}{section.8}
