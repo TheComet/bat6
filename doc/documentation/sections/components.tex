@@ -10,8 +10,8 @@ Die  maximale Ausgangsleistung wurde grob berechnet  mit  $\SI{24}{\volt}  \cdot
 
 Da das Aufbauen eines eigenen Netzteils zu aufw\"andig und teuer gewesen w\"are,
 entschieden wir uns f\"ur  ein  externes  Netzger\"at dass im Geh\"ause montiert
-werden kann. Das verwendete Netzteil  liefert  \SI{36}{\volt} und \SI{75}{\watt}
-und ist in der Abbildung  \ref{fig:circuit:mains-input}  als \emph{N2} zu sehen.
+werden  kann.  Das verwendete Netzteil liefert \SI{36}{\volt} und \SI{75}{\watt}
+und  ist  in  der Abbildung \ref{fig:circuit:mains-input} als  $N_2$  zu  sehen.
 
 \begin{figure}[th!]
     \center
@@ -20,10 +20,10 @@ und ist in der Abbildung  \ref{fig:circuit:mains-input}  als \emph{N2} zu sehen.
     \label{fig:circuit:mains-input}
 \end{figure}
 
-Weiter  wird eine Netzeingangs-Steckverbinder mit  integriertem  Netzfilter  und
-Sicherung  verwendet,  was  in  der Abbildung \ref{fig:circuit:mains-input}  als
-\emph{X1}  zu  sehen ist. Ein  auf  der  R\"uckseit  des  Geh\"auses  montierter
-Schalter  \emph{X7}  erlaubt  das  Ein-  und   Ausschalten   des   Endproduktes.
+Weiter  wird  eine  Netzeingangs-Steckverbinder  mit integriertem Netzfilter und
+Sicherung  verwendet,  was  in der Abbildung  \ref{fig:circuit:mains-input}  als
+$X_1$  zu  sehen  ist. Ein auf der R\"uckseit des Geh\"auses montierter Schalter
+$X_7$ erlaubt das Ein- und Ausschalten des Endproduktes.
 
 % **************************************************************************** %
 \subsection{Spannungsversorgungen}
@@ -41,18 +41,16 @@ F\"ur die digitale  Logik  werden  die  zwei  Spannungspegel  \SI{5}{\volt}  und
 
 Die  \SI{36}{\volt} vom Netzteil werden mittels eines getakteten  DC-DC-Wandlers
 auf \SI{5}{\volt} transformiert,  was  in  der Abbildung \ref{fig:circuit:rails}
-vom Bautil \emph{N3} verwirklicht wird.
+vom Bauteil $N_3$ verwirklicht wird.
 
-Die \SI{3.3}{\volt} werden im Gegensatz von einem Linearregler \emph{N4} erzeugt
-damit die  \SI{3.3}{\volt}  Speisung  m\"oglichst  St\"orfrei  ist. Somit sollte
-verhindert  werden, dass die DACs und ADCs verrauscht sind bzw. ungenau  messen.
+Die  \SI{5}{\volt}  werden  von  einem  Linearregler $N_4$  auf  \SI{3.3}{\volt}
+gestuft.  Ein  Linearregler  wurde  gew\"ahlt damit die \SI{3.3}{\volt} Speisung
+m\"oglichst St\"orfrei bleibt.  Somit  wird  verhindert,  dass die DACs und ADCs
+verrauscht sind und oder ungenau messen.
 
 % **************************************************************************** %
 \subsection{LT3741}
 % **************************************************************************** %
-
-Der  Spannungswandler  f\"ur  die  Ausgangsspannung  ist  das Herzst\"uck dieser
-Schaltung.
 
 Die  Ausgangsspannung   muss   mindestens   im  Bereich  von  \SI{0}{\volt}  bis
 \SI{24}{\volt}  liegen  und   einen  Rippel  kleiner  als  \SI{300}{\milli\volt}
@@ -68,8 +66,8 @@ Diese Eigenschaft weist  ein  sogenannter  \emph{Synchronwandler}  vor und wurde
 zusammen mit den Spannungs-,  Strom-,  und Leistungsanforderungen als prim\"ares
 Merkmal f\"ur die Produktsuche eines Wandlers verwendet.
 
-Der   \emph{LT3741}    erf\"ullt    alle   Anforderungen.   In   der   Abbildung
-\ref{fig:circuit:buck} ist der Aufbau zu sehen.
+Der LT3741 erf\"ullt alle Anforderungen. In der Abbildung \ref{fig:circuit:buck}
+ist der Aufbau zu sehen.
 
 \begin{figure}[th!]
     \center
@@ -78,21 +76,66 @@ Der   \emph{LT3741}    erf\"ullt    alle   Anforderungen.   In   der   Abbildung
     \label{fig:circuit:buck}
 \end{figure}
 
-Der  \emph{LT3741}  wird  mit  \SI{36}{\volt}  gespiesen  (oben  rechts  in  der
-Abbildung \ref{fig:circuit:buck}). Da diese Schaltung  viel  St\"orung  auf  der
-\SI{36}{\volt}     Speisung    verursachen    w\"urde,    werden    verschiedene
-Keramikkondensatoren  und Ferritkerne verwendet, um  die  hochfrequente  Signale
-m\"oglichst zu eliminieren und somit die  anderen  Speisungen davon zu bewahren.
+Der  LT3741  wird mit \SI{36}{\volt} gespiesen (oben  rechts  in  der  Abbildung
+\ref{fig:circuit:buck}).   Da   diese   Schaltung   viel   St\"orung   auf   der
+\SI{36}{\volt}    Speisung     verursachen    w\"urde,    werden    verschiedene
+Keramikkondensatoren  und  Ferritkerne  verwendet,  um die hochfrequente Signale
+m\"oglichst von der Speisung zu eliminieren und somit die anderen Speisungen von
+ungewollten St\"orungen zu bewahren.
 
-Die Bauteile \emph{V1}  und  \emph{C6}  bilden zusammen mit dem MOSFET \emph{V2}
-ein High-Side-Switch.
+Die  Bauteile  $V_1$  und  $C_6$  bilden  zusammen  mit  dem  MOSFET  $V_2$  ein
+High-Side-Schalter. Im Gegensatz zu einem nicht-synchronen Schaltregler befindet
+sich  an  der Stelle wo normalerweise eine Freilaufdiode sein sollte ein zweiter
+MOSFET $V_3$. Dieser erm\"oglicht  eine  Spannungsregelung in der gegengesetzten
+Richtung -- sprich, sie erm\"oglicht eine Leistungsaufnahme, was, wie oben schon
+erw\"ant wurde, kritisch ist.
 
-\begin{figure}[H]
+Der   LT3741  ist  sowohl  Spannungsgesteuert  wie  auch   Stromgesteuert.   Der
+Spannungsteiler  $R_{11}//R_2$  erlaubt das Messen der Ausgangsspannung und  ein
+Shunt-Widerstand  $R_4$  erm\"oglicht die genaue \"Uberwachung des Stromes durch
+die Spule $L_1$.
+
+Strom\"uberwachung   ist   sehr   wichtig  bei  einer  solchen  Aufgabe  wo  die
+Ausgangsspannung  sich  konstant \"andert.  Sie  erlaubt  genauer  vorhersebares
+Verhalten der Spannungs\"anderung am Ausgang -- \"Uberschiessen der Spannung und
+extreme Stromspitzen in der Spule k\"onnen vermieden werden.
+
+Weiter  kann   ein   Stromgesteuerter   Regler   auch   als  Konstantstromquelle
+funktionieren.
+
+Die   Widerst\"ande   $R_2$   und    $R_{11}$    wurden    nach    der    Formel
+\ref{eq:circuit:buck:feedback_resistors}      dimensioniert      damit       die
+Ausgangsspannung maximal \SI{23}{\volt} betr\"agt.
+
+\begin{equation}
+    U_{out} = \SI{1.21}{\volt} \left( 1 + \frac{R_{11}}{R_2} \right)
+    \label{eq:circuit:buck:feedback_resistors}
+\end{equation}
+
+Die Ausgangsspannung  kann  danach  durch Anheben des unteren Spannungspegels an
+$R_2$   mit   einer    Analogen    Spannung   $BUCK\_USET$   nach   der   Formel
+\ref{eq:circuit:buck:uset} ver\"andert werden.
+
+\begin{equation}
+    U_{out} = (\SI{1.21}{\volt} - BUCK\_USET) \cdot \frac{R_{11} + R_2}{R_2}
+    \label{eq:circuit:buck:uset}
+\end{equation}
+
+Die   Schaltung   daf\"ur   ist  in  der  Abbildung  \ref{fig:circuit:buck:uset}
+ersichtlich.
+
+\begin{figure}[th!]
     \center
     \includegraphics[width=.35\textwidth]{images/circuit/buck-uset.pdf}
-    \caption{Einstellung der Ausgangsspannung durch \"Anderung der Bezugsspannung im Feedback-Loop mittels einer analogen Steuerspannung von 0V bis 1.5V}
+    \caption{Einstellung der Ausgangsspannung durch \"Anderung der Bezugsspannung im Feedback-Loop mittels einer analogen Steuerspannung von 0V bis 1.21V}
     \label{fig:circuit:buck:uset}
 \end{figure}
+
+Ein Grund warum der LT3741 gew\"ahlt wurde ist wegen seiner CTRL1 Eingang. Durch
+anlegen einer analogen Spannung  zwischen \SI{0}{\volt} und \SI{1.5}{\volt} kann
+direkt der maximale \emph{Durchschnittsstrom}  durch  die  Spule $L_1$ und somit
+der   maximale   Ausgangsstrom   eingestellt    werden.    In    der   Abbildung
+\ref{fig:circuit:buck:iset}
 
 \begin{figure}[H]
     \center
