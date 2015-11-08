@@ -8,10 +8,11 @@ Grund ausgew\"ahlt worden sind.
 Die  maximale Ausgangsleistung wurde grob berechnet  mit  $\SI{24}{\volt}  \cdot
 \SI{3}{\ampere} = \SI{72}{\watt}$.
 
-Da das Aufbauen eines eigenen Netzteils zu aufw\"andig und teuer gewesen w\"are,
-entschieden wir uns f\"ur  ein  externes  Netzger\"at dass im Geh\"ause montiert
-werden  kann.  Das verwendete Netzteil liefert \SI{36}{\volt} und \SI{75}{\watt}
-und  ist  in  der Abbildung \ref{fig:circuit:mains-input} als  $N_2$  zu  sehen.
+Da  das  Aufbauen  eines  eigenen  Netzteils  f\"ur  diese  Ausgangsleistung  zu
+aufw\"andig und teuer gewesen w\"are, entschieden  wir  uns  f\"ur  ein externes
+Netzger\"at dass im Geh\"ause  montiert  werden  kann.  Das  verwendete Netzteil
+liefert  \SI{36}{\volt}   und   \SI{75}{\watt}   und   ist   in   der  Abbildung
+\ref{fig:circuit:mains-input} als $N_2$ zu sehen.
 
 \begin{figure}[th!]
     \center
@@ -46,7 +47,7 @@ vom Bauteil $N_3$ verwirklicht wird.
 Die  \SI{5}{\volt}  werden  von  einem  Linearregler $N_4$  auf  \SI{3.3}{\volt}
 gestuft.  Ein  Linearregler  wurde  gew\"ahlt damit die \SI{3.3}{\volt} Speisung
 m\"oglichst St\"orfrei bleibt.  Somit  wird  verhindert,  dass die DACs und ADCs
-verrauscht sind und oder ungenau messen.
+verrauscht sind und ungenau messen.
 
 % **************************************************************************** %
 \subsection{LT3741}
@@ -93,15 +94,18 @@ erw\"ant wurde, kritisch ist.
 Der   LT3741  ist  sowohl  Spannungsgesteuert  wie  auch   Stromgesteuert.   Der
 Spannungsteiler  $R_{11}//R_2$  erlaubt das Messen der Ausgangsspannung und  ein
 Shunt-Widerstand  $R_4$  erm\"oglicht die genaue \"Uberwachung des Stromes durch
-die Spule $L_1$.
+die Spule $L_1$. Der Widerstand $R_4$ wurde  so  gew\"ahlt  damit  der  maximale
+Ausgangsstrom \SI{5}{\ampere} betragen kann.
 
-Strom\"uberwachung   ist   sehr   wichtig  bei  einer  solchen  Aufgabe  wo  die
-Ausgangsspannung  sich  konstant \"andert.  Sie  erlaubt  genauer  vorhersebares
-Verhalten der Spannungs\"anderung am Ausgang -- \"Uberschiessen der Spannung und
-extreme Stromspitzen in der Spule k\"onnen vermieden werden.
+Strom\"uberwachung   ist  sehr  wichtig  bei  einer  solchen  Aufgabe   wo   die
+Ausgangsspannung  sich  konstant  \"andert.  Sie erlaubt  genauer  vorhersebares
+Verhalten der Spannungs\"anderung am Ausgang -- \"Uberschiessen der Sollspannung
+und   extreme   Stromspitzen   in   der   Spule   k\"onnen   vermieden   werden.
 
-Weiter  kann   ein   Stromgesteuerter   Regler   auch   als  Konstantstromquelle
-funktionieren.
+Weiter   kann   ein   Stromgesteuerter   Regler  auch  als   Konstantstromquelle
+funktionieren. Diese Eigenschaft  ist  vorallem  dann  von  Bedeutung  wenn  der
+Arbeitspunkt  sich  im  ``steilen''  bereich  der   UI-Kennlinie  des  PV-Moduls
+befindet.
 
 Die   Widerst\"ande   $R_2$   und    $R_{11}$    wurden    nach    der    Formel
 \ref{eq:circuit:buck:feedback_resistors}      dimensioniert      damit       die
@@ -112,17 +116,17 @@ Ausgangsspannung maximal \SI{23}{\volt} betr\"agt.
     \label{eq:circuit:buck:feedback_resistors}
 \end{equation}
 
-Die Ausgangsspannung  kann  danach  durch Anheben des unteren Spannungspegels an
-$R_2$   mit   einer    Analogen    Spannung   $BUCK\_USET$   nach   der   Formel
-\ref{eq:circuit:buck:uset} ver\"andert werden.
+Die Ausgangsspannung kann  danach  durch Anheben der Bezugsspannung $BUCK\_USET$
+nach der  Formel \ref{eq:circuit:buck:uset} ver\"andert werden. 
 
 \begin{equation}
     U_{out} = (\SI{1.21}{\volt} - BUCK\_USET) \cdot \frac{R_{11} + R_2}{R_2}
     \label{eq:circuit:buck:uset}
 \end{equation}
 
-Die   Schaltung   daf\"ur   ist  in  der  Abbildung  \ref{fig:circuit:buck:uset}
-ersichtlich.
+Wobei $BUCK\_USET$ die analoge Spannung vom DAC ist.
+
+In der Abbildung \ref{fig:circuit:buck:uset}  ist  die dazugeh\"orige Schaltung.
 
 \begin{figure}[th!]
     \center
@@ -131,11 +135,11 @@ ersichtlich.
     \label{fig:circuit:buck:uset}
 \end{figure}
 
-Ein Grund warum der LT3741 gew\"ahlt wurde ist wegen seiner CTRL1 Eingang. Durch
-anlegen einer analogen Spannung  zwischen \SI{0}{\volt} und \SI{1.5}{\volt} kann
-direkt der maximale \emph{Durchschnittsstrom}  durch  die  Spule $L_1$ und somit
-der   maximale   Ausgangsstrom   eingestellt    werden.    In    der   Abbildung
-\ref{fig:circuit:buck:iset}
+Durch anlegen einer analogen Spannung zwischen \SI{0}{\volt} und \SI{1.5}{\volt}
+am Eingang  CTRL1  kann  direkt der maximale \emph{Durchschnittsstrom} durch die
+Spule $L_1$ und  somit der maximale Ausgangsstrom eingestellt werden. Somit kann
+bei  hoher Last der Wandler  auch  als  Konstantstromquelle  funktionieren.  Die
+Abbildung  \ref{fig:circuit:buck:iset}  zeigt  die   dazugeh\"orige   Schaltung.
 
 \begin{figure}[H]
     \center
@@ -143,6 +147,18 @@ der   maximale   Ausgangsstrom   eingestellt    werden.    In    der   Abbildung
     \caption{Einstellung des Maximalstroms mittels einer analogen Steuerspannung von 0V bis 1.5V}
     \label{fig:circuit:buck:iset}
 \end{figure}
+
+Dabei   kann  der  durchschnittliche  Ausgangsstrom   $I_o$   mit   der   Formel
+\ref{eq:circuit:buck:output_current} berechnet werden
+
+\begin{equation}
+    I_o = \frac{U_{CTRL1}}{30 \cdot R_4}
+    \label{eq:circuit:buck:output_current}
+\end{equation}
+
+wobei  $U_{CTRL1}$  die  analoge  Steuerspannung  vom  DAC  ist  und  $R_4$  der
+Shunt-Widerstand ist, welcher  in  der Abbildung \ref{fig:circuit:buck} zu sehen
+ist.
 
 \begin{figure}[H]
     \center
