@@ -67,8 +67,8 @@ Diese Eigenschaft weist  ein  sogenannter  \emph{Synchronwandler}  vor und wurde
 zusammen mit den Spannungs-,  Strom-,  und Leistungsanforderungen als prim\"ares
 Merkmal f\"ur die Produktsuche eines Wandlers verwendet.
 
-Der LT3741 erf\"ullt alle Anforderungen. In der Abbildung \ref{fig:circuit:buck}
-ist der Aufbau zu sehen.
+Der LT3741 ist einer der Bauteile,  die  alle  Anforderungen  erf\"ullt.  In der
+Abbildung \ref{fig:circuit:buck} ist der Aufbau zu sehen.
 
 \begin{figure}[th!]
     \center
@@ -77,12 +77,68 @@ ist der Aufbau zu sehen.
     \label{fig:circuit:buck}
 \end{figure}
 
+% **************************************************************************** %
+\subsubsection*{St\"utzkondensatoren}
+% **************************************************************************** %
+
 Der  LT3741  wird mit \SI{36}{\volt} gespiesen (oben  rechts  in  der  Abbildung
 \ref{fig:circuit:buck}).   Da   diese   Schaltung   viel   St\"orung   auf   der
 \SI{36}{\volt}    Speisung     verursachen    w\"urde,    werden    verschiedene
 Keramikkondensatoren  und  Ferritkerne  verwendet,  um die hochfrequente Signale
 m\"oglichst von der Speisung zu eliminieren und somit die anderen Speisungen von
 ungewollten St\"orungen zu bewahren.
+
+% **************************************************************************** %
+\subsubsection*{Schaltfrequenz}
+% **************************************************************************** %
+
+Eine h\"ohere Schaltfrequenz $f_s$ bedeutet eine niedrigere Rippelspannung, aber
+eine h\"ohere Verlustleistung. $f_s$ wurde so hoch wie m\"oglich  dimensioniert,
+was sich als $\approx \SI{800}{\kilo\hertz}$ herausstellte.
+
+% **************************************************************************** %
+\subsubsection*{Auswahl Spule}
+% **************************************************************************** %
+
+Die Spule $L_1$, ersichtlich in der Abbildung \ref{fig:circuit:buck}, wurde  mit
+der Formel \ref{eq:circuit:buck:inductor} berechnet,
+
+\begin{equation}
+    L_1 = \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{0.3 \cdot f_s \cdot I_o \cdot U_{in}} \right)
+    \label{eq:circuit:buck:inductor}
+\end{equation}
+
+wobei  $U_{in}$  die  Eingangsspannung von  \SI{36}{\volt}  ist,  $U_{out}$  die
+Ausgangsspannung   bei  gr\"osster  Leistung  ist  (\SI{18}{\volt}),  $f_s$  die
+Schaltfrequenz ist und $I_o$ der maximale Ausgangsstrom von \SI{5}{\ampere} ist.
+
+Mit den  eingesetzten  Werten erh\"alt man $L_{1_{min}} = \SI{6}{\micro\henry}$.
+Es   wurde    nach    passende   Spulen   gesucht,   welche   in   der   Tabelle
+\ref{tab:circuit:buck:inductor} eingetragen sind.
+
+\begin{table}[th!]
+    \begin{center}
+        \caption{}
+        \label{tab:circuit:buck:inductor}
+        \begin{tabular}{lcccc}
+            \toprule
+            Digikey         & Price (CHF) & Inductance (\SI{}{\micro\henry}) & DCR (\SI{}{\ohm}) & Ohmic Loss (\SI{}{\watt}) \\
+            \midrule
+            \rowcolor{lightgray}
+            732-4237-1-ND   & 8.03        & 22                               & 0.007             & 0.175  \\
+            732-2179-1-ND   & 6.4         & 47                               & 0.0335            & 0.8375 \\
+            732-2177-1-ND   & 6.4         & 22                               & 0.0146            & 0.365  \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{table}
+
+Unter den Kandidaten ist ganz klar wegen des niedrigen DCRs die Erste,  mit Grau
+hervorgehobene Spule die optimalste.
+
+% **************************************************************************** %
+\subsubsection*{Auswahl MOSFETs}
+% **************************************************************************** %
 
 Die  Bauteile  $V_1$  und  $C_6$  bilden  zusammen  mit  dem  MOSFET  $V_2$  ein
 High-Side-Schalter. Im Gegensatz zu einem nicht-synchronen Schaltregler befindet
@@ -91,11 +147,37 @@ MOSFET $V_3$. Dieser erm\"oglicht  eine  Spannungsregelung in der gegengesetzten
 Richtung -- sprich, sie erm\"oglicht eine Leistungsaufnahme, was, wie oben schon
 erw\"ant wurde, kritisch ist.
 
-Der   LT3741  ist  sowohl  Spannungsgesteuert  wie  auch   Stromgesteuert.   Der
-Spannungsteiler  $R_{11}//R_2$  erlaubt das Messen der Ausgangsspannung und  ein
-Shunt-Widerstand  $R_4$  erm\"oglicht die genaue \"Uberwachung des Stromes durch
-die Spule $L_1$. Der Widerstand $R_4$ wurde  so  gew\"ahlt  damit  der  maximale
-Ausgangsstrom \SI{5}{\ampere} betragen kann.
+\begin{table}[th!]
+    \begin{center}
+        \caption{}
+        \label{tab:circuit:buck:mosfet}
+        \begin{tabular}{lcccccccccccc}
+            \toprule
+            Digikey                 & Price (CHF) & $R_{DS_{(on)}}$ & $Q_{GD}$ & $Q_{GS}$ & $Q_G$ & $R_G$ & $V_{GS_{THR}}$ & $\rho_T$ @ \SI{70}{\degree\celsius} & Ohmic Loss & Transision Loss & Total Loss & Drive Loss \\
+            \midrule
+            917-EPC2029ENGRCT-ND    & 10.28       & 0.0032          & 4        & 2.5      & 13    & 0.4   & 2.5            & 1.3                                 & 0.104      & 1.0296          & 1.1336     & 0.806 \\
+            BSC039N06NSCT-ND        & 1.53        & 0.0039          & 7        & 9        & 32    & 2.4   & 3.3            & 1.3                                 & 0.12675    & 4.8384          & 4.96515    & 1.984 \\
+            BSZ042N06NSCT-ND        & 1.58        & 0.0042          & 7        & 9        & 32    & 2.4   & 3.3            & 1.3                                 & 0.1365     & 4.8384          & 4.9749     & 1.984 \\
+            NTMFS5C670NLT1GOSTR-ND  & 1.09        & 0.008           & 2        & 4.5      & 9     & 3     & 2              & 1.3                                 & 0.26       & 2.2464          & 2.5064     & 0.558 \\
+            497-10575-1-ND          & 2.07        & 0.0067          & 5.3      & 3.9      & 12.9  & 1.5   & 1              & 1.3                                 & 0.21775    & 2.18592         & 2.40367    & 0.7998 \\
+            BSC093N04LS GCT-ND      & 0.62        & 0.0093          & 2        & 4.9      & 24    & 1     & 2              & 1.3                                 & 0.30225    & 1.39104         & 1.69329    & 1.488 \\
+            NTD5865NLT4GOSCT-ND     & 0.65        & 0.019           & 8        & 4        & 29    & 1.3   & 2              & 1.3                                 & 0.6175     & 2.6784          & 3.2959     & 1.798 \\
+            Si7884DP                & ?           & 0.0095          & 7.5      & 6        & 28    & 1     & 3              & 1.3                                 & 0.30875    & 2.7216          & 3.03035    & 1.736 \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{table}
+
+
+% **************************************************************************** %
+\subsubsection*{Spannungs- und Strommessung}
+% **************************************************************************** %
+
+Der  LT3741  ist   sowohl   Spannungsgesteuert   wie  auch  Stromgesteuert.  Der
+Spannungsteiler $R_{11} \parallel  R_2$  erlaubt das Messen der Ausgangsspannung
+und ein Shunt-Widerstand $R_4$ erm\"oglicht die genaue \"Uberwachung des Stromes
+durch  die  Spule  $L_1$. Der Widerstand $R_4$  wurde  so  gew\"ahlt  damit  der
+maximale Ausgangsstrom maximal \SI{5}{\ampere} betragen kann.
 
 Strom\"uberwachung   ist  sehr  wichtig  bei  einer  solchen  Aufgabe   wo   die
 Ausgangsspannung  sich  konstant  \"andert.  Sie erlaubt  genauer  vorhersebares
@@ -124,7 +206,7 @@ nach der  Formel \ref{eq:circuit:buck:uset} ver\"andert werden.
     \label{eq:circuit:buck:uset}
 \end{equation}
 
-Wobei $BUCK\_USET$ die analoge Spannung vom DAC ist.
+Wobei $BUCK\_USET$ die analoge Spannung vom ersten DAC ist.
 
 In der Abbildung \ref{fig:circuit:buck:uset}  ist  die dazugeh\"orige Schaltung.
 
@@ -135,67 +217,115 @@ In der Abbildung \ref{fig:circuit:buck:uset}  ist  die dazugeh\"orige Schaltung.
     \label{fig:circuit:buck:uset}
 \end{figure}
 
-Durch anlegen einer analogen Spannung zwischen \SI{0}{\volt} und \SI{1.5}{\volt}
-am Eingang  CTRL1  kann  direkt der maximale \emph{Durchschnittsstrom} durch die
-Spule $L_1$ und  somit der maximale Ausgangsstrom eingestellt werden. Somit kann
-bei  hoher Last der Wandler  auch  als  Konstantstromquelle  funktionieren.  Die
-Abbildung  \ref{fig:circuit:buck:iset}  zeigt  die   dazugeh\"orige   Schaltung.
+Analog zur Ausgangsspannung kann durch anlegen einer analogen Spannung  zwischen
+\SI{0}{\volt}  und  \SI{1.5}{\volt}  am  Eingang   CTRL1   direkt  der  maximale
+\emph{Durchschnittsstrom}   durch   die  Spule  $L_1$  und  somit  der  maximale
+Ausgangsstrom eingestellt werden.
 
-\begin{figure}[H]
+\begin{figure}[th!]
     \center
     \includegraphics[width=.4\textwidth]{images/circuit/buck-iset.pdf}
     \caption{Einstellung des Maximalstroms mittels einer analogen Steuerspannung von 0V bis 1.5V}
     \label{fig:circuit:buck:iset}
 \end{figure}
 
-Dabei   kann  der  durchschnittliche  Ausgangsstrom   $I_o$   mit   der   Formel
-\ref{eq:circuit:buck:output_current} berechnet werden
+Die Abbildung \ref{fig:circuit:buck:iset} zeigt  die  dazugeh\"orige  Schaltung.
+Der   maximale  durchschnittliche  Ausgangsstrom  $I_o$  wird  mit  der   Formel
+\ref{eq:circuit:buck:output_current} berechnet
 
 \begin{equation}
     I_o = \frac{U_{CTRL1}}{30 \cdot R_4}
     \label{eq:circuit:buck:output_current}
 \end{equation}
 
-wobei  $U_{CTRL1}$  die  analoge  Steuerspannung  vom  DAC  ist  und  $R_4$  der
-Shunt-Widerstand ist, welcher  in  der Abbildung \ref{fig:circuit:buck} zu sehen
-ist.
+wobei $U_{CTRL1}$ die  analoge  Steuerspannung vom zweiten DAC ist und $R_4$ der
+\SI{10}{\milli\ohm}    Shunt-Widerstand    ist,   welcher   in   der   Abbildung
+\ref{fig:circuit:buck} zu sehen ist.
 
-\begin{figure}[H]
+Damit der Mikrocontroller angemessene Steuerspannungen  generieren kann, braucht
+er die Ausgangsspannung und den Ausgangsstrom zu messen.
+
+Die   Ausgangsspannung   wird   mittels   der   Schaltung   in   der   Abbildung
+\ref{fig:circuit:buck:umeas} gemessen. Die Widerst\"ande $R_{12}$  und  $R_{15}$
+wurden  so  dimensioniert  damit  die  Spannung  $BUCK\_UMEAS$  in  den  Bereich
+\SI{0}{\volt} bis \SI{1.5}{\volt} skaliert ist.
+
+\begin{figure}[th!]
     \center
     \includegraphics[width=.45\textwidth]{images/circuit/buck-umeas.pdf}
     \caption{Messen der Ausgangsspannung}
     \label{fig:circuit:buck:umeas}
 \end{figure}
 
-\begin{figure}[H]
+Der  Ausgangsstrom  wird  mittels  einem  Shunt-Widerstand  $R_5$  differentiell
+gemessen.  Die  Schaltung dazu  ist  in  Abbildung  \ref{fig:circuit:buck:imeas}
+dargestellt.
+
+\begin{figure}[th!]
     \center
     \includegraphics[width=.85\textwidth]{images/circuit/buck-imeas.pdf}
     \caption{Messen des Ausgangsstromes}
     \label{fig:circuit:buck:imeas}
 \end{figure}
 
-\begin{figure}[H]
+Der  Mikrocontroller verf\"ugt \"uber einer differentiellen ADC mit  eingebauter
+Vorverst\"arkung.
+
+% **************************************************************************** %
+\subsubsection*{Ausgang}
+% **************************************************************************** %
+
+Die Ausgangsspannung wird \"uber zwei  Bananenstecker  $X_{6A}$ und $X_{6B}$ ans
+\"Aussere    des    Geh\"auses     gef\"uhrt.     Die    Ausgangsspannung    ist
+verpolungsgesch\"utzt mit der Diode $V_4$.
+
+\begin{figure}[th!]
     \center
     \includegraphics[width=.35\textwidth]{images/circuit/output-connectors.pdf}
     \caption{Verpolungsschutz am Ausgang}
     \label{fig:circuit:output}
 \end{figure}
 
-\begin{figure}[H]
-    \center
-    \includegraphics[width=.6\textwidth]{images/circuit/uvlo.pdf}
-    \caption{Under-Voltage Lock-Out (UVLO) erm\"oglicht ein kontrolliertes Ein- und Ausschalten des Reglers}
-    \label{fig:circuit:uvlo}
-\end{figure}
+Damit die ADCs und DACs  m\"oglichst  genau messen und m\"oglichst in Full-Range
+betrieben    werden   k\"onnen,   wird   eine   externe   Referenzspannung   von
+\SI{1.5}{\volt}    verwendet     (siehe    Abbildung    \ref{fig:circuit:vref}).
 
-\begin{figure}[H]
+\begin{figure}[th!]
     \center
     \includegraphics[width=.4\textwidth]{images/circuit/vref.pdf}
     \caption{1.5V Referenzspannung um die ADCs m\"oglichst in Full-Range betreiben zu k\"onnen}
     \label{fig:circuit:vref}
 \end{figure}
 
-\begin{figure}[H]
+% **************************************************************************** %
+\subsubsection*{Enable und UVLO}
+% **************************************************************************** %
+
+Der \emph{Enable}-Eingang des LT3741 wird einerseits vom Mikrocontroller mit dem
+$BUCK\_EN$ Signal ein- und ausgeschalten, anderseits wird er Enable-Eingang auch
+mit vorrang in  Hardware  ausgeschalten, falls die \SI{36}{\volt} Spannung unter
+$\approx  \SI{25}{\volt}$  sinken  w\"urde. Dies erlaubt ein kontrolliertes  und
+vorhersehbares Verhalten des LT3741 w\"ahrend Ein-  und Ausschaltvorg\"angen des
+Endproduktes.  Die  Schaltung  dazu  ist in der Abbildung \ref{fig:circuit:uvlo}
+ersichtlich.
+
+\begin{figure}[th!]
+    \center
+    \includegraphics[width=.6\textwidth]{images/circuit/uvlo.pdf}
+    \caption{Under-Voltage Lock-Out (UVLO) erm\"oglicht ein kontrolliertes Ein- und Ausschalten des Reglers}
+    \label{fig:circuit:uvlo}
+\end{figure}
+
+Im Falle einer Unterspannung  wechselt  $N_6$  in den sperrenden Zustand \"uber,
+der  Transistor $V_6$ beginnt zu leiten, und der  Enable-Eingang  wird  auf  Low
+gezogen.  Die  Spannung  an  $BUCK\_UVLO$  triggert  beim  Mikrocontroller   ein
+Interrupt.
+
+% **************************************************************************** %
+\subsection{Druck-Drehtaster}
+% **************************************************************************** %
+
+\begin{figure}[th!]
     \center
     \includegraphics[width=.4\textwidth]{images/circuit/pushbutton.pdf}
     \caption{Drehdruckknopf}
