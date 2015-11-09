@@ -8,10 +8,10 @@ Grund ausgew\"ahlt worden sind.
 Die  maximale Ausgangsleistung wurde grob berechnet  mit  $\SI{24}{\volt}  \cdot
 \SI{3}{\ampere} = \SI{72}{\watt}$.
 
-Da  das  Aufbauen  eines  eigenen  Netzteils  f\"ur  diese  Ausgangsleistung  zu
-aufw\"andig und teuer gewesen w\"are, entschieden  wir  uns  f\"ur  ein externes
-Netzger\"at dass im Geh\"ause  montiert  werden  kann.  Das  verwendete Netzteil
-liefert  \SI{36}{\volt}   und   \SI{75}{\watt}   und   ist   in   der  Abbildung
+Da das Aufbauen eines eigenen Netzteils f\"ur die notwendige Ausgangsleistung zu
+aufw\"andig und  teuer  gewesen  w\"are,  entschieden wir uns f\"ur ein externes
+Netzger\"at  dass  im  Geh\"ause  montiert werden kann. Das verwendete  Netzteil
+liefert   \SI{36}{\volt}   und   \SI{75}{\watt}  und  ist   in   der   Abbildung
 \ref{fig:circuit:mains-input} als $N_2$ zu sehen.
 
 \begin{figure}[th!]
@@ -44,10 +44,11 @@ Die  \SI{36}{\volt} vom Netzteil werden mittels eines getakteten  DC-DC-Wandlers
 auf \SI{5}{\volt} transformiert,  was  in  der Abbildung \ref{fig:circuit:rails}
 vom Bauteil $N_3$ verwirklicht wird.
 
-Die  \SI{5}{\volt}  werden  von  einem  Linearregler $N_4$  auf  \SI{3.3}{\volt}
-gestuft.  Ein  Linearregler  wurde  gew\"ahlt damit die \SI{3.3}{\volt} Speisung
-m\"oglichst St\"orfrei bleibt.  Somit  wird  verhindert,  dass die DACs und ADCs
-verrauscht sind und ungenau messen.
+Die  \SI{5}{\volt}  werden  von  einem  Linearregler  $N_4$ auf  \SI{3.3}{\volt}
+gestuft. Ein Linearregler wurde  gew\"ahlt  damit  die  \SI{3.3}{\volt} Speisung
+m\"oglichst  St\"orfrei  bleibt  --  Getaktete  Wandler  verursachen  viel  mehr
+St\"orung. Somit  wird  verhindert,  dass  die DACs und ADCs verrauscht sind und
+ungenau messen.
 
 % **************************************************************************** %
 \subsection{LT3741}
@@ -95,7 +96,8 @@ ungewollten St\"orungen zu bewahren.
 Eine h\"ohere Schaltfrequenz $f_S$ bedeutet eine niedrigere Rippelspannung, aber
 eine h\"ohere Verlustleistung. $f_S$ wurde so hoch wie m\"oglich  dimensioniert,
 was sich als $\approx \SI{800}{\kilo\hertz}$ herausstellte. In den nachfolgenden
-Berechnungen wird aber \SI{1}{\mega\hertz} verwendet.
+Berechnungen  wird mit \SI{1}{\mega\hertz} berechnet, damit ein wenig  Spielraum
+\"ubrig bleibt.
 
 % **************************************************************************** %
 \subsubsection*{Auswahl Spule}
@@ -141,7 +143,7 @@ der Tabelle \ref{tab:circuit:buck:inductor} eingetragen sind.
 \end{table}
 
 Unter den Kandidaten ist ganz klar wegen des niedrigen DCRs die Erste,  mit Grau
-hervorgehobene Spule die optimalste.
+hervorgehobene Spule, die optimalste.
 
 % **************************************************************************** %
 \subsubsection*{Auswahl MOSFETs}
@@ -172,7 +174,7 @@ Eingangsspannung von  \SI{36}{\volt}  ist,  $U_{out}$  die  Ausgangsspannung bei
 gr\"osster  Leistung  ist   (\SI{18}{\volt}),   $f_S$   die  Schaltfrequenz  von
 \SI{1}{\mega\hertz}  ist  und  $L$  die  Spule  von  \SI{22}{\micro\henry}  ist.
 
-$U_{DS}$  wurde   h\"oher   gew\"ahlt   als   die   Eingangsspannung  $U_{in}  =
+$U_{DS}$   wurde   h\"oher  gew\"ahlt  als  die  Eingangsspannung:   $U_{DS}   >
 \SI{36}{\volt}$.
 
 Die maximale  Gate-Spannung  $U_{GS}$  betr\"agt  \SI{5}{\volt}.  Da  der LT3741
@@ -338,7 +340,7 @@ wurden  so  dimensioniert  damit  die  Spannung  $BUCK\_UMEAS$  in  den  Bereich
 \end{figure}
 
 Der  Ausgangsstrom  wird  mittels  einem  Shunt-Widerstand  $R_5$  differentiell
-gemessen.  Die  Schaltung dazu  ist  in  Abbildung  \ref{fig:circuit:buck:imeas}
+gemessen.  Die  Schaltung dazu ist in der Abbildung \ref{fig:circuit:buck:imeas}
 dargestellt.
 
 \begin{figure}[th!]
@@ -347,6 +349,21 @@ dargestellt.
     \caption{Messen des Ausgangsstromes}
     \label{fig:circuit:buck:imeas}
 \end{figure}
+
+Es ist zu beachten dass Die Widerst\"ande $R_{10}$ und $R_{14}$ einen Bias-Strom
+durch   den   Widerstand   $R_5$  verursachen.  Somit   entsteht   ein   kleiner
+Spannungs-Offset von maximal
+\begin{equation}
+    U_{offset} = \frac{ \SI{3.3}{\volt} \cdot R_5 }{ R_{14} + R_{10} + R_5 } = \SI{6.38}{\micro\volt}
+\end{equation}
+
+Der ADC hat eine 12-bit Aufl\"osung mit einer Referenzspannung von \SI{3.3}{\volt}. Es gilt:
+\begin{equation}
+    U_{step} = \frac{\SI{3.3}{\volt}}{2^{12}} = \SI{806}{\micro\volt}
+\end{equation}
+
+Es  ist  klar  zu  sehen  dass  $U_{offset}  \ll  U_{step}$,  also   hat  dieser
+Spannungsoffset einen vernachl\"assigbaren Einfluss.
 
 Der  Mikrocontroller verf\"ugt \"uber einer differentiellen ADC mit  eingebauter
 Vorverst\"arkung.
@@ -382,11 +399,11 @@ betrieben    werden   k\"onnen,   wird   eine   externe   Referenzspannung   von
 % **************************************************************************** %
 
 Der \emph{Enable}-Eingang des LT3741 wird einerseits vom Mikrocontroller mit dem
-$BUCK\_EN$ Signal ein- und ausgeschalten, anderseits wird er Enable-Eingang auch
-mit vorrang in  Hardware  ausgeschalten, falls die \SI{36}{\volt} Spannung unter
-$\approx  \SI{25}{\volt}$  sinken  w\"urde. Dies erlaubt ein kontrolliertes  und
-vorhersehbares Verhalten des LT3741 w\"ahrend Ein-  und Ausschaltvorg\"angen des
-Endproduktes.  Die  Schaltung  dazu  ist in der Abbildung \ref{fig:circuit:uvlo}
+$BUCK\_EN$  Signal ein- und ausgeschalten, anderseits  wird  der  Enable-Eingang
+auch mit vorrang in Hardware ausgeschalten, falls  die  \SI{36}{\volt}  Spannung
+unter $\approx  \SI{25}{\volt}$  sinken w\"urde. Dies erlaubt ein kontrolliertes
+und vorhersehbares Verhalten  des LT3741 w\"ahrend Ein- und Ausschaltvorg\"angen
+des Endproduktes. Die Schaltung dazu ist in der Abbildung \ref{fig:circuit:uvlo}
 ersichtlich.
 
 \begin{figure}[th!]
