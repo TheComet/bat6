@@ -1,6 +1,7 @@
 # libreoffice shit
 *.odp#
 *.ods#
+*.xlsx#
 
 # temp files
 *.swp
