@@ -1,0 +1,66 @@
+Die  Ausgangsspannung   muss   mindestens   im  Bereich  von  \SI{0}{\volt}  bis
+\SI{24}{\volt}  liegen  und   einen  Rippel  kleiner  als  \SI{300}{\milli\volt}
+besitzen.  Der  Ausgangsstrom muss mindestens im Bereich von \SI{0}{\ampere} bis
+\SI{3.5}{\ampere} liegen  und  einen  Rippel kleiner als \SI{100}{\milli\ampere}
+besitzen. Dabei  sollte  die Effizienz bei Volllast mindestens \SI{80}{\percent}
+betragen.
+
+Da  das  Endprodukt  schlussendlich  in  Serie  mit  mehreren   Spannungs-  oder
+Stromquellen  geschalten  werden  k\"onnte, muss  zus\"atzlich  darauf  geachtet
+werden,  dass  der Spannungswandler \emph{leistungsaufnahmef\"ahig}  sein  muss.
+Diese Eigenschaft weist  ein  sogenannter  \emph{Synchronwandler}  vor und wurde
+zusammen mit den Spannungs-,  Strom-,  und Leistungsanforderungen als prim\"ares
+Merkmal f\"ur die Produktsuche eines Wandlers verwendet.
+
+Der LT3741 ist einer der Bauteile,  die  alle  Anforderungen  erf\"ullt.  In der
+Abbildung \ref{fig:circuit:buck} ist der Aufbau zu sehen.
+
+\begin{figure}[th!]
+    \center
+    \includegraphics[width=.75\textwidth]{images/circuit/buck.pdf}
+    \caption{Herzst\"uck des Projektes: Aufbau des LT3741 CVCC Synchronwandler}
+    \label{fig:circuit:buck}
+\end{figure}
+
+% **************************************************************************** %
+\subsubsection{St\"utzkondensatoren}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/kondensitator}
+
+% **************************************************************************** %
+\subsubsection{Schaltfrequenz}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/schaltfrequenz}
+
+% **************************************************************************** %
+\subsubsection{Auswahl Spule}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/inductor}
+
+% **************************************************************************** %
+\subsubsection{Auswahl MOSFETs}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/mosfet}
+
+% **************************************************************************** %
+\subsubsection{Spannungs- und Strommessung}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/feedback}
+
+% **************************************************************************** %
+\subsubsection{Ausgang}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/ausgang}
+
+% **************************************************************************** %
+\subsubsection{Enable und UVLO}
+% **************************************************************************** %
+
+\input{sections/components/lt3741/uvlo}
+

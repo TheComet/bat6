@@ -1,0 +1,41 @@
+Die Spule $L_1$, ersichtlich in der Abbildung \ref{fig:circuit:buck}, wurde  mit
+der Formel \ref{eq:circuit:buck:inductor} berechnet,
+
+\begin{equation}
+    L_1 = \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot U_{in}} \right) = \SI{6}{\micro\henry}
+    \label{eq:circuit:buck:inductor}
+\end{equation}
+
+wobei  $U_{in}$  die  Eingangsspannung von  \SI{36}{\volt}  ist,  $U_{out}$  die
+Ausgangsspannung  bei  gr\"osster   Leistung  ist  (\SI{18}{\volt}),  $f_S$  die
+Schaltfrequenz von  \SI{1}{\mega\hertz} ist und $I_o$ der maximale Ausgangsstrom
+von \SI{5}{\ampere} ist.
+
+Um den Rippel  noch ein wenig mehr zu gl\"atten, wurde eine gr\"ossere Spule von
+\SI{22}{\micro\henry} ausgew\"ahlt.
+
+Der Maximalstrom durch die Spule ist gleich gross wie  der  Strom, der durch den
+MOSFET   fliesst   und   wird  mit  der  Formel  \ref{eq:circuit:buck:mosfet_id}
+berechnet.  Der  S\"attigungsstrom   wurde   mit   $1.2   \cdot   I_{D_{max}}  =
+\SI{6.2}{\ampere}$ berechnet. Es  wurde  nach passende Spulen gesucht, welche in
+der Tabelle \ref{tab:circuit:buck:inductor} eingetragen sind.
+
+\begin{table}[th!]
+    \begin{center}
+        \caption{}
+        \label{tab:circuit:buck:inductor}
+        \begin{tabular}{lcccc}
+            \toprule
+            Digikey         & Price (CHF) & Inductance (\SI{}{\micro\henry}) & DCR (\SI{}{\ohm}) & Ohmic Loss (\SI{}{\watt}) \\
+            \midrule
+            \rowcolor{lightgray}
+            732-4237-1-ND   & 8.03        & 22                               & 0.007             & 0.175  \\
+            732-2179-1-ND   & 6.4         & 47                               & 0.0335            & 0.8375 \\
+            732-2177-1-ND   & 6.4         & 22                               & 0.0146            & 0.365  \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{table}
+
+Unter den Kandidaten ist ganz klar wegen des niedrigen DCRs die Erste,  mit Grau
+hervorgehobene Spule, die optimalste.
