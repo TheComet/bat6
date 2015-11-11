@@ -1,0 +1,7 @@
+# Most of the stuff in here is auto generated, safe for the things listed below
+*
+!.gitignore
+!/nbproject/project.xml
+!/nbproject/configurations.xml
+!Makefile
+
