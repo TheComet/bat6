@@ -40,12 +40,12 @@ static void sysclk60mips(void)
      */
     PLLFBD = 63;            /* Feedback divider M = 65 */
     CLKDIVbits.PLLPOST = 0; /* N2 = 2 (can't go lower) */
-    CLKDIVbits.PLLPRE = 0;  /* N1 = 2 (can't go lower)* /
+    CLKDIVbits.PLLPRE = 0;  /* N1 = 2 (can't go lower) */
     
     /* initiate clock switch to 0x01 = FRC oscillator with PLL */
-    __builtin_write_OSCCONH(0x01); /* New oscillator selection bits */
+    __builtin_write_OSCCONH(0x01);          /* New oscillator selection bits */
     __builtin_write_OSCCONL(OSCCON | 0x01); /* requests oscillator switch to
-                                              * the selection specified above */
+                                             * the selection specified above */
     
     /* wait for clock switch to occur */
     while(OSCCONbits.COSC != 0x01);
