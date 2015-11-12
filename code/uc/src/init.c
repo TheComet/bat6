@@ -28,7 +28,6 @@ _FOSC(
     IOL1WAY_ON &    /* allow only one reconfiguration of clock */
     POSCMD_NONE);   /* primary oscillator is disabled (we're using internal) */
 
-/* -------------------------------------------------------------------------- */
 static void sysclk60mips(void)
 {
     /* 
@@ -38,9 +37,9 @@ static void sysclk60mips(void)
      *   Fplli = 7.37 MHz / 2 = 3.685 MHz
      *      --> M = 65
      */
-    PLLFBD = 63;            /* Feedback divider M = 65 */
-    CLKDIVbits.PLLPOST = 0; /* N2 = 2 (can't go lower) */
-    CLKDIVbits.PLLPRE = 0;  /* N1 = 2 (can't go lower) */
+    PLLFBD = 63;   /* Feedback divider M = 65 */
+    _PLLPOST = 0;  /* N2 = 2 (can't go lower) */
+    _PLLPRE = 0;   /* N1 = 2 (can't go lower) */
     
     /* initiate clock switch to 0x01 = FRC oscillator with PLL */
     __builtin_write_OSCCONH(0x01);          /* New oscillator selection bits */
@@ -55,7 +54,27 @@ static void sysclk60mips(void)
 }
 
 /* -------------------------------------------------------------------------- */
+static void ports(void)
+{
+    /* 
+     * Set unused pins as output and drive low.
+     * For TRISx: "1" means input, "0" means output. Default is input.
+     */
+    /* lower byte ------------ */
+    TRISA &= ~(                        BIT3  | BIT4);
+    TRISB &= ~(BIT0  | BIT1  |                 BIT4  | BIT5  | BIT6  | BIT7);
+    TRISC &= ~(BIT0  |                                                 BIT7);
+    TRISD &= ~(BIT0  |         BIT2  |         BIT4  | BIT5  |         BIT7);
+    /* upper byte ------------ */
+    TRISB &= ~(        BIT9  | BIT10 |         BIT12 | BIT13 | BIT14);
+    TRISC &= ~(                BIT10 |                 BIT13 | BIT14 | BIT15);
+    TRISD &= ~(BIT8  | BIT9  | BIT10 | BIT11 | BIT12 |         BIT14 | BIT15);
+    /* */
+}
+
+/* -------------------------------------------------------------------------- */
 void init_device(void)
 {
     sysclk60mips();
+    ports();
 }
