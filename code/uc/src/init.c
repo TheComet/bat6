@@ -17,7 +17,6 @@ _FWDT(WDTEN_OFF);
  * Oscillator setup - We have to boot using a clock without PLL. We switch
  * to PLL during initialisation.
  */
-
 _FOSCSEL(
     FNOSC_FRC & /* Use Internal Fast RC oscillator -- approx. 7.37 MHz */
     IESO_OFF);  /* Start up with user selected oscillator source*/
@@ -65,15 +64,11 @@ static void ports(void)
     PORTB = 0x0000;
     PORTC = 0x0000;
     PORTD = 0x0000;
-    /* lower byte ------------ */
-    TRISA &= ~(                        BIT4  | BIT3);
-    TRISB &= ~(BIT7  | BIT6  | BIT5  | BIT4  |                 BIT1  | BIT0);
-    TRISC &= ~(BIT7  |                                                 BIT0);
-    TRISD &= ~(BIT7  |         BIT5  | BIT4  |         BIT2  |         BIT0);
-    /* upper byte ------------ */
-    TRISB &= ~(        BIT14 | BIT13 | BIT12 |         BIT10 | BIT9);
-    TRISC &= ~(BIT15 | BIT14 | BIT13 |                 BIT10);
-    TRISD &= ~(BIT15 | BIT14 |         BIT12 | BIT11 | BIT10 | BIT9  | BIT8);
+    /*        FEDCBA9876543210 */
+    TRISA =            0b00111;
+    TRISB = 0b1000100100001100;
+    TRISC = 0b0001101001111110;
+    TRISD = 0b0010000001001010;
     
     /* LCD reset is a 5V output signal, set to open drain */
     _TRISB11 = 0; /* output */
