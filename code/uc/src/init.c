@@ -61,15 +61,21 @@ static void ports(void)
      * For TRISx: "1" means input, "0" means output. Default is input.
      */
     /* lower byte ------------ */
-    TRISA &= ~(                        BIT3  | BIT4);
-    TRISB &= ~(BIT0  | BIT1  |                 BIT4  | BIT5  | BIT6  | BIT7);
-    TRISC &= ~(BIT0  |                                                 BIT7);
-    TRISD &= ~(BIT0  |         BIT2  |         BIT4  | BIT5  |         BIT7);
+    TRISA &= ~(                        BIT4  | BIT3);
+    TRISB &= ~(BIT7  | BIT6  | BIT5  | BIT4  |                 BIT1  | BIT0);
+    TRISC &= ~(BIT7  |                                                 BIT0);
+    TRISD &= ~(BIT7  |       | BIT5  | BIT4  |         BIT2  |         BIT0);
     /* upper byte ------------ */
-    TRISB &= ~(        BIT9  | BIT10 |         BIT12 | BIT13 | BIT14);
-    TRISC &= ~(                BIT10 |                 BIT13 | BIT14 | BIT15);
-    TRISD &= ~(BIT8  | BIT9  | BIT10 | BIT11 | BIT12 |         BIT14 | BIT15);
-    /* */
+    TRISB &= ~(        BIT14 | BIT13 | BIT12 |         BIT10 | BIT9);
+    TRISC &= ~(BIT15 | BIT14 | BIT13 |                 BIT10);
+    TRISD &= ~(BIT15 | BIT14 |         BIT12 | BIT11 | BIT10 | BIT9 | BIT8);
+    
+    /* LCD reset is a 5V output signal, set to open drain */
+    _TRISB11 = 0; /* output */
+    _ODCB11 = 1;  /* open drain for 5V operation */
+    
+    /* buck enable pin */
+    _TRISA2 = 0; /* output */
 }
 
 /* -------------------------------------------------------------------------- */
