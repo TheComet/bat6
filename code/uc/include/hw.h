@@ -97,14 +97,15 @@ extern "C" {
 #define BIT15 (1 << 15)
 
 /* mappings */
-#define LCD_RESET PORTBbits.RB11
-#define BUCK_EN   PORTAbits.RA2
+#define LCD_RESET           PORTBbits.RB11
+#define BUCK_EN             PORTAbits.RA2
+#define LCD_ADDRESS         0x00
 
 /* macros */
-#define LCD_ENABLE()   (LCD_RESET = 1)
-#define LCD_DISABLE()  (LCD_RESET = 0) 
-#define BUCK_ENABLE()  (BUCK_EN = 1)
-#define BUCK_DISABLE() (BUCK_EN = 0)
+#define LCD_ENABLE()        (LCD_RESET = 1)
+#define LCD_DISABLE()       (LCD_RESET = 0) 
+#define BUCK_ENABLE()       (BUCK_EN = 1)
+#define BUCK_DISABLE()      (BUCK_EN = 0)
 
 #ifdef	__cplusplus
 }

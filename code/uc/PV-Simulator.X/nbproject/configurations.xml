@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>../include/hw.h</itemPath>
       <itemPath>../include/init.h</itemPath>
+      <itemPath>../include/lcd.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -16,6 +17,7 @@
                    projectFiles="true">
       <itemPath>../src/init.c</itemPath>
       <itemPath>../src/main.c</itemPath>
+      <itemPath>../src/lcd.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

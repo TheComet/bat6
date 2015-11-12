@@ -41,8 +41,8 @@ static void sysclk60mips(void)
     _PLLPOST = 0;  /* N2 = 2 (can't go lower) */
     _PLLPRE = 0;   /* N1 = 2 (can't go lower) */
     
-    /* initiate clock switch to 0x01 = FRC oscillator with PLL */
-    __builtin_write_OSCCONH(0x01);          /* New oscillator selection bits */
+    /* initiate clock switch */
+    __builtin_write_OSCCONH(0x01);          /* 0x01 = FRC oscillator with PLL */
     __builtin_write_OSCCONL(OSCCON | 0x01); /* requests oscillator switch to
                                              * the selection specified above */
     
@@ -60,15 +60,20 @@ static void ports(void)
      * Set unused pins as output and drive low.
      * For TRISx: "1" means input, "0" means output. Default is input.
      */
+    /* drive low */
+    PORTA = 0x00;
+    PORTB = 0x0000;
+    PORTC = 0x0000;
+    PORTD = 0x0000;
     /* lower byte ------------ */
     TRISA &= ~(                        BIT4  | BIT3);
     TRISB &= ~(BIT7  | BIT6  | BIT5  | BIT4  |                 BIT1  | BIT0);
     TRISC &= ~(BIT7  |                                                 BIT0);
-    TRISD &= ~(BIT7  |       | BIT5  | BIT4  |         BIT2  |         BIT0);
+    TRISD &= ~(BIT7  |         BIT5  | BIT4  |         BIT2  |         BIT0);
     /* upper byte ------------ */
     TRISB &= ~(        BIT14 | BIT13 | BIT12 |         BIT10 | BIT9);
     TRISC &= ~(BIT15 | BIT14 | BIT13 |                 BIT10);
-    TRISD &= ~(BIT15 | BIT14 |         BIT12 | BIT11 | BIT10 | BIT9 | BIT8);
+    TRISD &= ~(BIT15 | BIT14 |         BIT12 | BIT11 | BIT10 | BIT9  | BIT8);
     
     /* LCD reset is a 5V output signal, set to open drain */
     _TRISB11 = 0; /* output */
@@ -79,8 +84,21 @@ static void ports(void)
 }
 
 /* -------------------------------------------------------------------------- */
+static void lcd(void)
+{
+    /*
+     * Communication to the LCD is achieved over I2C. The address of the LCD is
+     * defined in hw.h as LCD_ADDRESS.
+     */
+    
+    /* enable I2C2 module, master mode*/
+    I2C2CONLbits.I2CEN = 1;
+}
+
+/* -------------------------------------------------------------------------- */
 void init_device(void)
 {
     sysclk60mips();
     ports();
+    lcd();
 }
