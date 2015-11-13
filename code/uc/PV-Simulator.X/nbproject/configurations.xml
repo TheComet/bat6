@@ -8,6 +8,9 @@
       <itemPath>../include/init.h</itemPath>
       <itemPath>../include/lcd.h</itemPath>
       <itemPath>../include/uart.h</itemPath>
+      <itemPath>../include/buck.h</itemPath>
+      <itemPath>../include/button.h</itemPath>
+      <itemPath>../include/leds.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -20,6 +23,9 @@
       <itemPath>../src/main.c</itemPath>
       <itemPath>../src/lcd.c</itemPath>
       <itemPath>../src/uart.c</itemPath>
+      <itemPath>../src/buck.c</itemPath>
+      <itemPath>../src/button.c</itemPath>
+      <itemPath>../src/leds.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

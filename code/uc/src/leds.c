@@ -1,11 +1,10 @@
 /*! 
- * @file lcd.c
+ * @file leds.c
  * @author Alex Murray
  *
- * Created on 12 November 2015, 14:29
+ * Created on 13 November 2015, 17:10
  */
 
-#include "lcd.h"
-#include "hw.h"
+#include "leds.h"
 
 /* -------------------------------------------------------------------------- */
