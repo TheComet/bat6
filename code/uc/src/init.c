@@ -82,10 +82,22 @@ static void init_ports(void)
      *  + push/twist button (bit 4, 5, 6)
      *  + UVLO (bit 9)
      */
-    CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (knob connections) */
+    CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (button connections) */
     CNENC = 0x0170;    /* enable interrupts for bits 4, 5, 6 and 9 */
     IFS1bits.CNIF = 0; /* clear interrupt flag for change notifications */
     IEC1bits.CNIE = 1; /* enable change notification interrupts */
+}
+
+/* -------------------------------------------------------------------------- */
+static void init_uart(void)
+{
+    
+}
+
+/* -------------------------------------------------------------------------- */
+static void init_leds(void)
+{
+    
 }
 
 /* -------------------------------------------------------------------------- */
@@ -101,20 +113,15 @@ static void init_lcd(void)
 }
 
 /* -------------------------------------------------------------------------- */
-static void init_uart(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
 void init_device(void)
 {
     disable_interrupts();
     
     init_sysclk60mips();
     init_ports();
-    init_lcd();
     init_uart();
+    init_leds();
+    init_lcd();
     
     enable_interrupts();
 }
