@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import subprocess
+
+def commit_counts():
+    ret = dict()
+    for author in subprocess.getoutput('git log --pretty=format:"%an"').split('\n'):
+        if not author in ret:
+            ret[author] = 0
+        ret[author] += 1
+
+    print('commit counts')
+    for author, commits in ret.items():
+        print('  {0:<20}: {1}'.format(author, commits))
+
+
+def most_edited():
+    ret = dict()
+    for commit in subprocess.getoutput('git log --stat').split('Author: ')[1:]:
+        if commit.find('insertions') == -1 and commit.find('deletions') == -1:
+            continue
+
+        author = commit.split(' <')[0]
+        if not author in ret:
+            ret[author] = dict()
+
+        files = commit.split('\n\n')[2].split('\n')[:-1]
+        for f in files:
+            name, stats = [x.strip() for x in f.split('|')]
+            if not stats.find('Bin') == -1:
+                continue
+            if not name in ret[author]:
+                ret[author][name] = 0
+            ret[author][name] += int([x for x in stats.split(' ') if not x == ''][0])
+
+
+if __name__ == '__main__':
+    commit_counts()
+
