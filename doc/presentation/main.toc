@@ -1,2 +1,0 @@
-\beamer@endinputifotherversion {3.36pt}
-\beamer@sectionintoc {1}{Basic Idea Behind BAT6}{2}{0}{1}
