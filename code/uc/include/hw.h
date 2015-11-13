@@ -56,13 +56,13 @@ extern "C" {
  * -------+--------------+-----------+------------------------------------------
  *  RC.3  | LED0         | PWM5L     | PWM controlled LED
  * -------+--------------+-----------+------------------------------------------
- *  RC.4  | KNOB_A       | INT       | Interrupt for rotary encoder, line A
+ *  RC.4  | KNOB_A       | CNPUC4    | Interrupt for rotary encoder, line A
  * -------+--------------+-----------+------------------------------------------
- *  RC.5  | KNOB_B       | INT       | Interrupt for rotary encoder, line B
+ *  RC.5  | KNOB_B       | CNPUC5    | Interrupt for rotary encoder, line B
  * -------+--------------+-----------+------------------------------------------
- *  RC.6  | KNOB_BTN     | INT       | Interrupt for button press/release
+ *  RC.6  | KNOB_BTN     | CNPUC6    | Interrupt for button press/release
  * -------+--------------+-----------+------------------------------------------
- *  RC.9  | BUCK_UVLO    | INT       | Goes high during power failure.
+ *  RC.9  | BUCK_UVLO    | CNPUC9    | Goes high during power failure.
  * -------+--------------+-----------+------------------------------------------
  *  RC.11 | RX           | RP59/UART | UART receive
  * -------+--------------+-----------+------------------------------------------
@@ -106,6 +106,11 @@ extern "C" {
 #define LCD_DISABLE()       (LCD_RESET = 0) 
 #define BUCK_ENABLE()       (BUCK_EN = 1)
 #define BUCK_DISABLE()      (BUCK_EN = 0)
+    
+/* interrupt related things */
+#define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
+#define enable_interrupts() (_GIE = 1)
+#define disable_interrupts()(_GIE = 0)
 
 #ifdef	__cplusplus
 }

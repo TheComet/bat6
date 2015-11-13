@@ -27,7 +27,7 @@ _FOSC(
     IOL1WAY_ON &    /* allow only one reconfiguration of clock */
     POSCMD_NONE);   /* primary oscillator is disabled (we're using internal) */
 
-static void sysclk60mips(void)
+static void init_sysclk60mips(void)
 {
     /* 
      * Configure PLL - Target execution speed is Fcy = 60 MIPS
@@ -53,7 +53,7 @@ static void sysclk60mips(void)
 }
 
 /* -------------------------------------------------------------------------- */
-static void ports(void)
+static void init_ports(void)
 {
     /* 
      * Set unused pins as output and drive low.
@@ -76,10 +76,20 @@ static void ports(void)
     
     /* buck enable pin */
     _TRISA2 = 0; /* output */
+    
+    /*
+     * Configure change notification module for:
+     *  + push/twist button (bit 4, 5, 6)
+     *  + UVLO (bit 9)
+     */
+    CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (knob connections) */
+    CNENC = 0x0170;    /* enable interrupts for bits 4, 5, 6 and 9 */
+    IFS1bits.CNIF = 0; /* clear interrupt flag for change notifications */
+    IEC1bits.CNIE = 1; /* enable change notification interrupts */
 }
 
 /* -------------------------------------------------------------------------- */
-static void lcd(void)
+static void init_lcd(void)
 {
     /*
      * Communication to the LCD is achieved over I2C. The address of the LCD is
@@ -91,9 +101,20 @@ static void lcd(void)
 }
 
 /* -------------------------------------------------------------------------- */
+static void init_uart(void)
+{
+    
+}
+
+/* -------------------------------------------------------------------------- */
 void init_device(void)
 {
-    sysclk60mips();
-    ports();
-    lcd();
+    disable_interrupts();
+    
+    init_sysclk60mips();
+    init_ports();
+    init_lcd();
+    init_uart();
+    
+    enable_interrupts();
 }

@@ -9,7 +9,7 @@
 #include "hw.h"
 
 /* -------------------------------------------------------------------------- */
-void __attribute__((__interrupt__)) _CNInterrupt(void)
+void _ISR_NOPSV _CNInterrupt(void)
 {
     IFS1bits.CNIF = 0;
 }
