@@ -36,9 +36,9 @@ static void init_sysclk60mips(void)
      *   Fplli = 7.37 MHz / 2 = 3.685 MHz
      *      --> M = 65
      */
-    PLLFBD = 63;   /* Feedback divider M = 65 */
-    _PLLPOST = 0;  /* N2 = 2 (can't go lower) */
-    _PLLPRE = 0;   /* N1 = 2 (can't go lower) */
+    PLLFBD = 63;             /* Feedback divider M = 65 */
+    CLKDIVbits.PLLPOST = 0;  /* N2 = 2 (can't go lower) */
+    CLKDIVbits.PLLPRE = 0;   /* N1 = 2 (can't go lower) */
     
     /* initiate clock switch */
     __builtin_write_OSCCONH(0x01);          /* 0x01 = FRC oscillator with PLL */
@@ -70,40 +70,40 @@ static void init_ports(void)
     TRISC = 0b0001101001111110;
     TRISD = 0b0010000001001010;
     
-    /* 
-     * By default, all ADC modules are enabled. Disable them now so they
-     * don't sample the digital output signals.
-     */
-    ANSELA = 0x0;
-    ANSELB = 0x0000;
-    ANSELC = 0x0000;
-    ANSELD = 0x0000;
-    
     /* LCD reset is a 5V output signal, set to open drain and let external
      * pull-ups do their job */
-    _ODCB11 = 1;  /* open drain for 5V operation */
-    _TRISB11 = 0; /* output */
+    ODCBbits.ODCB11 = 1;    /* open drain for 5V operation */
+    TRISBbits.TRISB11 = 0;  /* output */
     
-    /* buck enable */
-    _TRISA2 = 0; /* output */
+    /* buck enable is a digital output */
+    TRISAbits.TRISA2 = 0;   /* output */
+    
+    /* twist/push button has three wires that need pull-ups */
+    CNPUC = 0x0070;         /* bit 4, 5, 6 */
+    
+    /* 
+     * Twist/push button (bit 4, 5 and 6) and UVLO (bit 9) are digital input
+     * signals. Because all pins are configured as analog inputs by default,
+     * clear analog flags.
+     */
+    ANSELC &= ~0x0170;      /* bit 4, 5, 6 and 9 */
     
     /* configure KNOB_BTN to trigger an interrupt when pressed */
-    _INT1R = 54;  /* assign INT1 to pin RP54 */
-    _INT1EP = 1; /* interrupt on falling edge (pressed) */
-    _INT1IF = 0;    /* clear interrupt flag */
-    _INT1IE = 1;    /* enable INT1 interrupt */
+    RPINR0bits.INT1R = 54;  /* assign INT1 to pin RP54 */
+    INTCON2bits.INT1EP = 1; /* interrupt on falling edge (pressed) */
+    IFS1bits.INT1IF = 0;    /* clear interrupt flag */
+    IEC1bits.INT1IE = 1;    /* enable INT1 interrupt */
     
     /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
-    _INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
-    _INT2EP = 0; /* interrupt on rising edge */
-    _INT2IF = 0;    /* clear interrupt flag */
-    _INT2IE = 1;    /* enable INT2 interrupt */
+    RPINR1bits.INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
+    INTCON2bits.INT2EP = 0; /* interrupt on rising edge */
+    IFS1bits.INT2IF = 0;    /* clear interrupt flag */
+    IEC1bits.INT2IE = 1;    /* enable INT2 interrupt */
     
-    CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (button connections) */
-    CNENC = 0x0170;    /* enable interrupts for bits 4, 5, 6 and 9 */
-    _CNIF = 0; /* clear interrupt flag for change notifications */
-    _CNIE = 1; /* enable change notification interrupts */
-    
+    /* configure encoder to trigger interrupts whenever A or B changes */
+    CNENC |= 0x30;          /* enable interrupts for bits 4 and 5 */
+    IFS1bits.CNIF = 0;      /* clear interrupt flag for change notifications */
+    IEC1bits.CNIE = 1;      /* enable change notification interrupts */
 }
 
 /* -------------------------------------------------------------------------- */

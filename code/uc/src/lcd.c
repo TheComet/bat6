@@ -9,3 +9,15 @@
 #include "hw.h"
 
 /* -------------------------------------------------------------------------- */
+/* master event interrupt */
+void _ISR_NOPSV _MI2C2Interrupt(void)
+{
+    
+}
+
+/* -------------------------------------------------------------------------- */
+/* slave event interrupt */
+void _ISR_NOPSV _SI2C2Interrupt(void)
+{
+    
+}

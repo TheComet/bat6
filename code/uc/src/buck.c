@@ -12,6 +12,8 @@
 /* Called when an UVLO event occurs */
 void _ISR_NOPSV _INT2Interrupt(void)
 {
+    buck_disable();
+    
     /* clear interrupt flag */
-    _INT2IF = 0;
+    IFS1bits.INT2IF = 0;
 }
