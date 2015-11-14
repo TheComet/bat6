@@ -70,22 +70,36 @@ static void init_ports(void)
     TRISC = 0b0001101001111110;
     TRISD = 0b0010000001001010;
     
-    /* LCD reset is a 5V output signal, set to open drain */
-    _TRISB11 = 0; /* output */
-    _ODCB11 = 1;  /* open drain for 5V operation */
+    /* 
+     * By default, all ADC modules are enabled. Disable them now so they
+     * don't sample the digital output signals.
+     */
+    ANSELA = 0x0;
+    ANSELB = 0x0000;
+    ANSELC = 0x0000;
+    ANSELD = 0x0000;
     
-    /* buck enable pin */
+    /* LCD reset is a 5V output signal, set to open drain and let external
+     * pull-ups do their job */
+    _ODCB11 = 1;  /* open drain for 5V operation */
+    _TRISB11 = 0; /* output */
+    
+    /* buck enable */
     _TRISA2 = 0; /* output */
     
-    /*
-     * Configure change notification module for:
-     *  + push/twist button (bit 4, 5, 6)
-     *  + UVLO (bit 9)
-     */
+    /* configure KNOB_BTN to trigger an interrupt when pressed */
+    RPINR0bits.INT1R = 54;  /* assign INT1 to pin RP54 */
+    INTCON2bits.INT1EP = 1; /* interrupt on negative edge (pressed) */
+    IFS1bits.INT1IF = 0;    /* clear interrupt flag */
+    IEC1bits.INT1IE = 1;    /* enable INT1 interrupt */
+    
+    /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
+    RPINR1bits.INT2R = 57; /* assign INT2 to pin RP57 (BUCK_UVLO) */
     CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (button connections) */
     CNENC = 0x0170;    /* enable interrupts for bits 4, 5, 6 and 9 */
     IFS1bits.CNIF = 0; /* clear interrupt flag for change notifications */
     IEC1bits.CNIE = 1; /* enable change notification interrupts */
+    
 }
 
 /* -------------------------------------------------------------------------- */
