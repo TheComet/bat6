@@ -5,8 +5,9 @@
  * Created on 13 November 2015, 17:10
  */
 
-#include "button.h"
-#include "hw.h"
+#include "drv/button.h"
+#include "drv/hw.h"
+#include "event.h"
 
 static struct
 {
@@ -36,6 +37,7 @@ void _ISR_NOPSV _CNInterrupt(void)
      * 11
      * 10
      */
+
     /* clear interrupt flag */
     IFS1bits.CNIF = 0;
 }

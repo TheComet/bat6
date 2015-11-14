@@ -4,13 +4,19 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>../include/hw.h</itemPath>
-      <itemPath>../include/init.h</itemPath>
-      <itemPath>../include/lcd.h</itemPath>
-      <itemPath>../include/uart.h</itemPath>
-      <itemPath>../include/buck.h</itemPath>
-      <itemPath>../include/button.h</itemPath>
-      <itemPath>../include/leds.h</itemPath>
+      <logicalFolder name="f1" displayName="drv" projectFiles="true">
+        <itemPath>../include/drv/buck.h</itemPath>
+        <itemPath>../include/drv/button.h</itemPath>
+        <itemPath>../include/drv/hw.h</itemPath>
+        <itemPath>../include/drv/init_hw.h</itemPath>
+        <itemPath>../include/drv/lcd.h</itemPath>
+        <itemPath>../include/drv/leds.h</itemPath>
+        <itemPath>../include/drv/uart.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="util" projectFiles="true">
+        <itemPath>../include/util/static_assert.h</itemPath>
+      </logicalFolder>
+      <itemPath>../include/event.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -19,13 +25,18 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>../src/init.c</itemPath>
+      <logicalFolder name="f1" displayName="drv" projectFiles="true">
+        <itemPath>../src/drv/buck.c</itemPath>
+        <itemPath>../src/drv/button.c</itemPath>
+        <itemPath>../src/drv/init_hw.c</itemPath>
+        <itemPath>../src/drv/lcd.c</itemPath>
+        <itemPath>../src/drv/leds.c</itemPath>
+        <itemPath>../src/drv/uart.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="util" projectFiles="true">
+      </logicalFolder>
+      <itemPath>../src/event.c</itemPath>
       <itemPath>../src/main.c</itemPath>
-      <itemPath>../src/lcd.c</itemPath>
-      <itemPath>../src/uart.c</itemPath>
-      <itemPath>../src/buck.c</itemPath>
-      <itemPath>../src/button.c</itemPath>
-      <itemPath>../src/leds.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

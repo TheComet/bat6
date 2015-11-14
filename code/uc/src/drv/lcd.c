@@ -1,23 +1,23 @@
 /*! 
- * @file uart.c
+ * @file lcd.c
  * @author Alex Murray
  *
  * Created on 12 November 2015, 14:29
  */
 
-#include "uart.h"
-#include "hw.h"
+#include "drv/lcd.h"
+#include "drv/hw.h"
 
 /* -------------------------------------------------------------------------- */
-void _ISR_NOPSV _U1RXInterrupt(void)
+/* master event interrupt */
+void _ISR_NOPSV _MI2C2Interrupt(void)
 {
-    /* clear interrupt flag */
-    IFS0bits.U1RXIF = 0;
+    
 }
 
 /* -------------------------------------------------------------------------- */
-void _ISR_NOPSV _U1TXInterrupt(void)
+/* slave event interrupt */
+void _ISR_NOPSV _SI2C2Interrupt(void)
 {
-    /* clear interrupt flag */
-    IFS0bits.U1TXIF = 0;
+    
 }

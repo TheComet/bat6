@@ -5,8 +5,8 @@
  * Created on 13 November 2015, 17:10
  */
 
-#include "buck.h"
-#include "hw.h"
+#include "drv/buck.h"
+#include "drv/hw.h"
 
 /* -------------------------------------------------------------------------- */
 /* Called when an UVLO event occurs */

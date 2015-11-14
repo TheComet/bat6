@@ -1,5 +1,5 @@
 /*!
- * @file init.h
+ * @file init_hw.h
  * @author Alex Murray
  * 
  * Created on 18 October 2015, 14:34

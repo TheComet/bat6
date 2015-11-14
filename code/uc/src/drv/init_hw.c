@@ -1,12 +1,12 @@
 /*!
- * @file init.c
+ * @file init_hw.c
  * @author Alex Murray
  * 
  * Created on 18 October 2015, 14:34
  */
 
-#include "init.h"
-#include "hw.h"
+#include "drv/init_hw.h"
+#include "drv/hw.h"
 
 /* -------------------------------------------------------------------------- */
 /* Disable watchdog timer */
@@ -79,7 +79,7 @@ static void init_ports(void)
     TRISAbits.TRISA2 = 0;   /* output */
     
     /* twist/push button has three wires that need pull-ups */
-    CNPUC = 0x0070;         /* bit 4, 5, 6 */
+    CNPUC |= 0x0070;        /* bit 4, 5, 6 */
     
     /* 
      * Twist/push button (bit 4, 5 and 6) and UVLO (bit 9) are digital input

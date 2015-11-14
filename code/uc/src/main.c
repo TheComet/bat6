@@ -6,7 +6,7 @@
  */
 
 #include <stdlib.h>
-#include "init.h"
+#include "drv/init_hw.h"
 
 /* -------------------------------------------------------------------------- */
 int main(void)
