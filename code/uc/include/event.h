@@ -31,7 +31,7 @@ typedef enum
 {
     EVENT_BUTTON_TWISTED = 0,
     EVENT_COUNT
-} event_table_e;
+} event_id_e;
 
 /*!
  * @brief Assigns a callback function to one of the entries in event_e
@@ -39,9 +39,10 @@ typedef enum
  * @param[in] callback The callback function that should be called when the
  * specified event gets posted.
  */
-void event_register_handler(event_table_e event, event_handler_func callback);
+void event_register_handler(event_id_e event, event_handler_func callback);
 
-void event_post_(event_table_e event, void* args);
+/* see macro below for doc */
+void event_post_(event_id_e event, void* args);
 
 /*!
  * @brief Queues an event.
@@ -49,9 +50,9 @@ void event_post_(event_table_e event, void* args);
  * @param[in] event_data Optional event data. The data specified here gets
  * passed to the registered handler function.
  */
-#define event_post(event, event_data) do {          \
-    CTC(sizeof(event_data) <= sizeof(void*));       \
-    event_post_(event, event_data);                 \
+#define event_post(event, event_data) do {              \
+    static_assert(sizeof(event_data) <= sizeof(void*)); \
+    event_post_(event, event_data);                     \
 } while(0)
 
 #ifdef	__cplusplus

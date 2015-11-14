@@ -17,8 +17,12 @@
  * failure descriptions. It remains to determine how they can be used in
  * namespace scope without resorting to a dummy function:
  */
+#ifdef _DEBUG
 #define static_assert(X) ({                                                   \
     extern int __attribute__((error("assertion failure: '" #X "' not true"))) \
     compile_time_check();                                                     \
     ((X)?0:compile_time_check()),0;                                           \
 })
+#else
+#define static_assert(X)
+#endif

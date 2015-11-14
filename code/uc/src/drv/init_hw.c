@@ -10,7 +10,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* Disable watchdog timer */
-_FWDT(WDTEN_OFF);
+_FWDT(WDTEN_OFF)
 
 /* -------------------------------------------------------------------------- */
 /* 
@@ -19,13 +19,13 @@ _FWDT(WDTEN_OFF);
  */
 _FOSCSEL(
     FNOSC_FRC & /* Use Internal Fast RC oscillator -- approx. 7.37 MHz */
-    IESO_OFF);  /* Start up with user selected oscillator source*/
+    IESO_OFF)   /* Start up with user selected oscillator source*/
 
 _FOSC(
     FCKSM_CSECMD &  /* enable clock switching for the switch to PLL to work */
     OSCIOFNC_ON  &  /* OSC2 is a general purpose IO pin */
     IOL1WAY_ON &    /* allow only one reconfiguration of clock */
-    POSCMD_NONE);   /* primary oscillator is disabled (we're using internal) */
+    POSCMD_NONE)    /* primary oscillator is disabled (we're using internal) */
 
 static void init_sysclk60mips(void)
 {
