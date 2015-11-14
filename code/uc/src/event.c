@@ -7,6 +7,7 @@
 
 #include "event.h"
 #include "drv/hw.h"
+#include "stdlib.h" /* for NULL definition */
 
 /*
  * Currently, we only support one handler function for every event. This maps
@@ -26,6 +27,19 @@ static struct
     volatile unsigned char      write;
     struct ring_buffer_data_t   data[RING_BUFFER_SIZE];
 } ring_buffer = {0};
+
+/* -------------------------------------------------------------------------- */
+void event_init(void)
+{
+    unsigned short i = EVENT_COUNT;
+    while(i --> 0)
+    {
+        event_table[i] = NULL;
+    }
+    
+    ring_buffer.read = 0;
+    ring_buffer.write = 0;
+}
 
 /* -------------------------------------------------------------------------- */
 void event_register_handler(event_id_e event, event_handler_func callback)

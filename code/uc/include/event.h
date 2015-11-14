@@ -34,6 +34,12 @@ typedef enum
 } event_id_e;
 
 /*!
+ * @brief Initialises the event system. Call before using any other event
+ * releated functions.
+ */
+void event_init(void);
+
+/*!
  * @brief Assigns a callback function to one of the entries in event_e
  * @param[in] event An event in the event table to map.
  * @param[in] callback The callback function that should be called when the
