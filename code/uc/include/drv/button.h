@@ -12,7 +12,10 @@
 extern "C" {
 #endif
 
-
+/*!
+ * @brief Initialises button handlers. Call this so the twist button works.
+ */
+void button_init(void);
 
 #ifdef	__cplusplus
 }

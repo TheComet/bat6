@@ -38,10 +38,6 @@
       <itemPath>../src/event.c</itemPath>
       <itemPath>../src/main.c</itemPath>
     </logicalFolder>
-    <logicalFolder name="f1" displayName="Tests" projectFiles="true">
-      <itemPath>../tests/src/test_event.cpp</itemPath>
-      <itemPath>../tests/CMakeLists.txt</itemPath>
-    </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">

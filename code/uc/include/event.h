@@ -30,12 +30,22 @@ typedef void (*event_handler_func)(void* args);
 typedef enum
 {
     EVENT_BUTTON_TWISTED = 0,
+    EVENT_BUTTON_PRESSED = 1,
     EVENT_COUNT
 } event_id_e;
 
 /*!
+ * @brief Additional constants that can be passed as arguments.
+ */
+typedef enum
+{
+    BUTTON_TWISTED_LEFT = 0,
+    BUTTON_TWISTED_RIGHT = 1
+} event_args_e;
+
+/*!
  * @brief Initialises the event system. Call before using any other event
- * releated functions.
+ * related functions.
  */
 void event_init(void);
 
@@ -60,6 +70,11 @@ void event_post_(event_id_e event, void* args);
     static_assert(sizeof(event_data) <= sizeof(void*)); \
     event_post_(event, event_data);                     \
 } while(0)
+
+/*!
+ * @brief Processes all queued events.
+ */
+void event_process_all(void);
 
 #ifdef	__cplusplus
 }
