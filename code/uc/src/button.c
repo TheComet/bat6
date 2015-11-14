@@ -9,8 +9,17 @@
 #include "hw.h"
 
 /* -------------------------------------------------------------------------- */
-/* Reads the state of the button pins from the appropriate registers*/
-/* NOTE: Gets called by an ISR */
-void notify_button_change(void)
+/* called when the button is pressed (falling edge) */
+void _ISR_NOPSV _INT1Interrupt(void)
 {
+    /* clear interrupt flag */
+    IFS1bits.INT1IF = 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* called when the button is twisted (A or B changed) */
+void _ISR_NOPSV _CNInterrupt(void)
+{
+    /* clear interrupt flag */
+    IFS1bits.CNIF = 0;
 }

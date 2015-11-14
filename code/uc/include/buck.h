@@ -12,11 +12,7 @@
 extern "C" {
 #endif
 
-/*!
- * @brief This gets called by the change notification interrupt when the UVLO
- * pin goes high.
- */
-void notify_uvlo(void);
+
 
 #ifdef	__cplusplus
 }

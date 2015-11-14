@@ -18,7 +18,6 @@ extern "C" {
  */
 void init_device(void);
 
-
 #ifdef	__cplusplus
 }
 #endif

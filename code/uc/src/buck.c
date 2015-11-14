@@ -6,11 +6,12 @@
  */
 
 #include "buck.h"
+#include "hw.h"
 
 /* -------------------------------------------------------------------------- */
 /* Called when an UVLO event occurs */
-/* NOTE: Gets called by an ISR */
-void notify_uvlo(void)
+void _ISR_NOPSV _INT2Interrupt(void)
 {
-    
+    /* clear interrupt flag */
+    IFS1bits.INT2IF = 0;
 }
