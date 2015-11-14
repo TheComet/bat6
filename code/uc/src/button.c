@@ -13,7 +13,7 @@
 void _ISR_NOPSV _INT1Interrupt(void)
 {
     /* clear interrupt flag */
-    IFS1bits.INT1IF = 0;
+    _INT1IF = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -21,5 +21,5 @@ void _ISR_NOPSV _INT1Interrupt(void)
 void _ISR_NOPSV _CNInterrupt(void)
 {
     /* clear interrupt flag */
-    IFS1bits.CNIF = 0;
+    _CNIF = 0;
 }

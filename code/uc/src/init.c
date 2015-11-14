@@ -88,17 +88,21 @@ static void init_ports(void)
     _TRISA2 = 0; /* output */
     
     /* configure KNOB_BTN to trigger an interrupt when pressed */
-    RPINR0bits.INT1R = 54;  /* assign INT1 to pin RP54 */
-    INTCON2bits.INT1EP = 1; /* interrupt on negative edge (pressed) */
-    IFS1bits.INT1IF = 0;    /* clear interrupt flag */
-    IEC1bits.INT1IE = 1;    /* enable INT1 interrupt */
+    _INT1R = 54;  /* assign INT1 to pin RP54 */
+    _INT1EP = 1; /* interrupt on falling edge (pressed) */
+    _INT1IF = 0;    /* clear interrupt flag */
+    _INT1IE = 1;    /* enable INT1 interrupt */
     
     /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
-    RPINR1bits.INT2R = 57; /* assign INT2 to pin RP57 (BUCK_UVLO) */
+    _INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
+    _INT2EP = 0; /* interrupt on rising edge */
+    _INT2IF = 0;    /* clear interrupt flag */
+    _INT2IE = 1;    /* enable INT2 interrupt */
+    
     CNPUC = 0x0070;    /* pull-ups for bit 4, 5, and 6 (button connections) */
     CNENC = 0x0170;    /* enable interrupts for bits 4, 5, 6 and 9 */
-    IFS1bits.CNIF = 0; /* clear interrupt flag for change notifications */
-    IEC1bits.CNIE = 1; /* enable change notification interrupts */
+    _CNIF = 0; /* clear interrupt flag for change notifications */
+    _CNIE = 1; /* enable change notification interrupts */
     
 }
 

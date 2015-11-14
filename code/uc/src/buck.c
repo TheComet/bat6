@@ -13,5 +13,5 @@
 void _ISR_NOPSV _INT2Interrupt(void)
 {
     /* clear interrupt flag */
-    IFS1bits.INT2IF = 0;
+    _INT2IF = 0;
 }
