@@ -15,4 +15,7 @@
 void _ISR_NOPSV _T4Interrupt(void)
 {
     event_post(EVENT_UPDATE, NULL);
+    
+    /* clear interrupt flag */
+    IFS1bits.T4IF = 0;
 }

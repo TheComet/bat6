@@ -6,6 +6,16 @@
  */
 
 #include "drv/leds.h"
+#include "event.h"
 
 /* -------------------------------------------------------------------------- */
-void foo() {}
+static void on_update(void* args)
+{
+    
+}
+
+/* -------------------------------------------------------------------------- */
+void led_init(void)
+{
+    event_register_listener(EVENT_UPDATE, on_update);
+}

@@ -11,6 +11,11 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+/*!
+ * @brief Initialise LEDs. Call this for LEDs to work.
+ */
+void led_init(void);
 
 #ifdef	__cplusplus
 }
