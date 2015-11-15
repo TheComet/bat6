@@ -5,7 +5,6 @@
  * Created on 18 October 2015, 14:34
  */
 
-#include "drv/init_hw.h"
 #include "drv/hw.h"
 
 /* -------------------------------------------------------------------------- */
@@ -131,7 +130,7 @@ static void init_lcd(void)
 }
 
 /* -------------------------------------------------------------------------- */
-void init_device(void)
+void hw_init(void)
 {
     disable_interrupts();
     

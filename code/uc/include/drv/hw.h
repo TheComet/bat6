@@ -113,6 +113,12 @@ extern "C" {
 #define enable_interrupts() (_GIE = 1)
 #define disable_interrupts()(_GIE = 0)
 
+/*!
+ * @brief Initialises and configures the hardware. Must be the first thing
+ * called.
+ */
+void hw_init(void);
+
 #ifdef	__cplusplus
 }
 #endif

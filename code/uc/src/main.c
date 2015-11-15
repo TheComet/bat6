@@ -5,14 +5,14 @@
  * Created on 18 October 2015, 14:34
  */
 
-#include "drv/init_hw.h"
+#include "drv/hw.h"
 #include "drv/button.h"
 #include "event.h"
 
 /* -------------------------------------------------------------------------- */
 int main(void)
 {
-    init_device();
+    hw_init();
     event_init();
     button_init();
     

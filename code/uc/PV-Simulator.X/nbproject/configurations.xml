@@ -8,7 +8,6 @@
         <itemPath>../include/drv/buck.h</itemPath>
         <itemPath>../include/drv/button.h</itemPath>
         <itemPath>../include/drv/hw.h</itemPath>
-        <itemPath>../include/drv/init_hw.h</itemPath>
         <itemPath>../include/drv/lcd.h</itemPath>
         <itemPath>../include/drv/leds.h</itemPath>
         <itemPath>../include/drv/uart.h</itemPath>
