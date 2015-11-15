@@ -7,10 +7,12 @@
 
 #include "drv/timer.h"
 #include "drv/hw.h"
+#include "event.h"
+#include <stddef.h>
 
 /* -------------------------------------------------------------------------- */
 /* 10ms timer interrupt */
 void _ISR_NOPSV _T4Interrupt(void)
 {
-    
+    event_post(EVENT_UPDATE, NULL);
 }

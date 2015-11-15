@@ -29,8 +29,9 @@ typedef void (*event_listener_func)(void* args);
  */
 typedef enum
 {
-    EVENT_BUTTON_TWISTED = 0,
-    EVENT_BUTTON_PRESSED = 1,
+    EVENT_UPDATE = 0,
+    EVENT_BUTTON_TWISTED,
+    EVENT_BUTTON_PRESSED,
     EVENT_COUNT
 } event_id_e;
 
