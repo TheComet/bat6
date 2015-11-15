@@ -1,5 +1,5 @@
 /*! 
- * @file timer.h
+ * @file timer.c
  * @author Alex Murray
  *
  * Created on 15 November 2015, 02:10

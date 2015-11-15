@@ -7,20 +7,23 @@
 
 #include "event.h"
 #include "drv/hw.h"
-#include "stdlib.h" /* for NULL definition */
+#include "util/linked_list.h"
+#include <stdlib.h>
 
-/*
- * Currently, we only support one handler function for every event. This maps
- * each event ID in the table defined in event.h to a callback function.
- */
-static event_handler_func event_table[EVENT_COUNT] = {0};
+struct listener_t
+{
+    struct listener_t*          next; /* intrusive linked list */
+    event_listener_func         callback;
+};
+static struct linked_list_t* event_table[EVENT_COUNT] = {0};
 
-#define RING_BUFFER_SIZE 32
 struct ring_buffer_data_t
 {
-    event_handler_func          callback;
+    event_id_e                  event_id;
     void*                       args;
 };
+
+#define RING_BUFFER_SIZE 32
 static struct
 {
     volatile unsigned char      read;
@@ -34,7 +37,10 @@ void event_init(void)
     unsigned short i = EVENT_COUNT;
     while(i --> 0)
     {
-        event_table[i] = NULL;
+        if(event_table[i])
+            linked_list_destroy(event_table[i]);
+        
+        event_table[i] = linked_list_create();
     }
     
     ring_buffer.read = 0;
@@ -42,13 +48,18 @@ void event_init(void)
 }
 
 /* -------------------------------------------------------------------------- */
-void event_register_handler(event_id_e event, event_handler_func callback)
+void event_register_listener(event_id_e event, event_listener_func callback)
 {
-    event_table[event] = callback;
+    struct listener_t* listener = (struct listener_t*)malloc(sizeof *listener);
+    if(!listener)
+        return;
+    
+    listener->callback = callback;
+    linked_list_push(event_table[event], (struct linked_list_node_t*)listener);
 }
 
 /* -------------------------------------------------------------------------- */
-void event_post_(event_id_e event, void* args)
+void event_post_(event_id_e event_id, void* args)
 {
     unsigned char write;
     
@@ -68,8 +79,8 @@ void event_post_(event_id_e event, void* args)
     }
     enable_interrupts();
     
-    /* add callback function and arguments into queue */
-    ring_buffer.data[write].callback = event_table[event];
+    /* add event ID and arguments into queue */
+    ring_buffer.data[write].event_id = event_id;
     ring_buffer.data[write].args = args;
 }
 
@@ -77,6 +88,8 @@ void event_post_(event_id_e event, void* args)
 void event_process_all(void)
 {
     unsigned char write, read;
+    struct listener_t* listener;
+    struct ring_buffer_data_t* data;
     
     /* 
      * Copy write position, as it could change during event processing.
@@ -87,9 +100,19 @@ void event_process_all(void)
     /* process all events up to the write position we acquired */
     while(read != write)
     {
-        /* call handler */
-        ring_buffer.data[ring_buffer.read].callback( \
-                ring_buffer.data[ring_buffer.read].args);
+        /* get data from ring buffer */
+        data = (ring_buffer.data + ring_buffer.read);
+        
+        /* look up linked list of listeners associated with event ID */
+        struct linked_list_t* listeners = event_table[data->event_id];
+        
+        /* iterate list of listeners*/
+        for(listener = (struct listener_t*)listeners->head;
+                listener;
+                listener = listener->next)
+        {
+            listener->callback(data->args);
+        }
         
         /* increment and wrap read position */
         read = (read == RING_BUFFER_SIZE ? 0 : read + 1);

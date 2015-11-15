@@ -148,7 +148,7 @@ static void init_timer_10ms(void)
      */
     T4CONbits.TON = 0;      /* disable timer during config */
     T4CONbits.TCKPS = 0x02; /* prescale 1:64 */
-    PR4 = 9356              /* period match, divide the 936 kHz by 9356 to 
+    PR4 = 9356;             /* period match, divide the 936 kHz by 9356 to 
                              * reach 10ms */
     IFS1bits.T4IF = 0;      /* clear interrupt flag */
     IEC1bits.T4IE = 1;      /* enable timer 4 interrupts */

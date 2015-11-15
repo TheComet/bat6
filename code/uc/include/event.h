@@ -17,15 +17,15 @@ extern "C" {
 /*!
  * @brief Callback function type signature.
  */
-typedef void (*event_handler_func)(void* args);
+typedef void (*event_listener_func)(void* args);
 
 /*!
  * @brief List of global events.
  * 
  * How to add your own event:
  *  1) Add your event name into the enum below.
- *  2) Write a handler function for the event
- *  3) Call event_register_handler(YOUR_EVENT, handler_function)
+ *  2) Call event_register_listener(YOUR_EVENT, listener_function) to add as
+ *     many callbacks as you need.
  */
 typedef enum
 {
@@ -50,12 +50,12 @@ typedef enum
 void event_init(void);
 
 /*!
- * @brief Assigns a callback function to one of the entries in event_e
+ * @brief Adds a callback function to the specified event's callback list.
  * @param[in] event An event in the event table to map.
- * @param[in] callback The callback function that should be called when the
+ * @param[in] callback The callback function that should get called when the
  * specified event gets posted.
  */
-void event_register_handler(event_id_e event, event_handler_func callback);
+void event_register_listener(event_id_e event, event_listener_func callback);
 
 /* see macro below for doc */
 void event_post_(event_id_e event, void* args);

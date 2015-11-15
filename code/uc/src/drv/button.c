@@ -33,8 +33,8 @@ static void button_twisted_handler(void* args)
 /* -------------------------------------------------------------------------- */
 void button_init(void)
 {
-    event_register_handler(EVENT_BUTTON_PRESSED, button_pressed_handler);
-    event_register_handler(EVENT_BUTTON_TWISTED, button_twisted_handler);
+    event_register_listener(EVENT_BUTTON_PRESSED, button_pressed_handler);
+    event_register_listener(EVENT_BUTTON_TWISTED, button_twisted_handler);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -15,6 +15,7 @@
       </logicalFolder>
       <logicalFolder name="f2" displayName="util" projectFiles="true">
         <itemPath>../include/util/static_assert.h</itemPath>
+        <itemPath>../include/util/linked_list.h</itemPath>
       </logicalFolder>
       <itemPath>../include/event.h</itemPath>
     </logicalFolder>
@@ -35,6 +36,7 @@
         <itemPath>../src/drv/timer.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="util" projectFiles="true">
+        <itemPath>../src/util/linked_list.c</itemPath>
       </logicalFolder>
       <itemPath>../src/event.c</itemPath>
       <itemPath>../src/main.c</itemPath>
