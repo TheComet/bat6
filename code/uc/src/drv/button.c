@@ -64,14 +64,13 @@ void _ISR_NOPSV _CNInterrupt(void)
      * 10 _|
      */
     unsigned char AB = KNOB_AB;  /* read from register */
-    if(AB & 0x02)
-        AB ^= 0x01;
+    AB ^= (AB >> 1); /* flip bit0 if bit1 is set */
     
     /* 
      * Determine the direction the knob was twisted and post an event
      * accordingly.
      */
-    if(AB > current_AB || (current_AB == 0 && AB == 3))
+    if(AB > current_AB || (current_AB == 3 && AB == 0))
         event_post(EVENT_BUTTON_TWISTED, (void*)BUTTON_TWISTED_LEFT);
     else
         event_post(EVENT_BUTTON_TWISTED, (void*)BUTTON_TWISTED_RIGHT);
