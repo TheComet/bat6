@@ -7,7 +7,7 @@
 
 #include "drv/hw.h"
 #include "drv/leds.h"
-#include "event.h"
+#include "core/event.h"
 
 /* -------------------------------------------------------------------------- */
 int main(void)

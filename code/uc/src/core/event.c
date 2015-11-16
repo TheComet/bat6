@@ -27,7 +27,7 @@
  * to iterate over the listeners and call the associated callback function.
  */
 
-#include "event.h"
+#include "core/event.h"
 #include "drv/hw.h"
 #include <stdlib.h>
 

@@ -6,7 +6,7 @@
  */
 
 #include "drv/leds.h"
-#include "event.h"
+#include "core/event.h"
 
 /* -------------------------------------------------------------------------- */
 static void on_update(void* args)

@@ -7,7 +7,7 @@
 
 #include "drv/timer.h"
 #include "drv/hw.h"
-#include "event.h"
+#include "core/event.h"
 #include <stddef.h>
 
 /* -------------------------------------------------------------------------- */

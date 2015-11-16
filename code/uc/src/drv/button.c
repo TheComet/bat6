@@ -7,7 +7,7 @@
 
 #include "drv/button.h"
 #include "drv/hw.h"
-#include "event.h"
+#include "core/event.h"
 #include <stdlib.h>
 
 /* -------------------------------------------------------------------------- */

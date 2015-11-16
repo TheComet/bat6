@@ -11,8 +11,8 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-#include "util/static_assert.h"
+
+#include "core/static_assert.h"
 
 /*!
  * @brief Callback function type signature.
