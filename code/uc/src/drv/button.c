@@ -11,33 +11,6 @@
 #include <stdlib.h>
 
 /* -------------------------------------------------------------------------- */
-static void button_pressed_handler(void* args)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void button_twisted_handler(void* args)
-{
-    event_args_e direction = (event_args_e)args;
-    switch(direction)
-    {
-        case BUTTON_TWISTED_LEFT:
-            break;
-        case BUTTON_TWISTED_RIGHT:
-            break;
-        default: break;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-void button_init(void)
-{
-    event_register_listener(EVENT_BUTTON_PRESSED, button_pressed_handler);
-    event_register_listener(EVENT_BUTTON_TWISTED, button_twisted_handler);
-}
-
-/* -------------------------------------------------------------------------- */
 /* called when the button is pressed (falling edge) */
 void _ISR_NOPSV _INT1Interrupt(void)
 {

@@ -51,7 +51,7 @@ struct listener_list_t
 static struct listener_list_t event_table[EVENT_COUNT] = {{0}};
 
 /* 
- * Ring buffer storage
+ * These are the type of objects stored at each index in the ring buffer.
  */
 struct ring_buffer_data_t
 {
@@ -60,9 +60,12 @@ struct ring_buffer_data_t
 };
 
 /* 
- * The actual ring buffer
+ * The actual ring buffer. It tracks the read and write positions and statically
+ * allocates an array of ring_buffer_data_t objects. The size should be set
+ * so the maximum number of events that can be posted between each dispatch
+ * still fit.
  */
-#define RING_BUFFER_SIZE 32
+#define RING_BUFFER_SIZE 64
 static struct
 {
     volatile unsigned char      read;
@@ -133,6 +136,7 @@ void event_post_(event_id_e event_id, void* args)
         write = ring_buffer.write;
         if(write == ring_buffer.read)
         {
+            /* buffer is full, discard this event */
             enable_interrupts();
             return;
         }
@@ -153,9 +157,7 @@ void event_process_all(void)
     struct ring_buffer_data_t* data;
     struct listener_list_t* listener_list;
     
-    /* 
-     * Copy write position, as it could change during event processing.
-     */
+    /* Copy write position, as it could change during event processing. */
     read = ring_buffer.read;
     write = ring_buffer.write;
 
