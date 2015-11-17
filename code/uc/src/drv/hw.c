@@ -77,6 +77,16 @@ static void init_ports(void)
     TRISD = 0b0010000001001010;
 }
 
+static void init_auxiliary_clock(void)
+{
+    /*
+     * The auxiliary clock is the only clock source the PWM modules can use.
+     * We can go up to 120 MHz with this.
+     */
+    ACLKCONbits.SELACLK = 0;    /* primary PLL provides clock source (120MHz) */
+    ACLKCONbits.APSTSCLR = 0x7; /* divide by 1 */
+}
+
 /* -------------------------------------------------------------------------- */
 void hw_init(void)
 {
@@ -84,6 +94,7 @@ void hw_init(void)
     
     /* system clock and initial port config */
     init_sysclk60mips();
+    init_auxiliary_clock();
     init_ports();
     
     /* initialise all drivers here */
