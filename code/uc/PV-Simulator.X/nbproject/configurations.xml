@@ -17,6 +17,10 @@
         <itemPath>../include/drv/uart.h</itemPath>
         <itemPath>../include/drv/timer.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f3" displayName="usr" projectFiles="true">
+        <itemPath>../include/usr/menu.h</itemPath>
+        <itemPath>../include/usr/pv_model.h</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -38,6 +42,8 @@
         <itemPath>../src/drv/timer.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
+        <itemPath>../src/usr/menu.c</itemPath>
+        <itemPath>../src/usr/pv_model.c</itemPath>
       </logicalFolder>
       <itemPath>../src/main.c</itemPath>
     </logicalFolder>

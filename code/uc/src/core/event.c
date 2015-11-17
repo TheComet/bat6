@@ -36,8 +36,8 @@
  */
 struct listener_t
 {
-    struct listener_t*          next; /* intrusive linked list */
-    event_listener_func         callback;
+    struct listener_t*  next;       /* intrusive linked list */
+    event_listener_func callback;
 };
 
 /* 
@@ -45,8 +45,8 @@ struct listener_t
  */
 struct listener_list_t
 {
-    struct listener_t* head;
-    struct listener_t* tail;
+    struct listener_t*  head;
+    struct listener_t*  tail;
 };
 static struct listener_list_t event_table[EVENT_COUNT] = {{0}};
 
