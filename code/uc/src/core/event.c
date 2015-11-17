@@ -92,6 +92,7 @@ static void destroy_listeners(struct listener_list_t* list)
 /* -------------------------------------------------------------------------- */
 void event_init(void)
 {
+    /* clear all lists of listeners */
     unsigned short i = EVENT_COUNT;
     while(i --> 0)
     {
@@ -105,6 +106,7 @@ void event_init(void)
 /* -------------------------------------------------------------------------- */
 void event_register_listener(event_id_e event_id, event_listener_func callback)
 {
+    /* allocate listener object - if no more memory is available, return */
     struct listener_list_t* list;
     struct listener_t* listener = (struct listener_t*)malloc(sizeof *listener);
     if(!listener)
@@ -133,14 +135,15 @@ void event_post_(event_id_e event_id, void* args)
      */
     disable_interrupts();
     {
-        write = ring_buffer.write;
+        write = ring_buffer.write + 1;
+        write = (write == RING_BUFFER_SIZE ? 0 : write);
         if(write == ring_buffer.read)
         {
             /* buffer is full, discard this event */
             enable_interrupts();
             return;
         }
-        ++ring_buffer.write;
+        ring_buffer.write = write;
     }
     enable_interrupts();
     
@@ -157,7 +160,12 @@ void event_process_all(void)
     struct ring_buffer_data_t* data;
     struct listener_list_t* listener_list;
     
-    /* Copy write position, as it could change during event processing. */
+    /* 
+     * Copy write position, as it could change during event processing.
+     * Read position is only ever changed in this function, however,
+     * it is declared volatile which makes incrementing it correctly more
+     * complicated.
+     */
     read = ring_buffer.read;
     write = ring_buffer.write;
 
@@ -177,7 +185,8 @@ void event_process_all(void)
         }
         
         /* increment and wrap read position */
-        read = (read == RING_BUFFER_SIZE ? 0 : read + 1);
+        ++read;
+        read = (read == RING_BUFFER_SIZE ? 0 : read);
     }
     
     /* update read position */
