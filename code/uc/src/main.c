@@ -12,9 +12,12 @@
 /* -------------------------------------------------------------------------- */
 int main(void)
 {
-    hw_init();
+    /* 
+     * Event system must be initialised before hardware, because the hardware
+     * drivers need to register listeners.
+     */
     event_init();
-    led_init();
+    hw_init();
     
     while(1)
     {

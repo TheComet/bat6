@@ -15,7 +15,8 @@ extern "C" {
 #include "core/static_assert.h"
 
 /*!
- * @brief Callback function type signature.
+ * @brief Callback function type. All listeners need to implement this
+ * signature.
  */
 typedef void (*event_listener_func)(void* args);
 
@@ -29,9 +30,23 @@ typedef void (*event_listener_func)(void* args);
  */
 typedef enum
 {
+    /*! Gets posted every 10ms. Useful for time-critical things. */
     EVENT_UPDATE = 0,
+    /*! Gets posted when the twist button is twisted, left or right. The
+     *  direction is passed as an argument */
     EVENT_BUTTON_TWISTED,
+    /*! Gets posted when the twist button is pressed (falling edge). */
     EVENT_BUTTON_PRESSED,
+    /*! Gets posted when an undervoltage lockout is in progress. This usually
+     *  means the device was unplugged, in which case the device has a short
+     *  time to prepare for total power off. UVLO is triggered when the 36V
+     *  rail sinks below 25V. The 3.3V rail remains stable until the 36V rail
+     *  reaches ~4V */
+    EVENT_UVLO,
+
+    /* ---------------------------------------------------------------------- */
+    /*! The number of event IDs. Used to size the static table. 
+     *  NOTE: Keep this at the end of the enum! */
     EVENT_COUNT
 } event_id_e;
 
@@ -62,10 +77,12 @@ void event_register_listener(event_id_e event, event_listener_func callback);
 void event_post_(event_id_e event, void* args);
 
 /*!
- * @brief Queues an event.
- * @param[in] event Must be one of the events specified in the event table.
+ * @brief Queues an event. This can be called from interrupts or from the main
+ * thread.
+ * @param[in] event The event ID to post. Event IDs are defined in the event
+ * enum in event.h.
  * @param[in] event_data Optional event data. The data specified here gets
- * passed to the registered handler function.
+ * passed to the registered listener callback function.
  */
 #define event_post(event, event_data) do {              \
     static_assert(sizeof(event_data) <= sizeof(void*)); \

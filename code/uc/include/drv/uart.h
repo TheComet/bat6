@@ -12,6 +12,11 @@
 extern "C" {
 #endif
 
+/*!
+ * @brief Initialises the UART driver. Call this for communication to work.
+ */
+void uart_init(void);
+
 #ifdef	__cplusplus
 }
 #endif

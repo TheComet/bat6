@@ -12,6 +12,12 @@
 extern "C" {
 #endif
 
+/*!
+ * @brief Initialises the button driver. Call this for events related to button
+ * twists/presses to work.
+ */
+void button_init(void);
+
 #ifdef	__cplusplus
 }
 #endif

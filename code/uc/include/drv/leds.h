@@ -13,9 +13,9 @@ extern "C" {
 #endif
     
 /*!
- * @brief Initialise LEDs. Call this for LEDs to work.
+ * @brief Initialise LED driver. Call this for LEDs to work.
  */
-void led_init(void);
+void leds_init(void);
 
 #ifdef	__cplusplus
 }

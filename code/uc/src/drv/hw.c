@@ -6,6 +6,13 @@
  */
 
 #include "drv/hw.h"
+#include "core/event.h"
+#include "drv/buck.h"
+#include "drv/button.h"
+#include "drv/lcd.h"
+#include "drv/leds.h"
+#include "drv/timer.h"
+#include "drv/uart.h"
 
 /* -------------------------------------------------------------------------- */
 /* Disable watchdog timer */
@@ -68,92 +75,6 @@ static void init_ports(void)
     TRISB = 0b1000100100001100;
     TRISC = 0b0001101001111110;
     TRISD = 0b0010000001001010;
-    
-    /* LCD reset is a 5V output signal, set to open drain and let external
-     * pull-ups do their job */
-    ODCBbits.ODCB11 = 1;    /* open drain for 5V operation */
-    TRISBbits.TRISB11 = 0;  /* output */
-    
-    /* buck enable is a digital output */
-    TRISAbits.TRISA2 = 0;   /* output */
-    
-    /* twist/push button has three wires that need pull-ups */
-    CNPUC |= 0x0070;        /* bit 4, 5, 6 */
-    
-    /* 
-     * Twist/push button (bit 4, 5 and 6) and UVLO (bit 9) are digital input
-     * signals. Because all pins are configured as analog inputs by default,
-     * clear analog flags.
-     */
-    ANSELC &= ~0x0170;      /* bit 4, 5, 6 and 9 */
-    
-    /* configure KNOB_BTN to trigger an interrupt when pressed */
-    RPINR0bits.INT1R = 54;  /* assign INT1 to pin RP54 */
-    INTCON2bits.INT1EP = 1; /* interrupt on falling edge (pressed) */
-    IFS1bits.INT1IF = 0;    /* clear interrupt flag */
-    IEC1bits.INT1IE = 1;    /* enable INT1 interrupt */
-    
-    /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
-    RPINR1bits.INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
-    INTCON2bits.INT2EP = 0; /* interrupt on rising edge */
-    IFS1bits.INT2IF = 0;    /* clear interrupt flag */
-    IEC1bits.INT2IE = 1;    /* enable INT2 interrupt */
-    
-    /* configure encoder to trigger interrupts whenever A or B changes */
-    CNENC |= 0x30;          /* enable interrupts for bits 4 and 5 */
-    IFS1bits.CNIF = 0;      /* clear interrupt flag for change notifications */
-    IEC1bits.CNIE = 1;      /* enable change notification interrupts */
-}
-
-/* -------------------------------------------------------------------------- */
-static void init_uart(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void init_leds(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void init_lcd(void)
-{
-    /*
-     * Communication to the LCD is achieved over I2C. The address of the LCD is
-     * defined in hw.h as LCD_ADDRESS.
-     */
-    
-    /* enable I2C2 module, master mode*/
-    I2C2CONLbits.I2CEN = 1;
-}
-
-/* -------------------------------------------------------------------------- */
-static void init_timer_10ms(void)
-{
-    /*
-     * Target interrupt frequency is 100Hz
-     * 
-     * Fcy = 7.37 * 65 / 8 = 59.88125 MHz
-     * Prescale 1:64 ~ 936 kHz
-     * Using 16-bit timer type B: count to 9356 for 100 Hz
-     * 
-     * We'll be using a timer type B, specifically timer 4, so we don't
-     * potentially clash with the timer required for ADC conversions.
-     * 
-     * Notes on config:
-     *  + Clock source select by default is Fosc / 2
-     *  + Default mode is 16-bit mode
-     */
-    T4CONbits.TON = 0;      /* disable timer during config */
-    T4CONbits.TCKPS = 0x02; /* prescale 1:64 */
-    PR4 = 9356;             /* period match, divide the 936 kHz by 9356 to 
-                             * reach 10ms */
-    IFS1bits.T4IF = 0;      /* clear interrupt flag */
-    IEC1bits.T4IE = 1;      /* enable timer 4 interrupts */
-    
-    T4CONbits.TON = 1;      /* start timer */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -161,12 +82,17 @@ void hw_init(void)
 {
     disable_interrupts();
     
+    /* system clock and initial port config */
     init_sysclk60mips();
     init_ports();
-    init_uart();
-    init_leds();
-    init_lcd();
-    init_timer_10ms();
     
+    /* initialise all drivers here */
+    buck_init();
+    button_init();
+    lcd_init();
+    leds_init();
+    timer_init();
+    uart_init();
+
     enable_interrupts();
 }

@@ -76,6 +76,12 @@ typedef enum
 } lcd_argument_e;
 
 /*!
+ * @brief Initialises the LCD driver. Call this before calling any other LCD
+ * related functions.
+ */
+void lcd_init(void);
+
+/*!
  * @brief Sends a command with optional argument to the LCD.
  * @param[in] command The command to send to the LCD
  * @param[in] argument The argument is command-specific. If a command does not

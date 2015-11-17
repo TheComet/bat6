@@ -12,7 +12,10 @@
 extern "C" {
 #endif
 
-
+/*!
+ * @brief Initialises the buck driver. Call this for the buck to work.
+ */
+void buck_init(void);
 
 #ifdef	__cplusplus
 }
