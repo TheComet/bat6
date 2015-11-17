@@ -67,11 +67,19 @@ void event_init(void);
 
 /*!
  * @brief Adds a callback function to the specified event's callback list.
- * @param[in] event An event in the event table to map.
+ * @param[in] event_id The event ID to register to.
  * @param[in] callback The callback function that should get called when the
  * specified event gets posted.
  */
 void event_register_listener(event_id_e event, event_listener_func callback);
+
+/*!
+ * @brief Removes a callback function from the specified event's callback list.
+ * @param[in] event_id The event ID to unregister from.
+ * @param[in] callback The callback function pointer to unregister.
+ */
+void event_unregister_listener(event_id_e event_id,
+        event_listener_func callback);
 
 /* see macro below for doc */
 void event_post_(event_id_e event, void* args);

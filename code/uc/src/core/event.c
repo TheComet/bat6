@@ -125,6 +125,39 @@ void event_register_listener(event_id_e event_id, event_listener_func callback)
 }
 
 /* -------------------------------------------------------------------------- */
+void event_unregister_listener(event_id_e event_id,
+        event_listener_func callback)
+{
+    struct listener_list_t* list;
+    struct listener_t *listener, *previous_listener = NULL;
+    
+    /* search for matching item in linked list */
+    list = (event_table + event_id);
+    for(listener = list->head;
+        listener;
+        previous_listener = listener, listener = listener->next)
+    {
+        if(listener->callback == callback)
+        {
+            /* unlink item */
+            if(previous_listener)
+                previous_listener->next = listener->next;
+            
+            /* update list object head and tail */
+            if(list->head == listener)
+                list->head = listener->next;
+            if(list->tail == listener)
+                list->tail = previous_listener;
+            
+            /* listener is unlinked, safe to destroy */
+            free(listener);
+            
+            return;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 void event_post_(event_id_e event_id, void* args)
 {
     unsigned char write;
@@ -158,7 +191,7 @@ void event_process_all(void)
     unsigned char write, read;
     struct listener_t* listener;
     struct ring_buffer_data_t* data;
-    struct listener_list_t* listener_list;
+    struct listener_list_t* list;
     
     /* 
      * Copy write position, as it could change during event processing.
@@ -172,14 +205,10 @@ void event_process_all(void)
     /* process all events up to the write position we acquired */
     while(read != write)
     {
-        /* look up data in ring buffer according to read position */
+        /* iterate list of listeners for the current event ID */
         data = (ring_buffer.data + read);
-        
-        /* look up list of listeners associated with event ID */
-        listener_list = event_table + data->event_id;
-        
-        /* iterate list of listeners */
-        for(listener = listener_list->head; listener; listener = listener->next)
+        list = (event_table + data->event_id);
+        for(listener = list->head; listener; listener = listener->next)
         {
             listener->callback(data->args);
         }
