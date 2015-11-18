@@ -140,14 +140,14 @@ void event_unregister_listener(event_id_e event_id,
         if(listener->callback == callback)
         {
             /* unlink item */
-            if(previous_listener)
+            if(previous_listener)  /* nothing to unlink if the item is first */
                 previous_listener->next = listener->next;
             
             /* update list object head and tail */
-            if(list->head == listener)
-                list->head = listener->next;
-            if(list->tail == listener)
-                list->tail = previous_listener;
+            if(list->head == listener)          /* item was first in list */
+                list->head = listener->next;    /* set next item as first */
+            if(list->tail == listener)          /* item was last in list */
+                list->tail = previous_listener; /* set previous item as last */
             
             /* listener is unlinked, safe to destroy */
             free(listener);
