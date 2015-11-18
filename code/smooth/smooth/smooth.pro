@@ -13,8 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    bat6window.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    bat6window.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    bat6window.ui
