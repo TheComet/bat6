@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    bat6window.cpp
+    bat6window.cpp \
+    console.cpp
 
 HEADERS  += mainwindow.h \
-    bat6window.h
+    bat6window.h \
+    console.h
 
 FORMS    += mainwindow.ui \
     bat6window.ui

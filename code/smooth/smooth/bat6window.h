@@ -5,8 +5,11 @@
 #include <QScopedPointer>
 
 namespace Ui {
-class BAT6Window;
+    class BAT6Window;
 }
+
+class QSerialPort;
+class Console;
 
 class BAT6Window : public QWidget
 {
@@ -16,8 +19,13 @@ public:
     explicit BAT6Window(QWidget *parent = 0);
     ~BAT6Window();
 
+private slots:
+    void onReadData();
+
 private:
     QScopedPointer<Ui::BAT6Window> ui;
+    QScopedPointer<QSerialPort> serial;
+    QScopedPointer<Console> console;
 };
 
 #endif // BAT6WINDOW_H

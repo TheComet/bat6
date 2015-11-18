@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QScopedPointer>
+#include "bat6window.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,8 +17,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void on_action_New_BAT6_connection_triggered();
+
 private:
     QScopedPointer<Ui::MainWindow> ui;
+    QScopedPointer<BAT6Window> bat6Window;
 };
 
 #endif // MAINWINDOW_H
