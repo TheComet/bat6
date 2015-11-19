@@ -21,7 +21,7 @@ void timer_init(void)
      * Using 16-bit timer type B: count to 9356 for 100 Hz
      * 
      * We'll be using a timer type B, specifically timer 4, so we don't
-     * potentially clash with the timer required for ADC conversions.
+     * clash with the timer required for ADC conversions.
      * 
      * Notes on config:
      *  + Clock source select by default is Fosc / 2
