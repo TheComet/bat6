@@ -15,16 +15,15 @@ TARGET = smooth
 TEMPLATE = app
 
 
-SOURCES +=  src/main.cpp \
-            src/mainwindow.cpp \
-            src/bat6window.cpp \
-            src/console.cpp
+SOURCES +=  main.cpp \
+            mainwindow.cpp \
+            bat6window.cpp \
+            console.cpp
 
-HEADERS  += include/mainwindow.h \
-            include/bat6window.h \
-            include/console.h
+HEADERS  += mainwindow.h \
+            bat6window.h \
+            console.h
 
-FORMS    += forms/mainwindow.ui \
-            forms/bat6window.ui
+FORMS    += mainwindow.ui \
+            bat6window.ui
 
-INCLUDEPATH = include
