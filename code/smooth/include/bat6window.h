@@ -8,7 +8,6 @@ namespace Ui {
     class BAT6Window;
 }
 
-class QSerialPort;
 class Console;
 
 class BAT6Window : public QWidget
@@ -23,8 +22,9 @@ private slots:
     void onReadData();
 
 private:
+    void openSerialPort();
+
     QScopedPointer<Ui::BAT6Window> ui;
-    QScopedPointer<QSerialPort> serial;
     QScopedPointer<Console> console;
 };
 
