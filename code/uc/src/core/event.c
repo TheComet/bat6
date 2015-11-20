@@ -24,7 +24,7 @@
  * and extract the event ID + arguments. We use the event ID to look up the
  * associated list object in the static event table. Said list object contains a
  * linked list of all listeners interested in postings of the event. We proceed
- * to iterate over the listeners and call the associated callback function.
+ * to iterate over the listeners and call the associated callback functions.
  */
 
 #include "core/event.h"
@@ -60,10 +60,9 @@ struct ring_buffer_data_t
 };
 
 /* 
- * The actual ring buffer. It tracks the read and write positions and statically
- * allocates an array of ring_buffer_data_t objects. The size should be set
- * so the maximum number of events that can be posted between each dispatch
- * still fit.
+ * The actual ring buffer holds an array of ring_buffer_t objects and is
+ * allocated statically. The buffer size should allow for the maximum number of
+ * events that can be posted between each dispatch to fit.
  */
 #define RING_BUFFER_SIZE 64
 static struct
