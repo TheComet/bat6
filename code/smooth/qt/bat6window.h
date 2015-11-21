@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <QScopedPointer>
+#include <QButtonGroup>
 
 namespace Ui {
     class BAT6Window;
 }
 
 class Console;
+class Cell;
 
 class BAT6Window : public QWidget
 {
@@ -25,7 +27,7 @@ private:
     void openSerialPort();
 
     QScopedPointer<Ui::BAT6Window> ui;
-    QScopedPointer<Console> console;
+    Console* console;
 };
 
 #endif // BAT6WINDOW_H

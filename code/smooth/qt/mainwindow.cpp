@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QShortcut>
+#include <QMdiSubWindow>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,8 +13,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut* shortcut;
     shortcut = new QShortcut(QKeySequence("Ctrl+N"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(on_action_New_BAT6_connection_triggered()));
-
-    //on_action_New_BAT6_connection_triggered();
 }
 
 MainWindow::~MainWindow()
