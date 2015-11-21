@@ -21,7 +21,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_New_BAT6_connection_triggered()
 {
-    BAT6Window* bat6Window = new BAT6Window;
-    ui->mdiArea->addSubWindow(bat6Window);
-    bat6Window->show();
+    BAT6Widget* bat6Widget = new BAT6Widget;
+    ui->mdiArea->addSubWindow(bat6Widget);
+    bat6Widget->show();
 }

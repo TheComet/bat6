@@ -32,34 +32,64 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#include "consolewidget.h"
 
-#include <QPlainTextEdit>
+#include <QScrollBar>
+#include <QtCore/QDebug>
 
-class Console : public QPlainTextEdit
+ConsoleWidget::ConsoleWidget(QWidget *parent)
+    : QPlainTextEdit(parent)
+    , localEchoEnabled(false)
 {
-    Q_OBJECT
+    document()->setMaximumBlockCount(100);
+    QPalette p = palette();
+    p.setColor(QPalette::Base, Qt::black);
+    p.setColor(QPalette::Text, Qt::green);
+    setPalette(p);
 
-signals:
-    void getData(const QByteArray &data);
+}
 
-public:
-    explicit Console(QWidget *parent = 0);
+void ConsoleWidget::putData(const QByteArray &data)
+{
+    insertPlainText(QString(data));
 
-    void putData(const QByteArray &data);
+    QScrollBar *bar = verticalScrollBar();
+    bar->setValue(bar->maximum());
+}
 
-    void setLocalEchoEnabled(bool set);
+void ConsoleWidget::setLocalEchoEnabled(bool set)
+{
+    localEchoEnabled = set;
+}
 
-protected:
-    virtual void keyPressEvent(QKeyEvent *e);
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
-    virtual void contextMenuEvent(QContextMenuEvent *e);
+void ConsoleWidget::keyPressEvent(QKeyEvent *e)
+{
+    switch (e->key()) {
+    case Qt::Key_Backspace:
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+        break;
+    default:
+        if (localEchoEnabled)
+            QPlainTextEdit::keyPressEvent(e);
+        emit getData(e->text().toLocal8Bit());
+    }
+}
 
-private:
-    bool localEchoEnabled;
+void ConsoleWidget::mousePressEvent(QMouseEvent *e)
+{
+    Q_UNUSED(e)
+    setFocus();
+}
 
-};
+void ConsoleWidget::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    Q_UNUSED(e)
+}
 
-#endif // CONSOLE_H
+void ConsoleWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    Q_UNUSED(e)
+}

@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QScopedPointer>
-#include "bat6window.h"
+#include "bat6widget.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,7 +22,7 @@ private slots:
 
 private:
     QScopedPointer<Ui::MainWindow> ui;
-    QScopedPointer<BAT6Window> bat6Window;
+    QScopedPointer<BAT6Widget> bat6Widget;
 };
 
 #endif // MAINWINDOW_H
