@@ -10,7 +10,6 @@ namespace Ui {
 
 class QGridLayout;
 class ConsoleWidget;
-class Cell;
 
 class BAT6Widget : public QWidget
 {

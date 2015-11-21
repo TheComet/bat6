@@ -107,7 +107,7 @@ public:
      * \param The name of the cell object to get.
      * \return Returns NULL if the cell object wasn't found.
      */
-    const PVCell* getCell(const QString& cellName) const;
+    PVCell* getCell(const QString& cellName);
 
 private:
     double calculateSeriesCurrent(const QVector< QPair<const PVCell*, double> >& cellVoltages) const;

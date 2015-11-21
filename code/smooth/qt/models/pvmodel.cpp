@@ -84,13 +84,13 @@ static void normaliseVoltages(QVector< QPair<const PVCell*, double> >& cellVolta
 
 double PVChain::calculateSeriesCurrent(const QVector< QPair<const PVCell*, double> >& cellVoltages) const
 {
-    double minCurrent = std::numeric_limits<double>::max();
+    double averageCurrent = 0.0;
     for(const auto& cellVoltage : cellVoltages)
     {
         double current = cellVoltage.first->calculateCurrent(cellVoltage.second, this->exposure);
-        minCurrent = (current < minCurrent ? current : minCurrent);
+        averageCurrent += current;
     }
-    return minCurrent;
+    return averageCurrent / cellVoltages.size();
 }
 
 double PVChain::calculateIndividualCellVoltages(double current, QVector< QPair<const PVCell*, double> >& cellVoltages) const
@@ -119,7 +119,7 @@ double PVChain::calculateCurrent(double targetVoltage) const
      * a certain threshold.
      */
     const double acceptableErrorInPercent = 0.1;
-    int maxIterations = 1000;
+    int maxIterations = 100;
 
     /*
      * We start with the assumption that each cell is producing an equal
@@ -170,9 +170,10 @@ void PVChain::removeCell(const QString &cellName)
     cellChain.remove(cellName);
 }
 
-const PVCell* PVChain::getCell(const QString &cellName) const
+PVCell* PVChain::getCell(const QString &cellName)
 {
-    cellChain.find(cellName);
+    auto cell = cellChain.find(cellName);
+    return cell.operator->();
 }
 
 PVPanel::PVPanel()

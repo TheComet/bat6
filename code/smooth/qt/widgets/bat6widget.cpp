@@ -7,7 +7,7 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QSpacerItem>
-
+#include <QDebug>
 
 BAT6Widget::BAT6Widget(QWidget *parent) :
     QWidget(parent),
@@ -24,16 +24,29 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     splitter->addWidget(cellContainer);
 
     // on the right side of the splitter is the plot
-    splitter->addWidget(new PlotWidget);
+    QWidget* plotContainer = new QWidget;
+    splitter->addWidget(plotContainer);
+
+    QGridLayout* plotLayout = new QGridLayout;
+    plotContainer->setLayout(plotLayout);
+    PlotWidget* plotWidget1 = new PlotWidget(false);
+    plotLayout->addWidget(plotWidget1);
+    PlotWidget* plotWidget2 = new PlotWidget(true);
+    plotLayout->addWidget(plotWidget2);
 
     // the cell container uses a grid layout for positioning each cell
-    QGridLayout* cellContainerLayout = new QGridLayout;
     layoutCells = new QGridLayout;
-    cellContainerLayout->addLayout(layoutCells, 0, 0, 1, 1);
-    cellContainerLayout->addItem(new QSpacerItem(0, 1000), 1, 0);
-    cellContainer->setLayout(cellContainerLayout);
+    cellContainer->setLayout(layoutCells);
 
-    layoutCells->addWidget(new CellWidget);
+    for(int i = 1; i != 5; ++i)
+    {
+        CellWidget* cellWidget = new CellWidget("cell " + QString::number(i));
+        layoutCells->addWidget(cellWidget);
+        connect(cellWidget, SIGNAL(exposureChanged(CellWidget,double)),
+                plotWidget1, SLOT(onCellExposureChanged(CellWidget,double)));
+        connect(cellWidget, SIGNAL(exposureChanged(CellWidget,double)),
+                plotWidget2, SLOT(onCellExposureChanged(CellWidget,double)));
+    }
 
     // configure console
     console = new ConsoleWidget;
