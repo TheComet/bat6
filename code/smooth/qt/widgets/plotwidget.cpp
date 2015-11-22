@@ -17,8 +17,8 @@ public:
         voltageDependent(voltageDependent)
     {
         chain.addCell("cell 1", PVCell(6, 3, 1.75));
-        chain.addCell("cell 2", PVCell(6, 3, 1.75));
-        chain.addCell("cell 3", PVCell(6, 3, 1.75));
+        chain.addCell("cell 2", PVCell(6, 2, 1.75));
+        chain.addCell("cell 3", PVCell(6, 4, 1.75));
         chain.addCell("cell 4", PVCell(6, 3, 1.75));
     }
 
@@ -68,11 +68,11 @@ PlotWidget::PlotWidget(bool voltageDependent)
 
     coordinates()->axes[X1].setLabelString("exposure (%)");
     if(voltageDependent) {
-        coordinates()->axes[Y1].setLabelString("current (A)");
-        coordinates()->axes[Z1].setLabelString("voltage (V)");
-    } else {
         coordinates()->axes[Y1].setLabelString("voltage (V)");
         coordinates()->axes[Z1].setLabelString("current (A)");
+    } else {
+        coordinates()->axes[Y1].setLabelString("current (A)");
+        coordinates()->axes[Z1].setLabelString("voltage (V)");
     }
 
     setCoordinateStyle(BOX);

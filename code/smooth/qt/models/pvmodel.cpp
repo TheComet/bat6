@@ -54,7 +54,7 @@ double PVCell::calculateVoltage(double current, double exposure) const
     double exponent = (totalExposure - (current / shortCircuitCurrent));
     exponent = (exponent <= 0.0 ? std::numeric_limits<double>::epsilon() : exponent);
 
-    // calculate voltage. Voltage can't be lower than 0V (because out diode)
+    // calculate voltage. Voltage can't be lower than 0V (because of diode)
     double voltage = log(exponent) * darkVoltage + openCircuitVoltage;
     return (voltage <= 0.0 ? 0.0 : voltage);
 }
@@ -65,43 +65,25 @@ void PVCell::setExposure(double exposure)
     this->exposure = (exposure <= 0.0 ? 0.0 : exposure);
 }
 
+double PVCell::getShortCircuitCurrent() const
+{
+    return shortCircuitCurrent;
+}
+
 PVChain::PVChain() :
     exposure(1.0)
 {
 }
 
-static void normaliseVoltages(QVector< QPair<const PVCell*, double> >& cellVoltages, double maxVoltage)
+double PVChain::calculateAverageSeriesCurrent(double totalVoltage) const
 {
-    double ratio = 0.0;
-    for(const auto& cellVoltage : cellVoltages)
-        ratio += cellVoltage.second;
-    if(ratio == 0.0)
-        return;
-    ratio = maxVoltage / ratio;
-    for(auto& cellVoltage : cellVoltages)
-        cellVoltage.second *= ratio;
-}
-
-double PVChain::calculateSeriesCurrent(const QVector< QPair<const PVCell*, double> >& cellVoltages) const
-{
+    const double voltagePerCell = totalVoltage / cellChain.size();
     double averageCurrent = 0.0;
-    for(const auto& cellVoltage : cellVoltages)
+    for(const auto& cell : cellChain)
     {
-        double current = cellVoltage.first->calculateCurrent(cellVoltage.second, this->exposure);
-        averageCurrent += current;
+        averageCurrent += cell.calculateCurrent(voltagePerCell, this->exposure);
     }
-    return averageCurrent / cellVoltages.size();
-}
-
-double PVChain::calculateIndividualCellVoltages(double current, QVector< QPair<const PVCell*, double> >& cellVoltages) const
-{
-    double totalVoltage = 0.0;
-    for(auto& cellVoltage : cellVoltages)
-    {
-        cellVoltage.second = cellVoltage.first->calculateVoltage(current, this->exposure);
-        totalVoltage += cellVoltage.second;
-    }
-    return totalVoltage;
+    return averageCurrent / cellChain.size();
 }
 
 void PVChain::setExposure(double exposure)
@@ -118,35 +100,28 @@ double PVChain::calculateCurrent(double targetVoltage) const
      * problem is to use an iterative algorithm until the error goes below
      * a certain threshold.
      */
-    const double acceptableErrorInPercent = 0.1;
-    int maxIterations = 100;
+    int maxIterations = 20;
 
-    /*
-     * We start with the assumption that each cell is producing an equal
-     * amount of voltage.
-     */
-    QVector< QPair<const PVCell*, double> > cellVoltages;
-    for(auto& cell : cellChain)
-        cellVoltages.push_back(
-                    QPair<const PVCell*, double>(&cell, targetVoltage / cellChain.size()));
+    if(targetVoltage == 0.0)
+        return this->calculateAverageSeriesCurrent(targetVoltage);
 
-    double seriesCurrent;
+    double top = 0.0;
+    for(const auto& cell : cellChain)
+        top = (cell.getShortCircuitCurrent() > top ? cell.getShortCircuitCurrent() : top);
+
+    double bottom = 0.0;
+    double current = (top + bottom) / 2.0;
     while(maxIterations --> 0)
     {
-        seriesCurrent = this->calculateSeriesCurrent(cellVoltages);
-        double totalVoltage = this->calculateIndividualCellVoltages(seriesCurrent, cellVoltages);
-        if(seriesCurrent == 0.0 && totalVoltage == 0.0)
-            return 0.0;
-
-        normaliseVoltages(cellVoltages, targetVoltage);
-
-        double error = (totalVoltage / targetVoltage) - 1.0;
-        error = (error > 0 ? error : -error);
-        if(error * 100.0 < acceptableErrorInPercent)
-            break;
+        double voltage = this->calculateVoltage(current);
+        if(voltage < targetVoltage)
+            top = current;
+        else
+            bottom = current;
+        current = (top + bottom) / 2.0;
     }
 
-    return seriesCurrent;
+    return current;
 }
 
 double PVChain::calculateVoltage(double current) const

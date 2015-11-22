@@ -48,6 +48,12 @@ public:
      */
     double getExposure() const;
 
+    /*!
+     * \brief Returns the short circuit current of this cell.
+     * \return The short circuit current in amps.
+     */
+    double getShortCircuitCurrent() const;
+
 private:
     double shortCircuitCurrent;
     double openCircuitVoltage;
@@ -110,8 +116,7 @@ public:
     PVCell* getCell(const QString& cellName);
 
 private:
-    double calculateSeriesCurrent(const QVector< QPair<const PVCell*, double> >& cellVoltages) const;
-    double calculateIndividualCellVoltages(double current, QVector< QPair<const PVCell*, double> >& cellVoltages) const;
+    double calculateAverageSeriesCurrent(double totalVoltage) const;
 
     QMap<QString, PVCell> cellChain;
     double exposure;
