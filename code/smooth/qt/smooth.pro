@@ -21,15 +21,19 @@ SOURCES +=  main.cpp \
             widgets/cellwidget.cpp \
             widgets/consolewidget.cpp \
             widgets/bat6widget.cpp \
-            models/pvmodel.cpp \
-    widgets/plotwidget.cpp
+            widgets/plotwidget.cpp \
+            models/pvcell.cpp \
+            models/pvchain.cpp \
+            models/pvarray.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
             widgets/consolewidget.h \
             widgets/bat6widget.h \
-            models/pvmodel.h \
-    widgets/plotwidget.h
+            widgets/plotwidget.h \
+            models/pvcell.h \
+            models/pvchain.h \
+            models/pvarray.h
 
 FORMS    += mainwindow.ui \
             bat6widget.ui \

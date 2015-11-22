@@ -1,5 +1,7 @@
 #include "plotwidget.h"
-#include "models/pvmodel.h"
+#include "models/pvarray.h"
+#include "models/pvchain.h"
+#include "models/pvcell.h"
 #include "widgets/cellwidget.h"
 
 #include <QDebug>
@@ -16,27 +18,31 @@ public:
         Function(pw),
         voltageDependent(voltageDependent)
     {
+        PVChain chain;
         chain.addCell("cell 1", PVCell(6, 3, 1.75));
         chain.addCell("cell 2", PVCell(6, 2, 1.75));
         chain.addCell("cell 3", PVCell(6, 4, 1.75));
         chain.addCell("cell 4", PVCell(6, 3, 1.75));
+
+        pvarray.addChain("chain 1", chain);
     }
 
-    PVChain& getChain()
+    PVChain* getChain(const QString& chainName)
     {
-        return chain;
+        return pvarray.getChain(chainName);
     }
 
     double operator()(double exposure, double voltage)
     {
-        chain.setExposure(0.01 * exposure);
+        pvarray.setExposure(0.01 * exposure);
+        //pvarray.getChain("chain 1")->setExposure(0.01 * exposure);
         if(voltageDependent)
-            return chain.calculateCurrent(voltage);
+            return pvarray.calculateCurrent(voltage);
         else
-            return chain.calculateVoltage(voltage);
+            return pvarray.calculateVoltage(voltage);
     }
 private:
-    PVChain chain;
+    PVArray pvarray;
     bool voltageDependent;
 };
 
@@ -84,7 +90,7 @@ PlotWidget::PlotWidget(bool voltageDependent)
 
 void PlotWidget::onCellExposureChanged(const CellWidget& cellWidget, double exposure)
 {
-    PVCell* cell = pvmodule->getChain().getCell(cellWidget.getName());
+    PVCell* cell = pvmodule->getChain("chain 1")->getCell(cellWidget.getName());
     if(!cell)
         return;
     cell->setExposure(exposure);

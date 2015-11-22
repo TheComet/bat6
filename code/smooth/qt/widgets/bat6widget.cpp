@@ -20,24 +20,24 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     ui->layout_ui->addWidget(splitter);
 
     // on the left side of the splitter is the cell layout
-    QWidget* cellContainer = new QWidget;
+    QWidget* cellContainer = new QFrame;
     splitter->addWidget(cellContainer);
+    layoutCells = new QGridLayout;
+    cellContainer->setLayout(layoutCells);
 
     // on the right side of the splitter is the plot
-    QWidget* plotContainer = new QWidget;
+    QWidget* plotContainer = new QFrame;
     splitter->addWidget(plotContainer);
-
     QGridLayout* plotLayout = new QGridLayout;
     plotContainer->setLayout(plotLayout);
+
+    // add the two plots, one does V(I) the other I(V)
     PlotWidget* plotWidget1 = new PlotWidget(false);
     plotLayout->addWidget(plotWidget1);
     PlotWidget* plotWidget2 = new PlotWidget(true);
     plotLayout->addWidget(plotWidget2);
 
-    // the cell container uses a grid layout for positioning each cell
-    layoutCells = new QGridLayout;
-    cellContainer->setLayout(layoutCells);
-
+    // add and connect the cell widgets
     for(int i = 1; i != 5; ++i)
     {
         CellWidget* cellWidget = new CellWidget("cell " + QString::number(i));
