@@ -12,10 +12,10 @@ class CellWidget : public QWidget
 {
     Q_OBJECT
 signals:
-    void exposureChanged(const CellWidget& cell, double intensity);
-    void shortCircuitCurrentChanged(const CellWidget& cell, double shortCircuitCurrent);
-    void openCircuitVoltageChanged(const CellWidget& cell, double openCircuitVoltage);
-    void darkVoltageChange(const CellWidget& cell, double darkVoltage);
+    void exposureChanged(CellWidget* cell, double intensity);
+    void shortCircuitCurrentChanged(CellWidget* cell, double shortCircuitCurrent);
+    void openCircuitVoltageChanged(CellWidget* cell, double openCircuitVoltage);
+    void darkVoltageChange(CellWidget* cell, double darkVoltage);
 
 public:
     explicit CellWidget(const QString& cellName, QWidget *parent = 0);

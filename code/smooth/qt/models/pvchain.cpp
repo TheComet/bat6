@@ -30,6 +30,12 @@ void PVChain::setExposure(double exposure)
     this->exposure = (exposure >= 1.0 ? 1.0 : exposure);
 }
 
+void PVChain::setTemperature(double temperature)
+{
+    for(auto& cell : cellChain)
+        cell.setTemperature(temperature);
+}
+
 double PVChain::calculateCurrent(double targetVoltage, double exposure) const
 {
     /*
