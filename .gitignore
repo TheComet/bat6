@@ -5,3 +5,6 @@
 
 # temp files
 *.swp
+*.log
+*.aux
+*.toc
