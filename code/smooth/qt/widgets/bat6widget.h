@@ -10,6 +10,9 @@ namespace Ui {
 
 class QGridLayout;
 class ConsoleWidget;
+class CellWidget;
+class CharacteristicCurve2DWidget;
+class CharacteristicCurve3DWidget;
 
 class BAT6Widget : public QWidget
 {
@@ -20,6 +23,7 @@ public:
     ~BAT6Widget();
 
 private slots:
+    void onCellExposureChanged(CellWidget* cellWidget, double exposure);
     void onReadData();
 
 private:
@@ -28,6 +32,8 @@ private:
     QScopedPointer<Ui::BAT6Widget> ui;
     QGridLayout* layoutCells;
     ConsoleWidget* console;
+    CharacteristicCurve2DWidget* cc2d;
+    CharacteristicCurve3DWidget* cc3d;
 };
 
 #endif // BAT6WIDGET_H

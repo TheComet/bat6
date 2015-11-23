@@ -63,6 +63,12 @@ void PVArray::setExposure(double exposure)
     this->exposure = (exposure > 1.0 ? 1.0 : exposure);
 }
 
+void PVArray::setTemperature(double temperature)
+{
+    for(auto& chain : cellArray)
+        chain.setTemperature(temperature);
+}
+
 void PVArray::addChain(const QString& chainName, const PVChain& chain)
 {
     if(cellArray.contains(chainName))

@@ -13,7 +13,7 @@ TARGET = smooth
 TEMPLATE = app
 CONFIG += c++11
 
-unix:!macx: LIBS += -lqwtplot3d -lGLU
+unix:!macx: LIBS += -lqwt -lqwtplot3d -lGLU
 unix: QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES +=  main.cpp \
@@ -21,19 +21,21 @@ SOURCES +=  main.cpp \
             widgets/cellwidget.cpp \
             widgets/consolewidget.cpp \
             widgets/bat6widget.cpp \
-            widgets/plotwidget.cpp \
+            widgets/characteristiccurve2dwidget.cpp \
             models/pvcell.cpp \
             models/pvchain.cpp \
-            models/pvarray.cpp
+            models/pvarray.cpp \
+    widgets/characteristiccurve3dwidget.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
             widgets/consolewidget.h \
             widgets/bat6widget.h \
-            widgets/plotwidget.h \
+            widgets/characteristiccurve2dwidget.h \
             models/pvcell.h \
             models/pvchain.h \
-            models/pvarray.h
+            models/pvarray.h \
+    widgets/characteristiccurve3dwidget.h
 
 FORMS    += mainwindow.ui \
             bat6widget.ui \

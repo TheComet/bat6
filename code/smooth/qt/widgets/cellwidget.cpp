@@ -30,5 +30,5 @@ void CellWidget::on_intensity_valueChanged(int value)
 {
     ui->label_intensity->setText(QString::number(value) + "%");
     double intensity = 0.01 * static_cast<double>(value);
-    emit exposureChanged(*this, intensity);
+    emit exposureChanged(this, intensity);
 }
