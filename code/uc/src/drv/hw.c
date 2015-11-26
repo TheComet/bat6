@@ -73,7 +73,10 @@ static void init_ports(void)
     /*        FEDCBA9876543210 */
     TRISA =            0b00111;
     TRISB = 0b1000100100001100;
-    TRISC = 0b0001101001111110;
+    //TRISC = 0b0000101001111110; // RP58 and RP61 on Dout
+    TRISC = 0b0000111001111110; // RP58 on Din, RP61 on Dout
+    //TRISC = 0b0010101001111110; // RP58 on Dout, RP61 on Din
+    //TRISC = 0b0010111001111110; // RP58 and RP61 on Din
     TRISD = 0b0010000001001010;
 }
 
