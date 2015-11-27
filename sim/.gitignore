@@ -1,0 +1,13 @@
+*
+!.gitignore
+
+# folders to whitelist
+!ltspice/
+!ltspice/*
+!matlab/
+!matlab/*
+
+# files to whitelist
+!*.asc
+!*.m
+

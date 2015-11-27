@@ -65,19 +65,16 @@ static void init_ports(void)
      * Set unused pins as output and drive low.
      * For TRISx: "1" means input, "0" means output. Default is input.
      */
+    /*        FEDCBA9876543210 */
+    TRISA =            0b00111;
+    TRISB = 0b1000100111001100;
+    TRISC = 0b0001101001111110;
+    TRISD = 0b0010000001001010;
     /* drive low */
     PORTA = 0x00;
     PORTB = 0x0000;
     PORTC = 0x0000;
     PORTD = 0x0000;
-    /*        FEDCBA9876543210 */
-    TRISA =            0b00111;
-    TRISB = 0b1000100100001100;
-    //TRISC = 0b0000101001111110; // RP58 and RP61 on Dout
-    TRISC = 0b0000111001111110; // RP58 on Din, RP61 on Dout
-    //TRISC = 0b0010101001111110; // RP58 on Dout, RP61 on Din
-    //TRISC = 0b0010111001111110; // RP58 and RP61 on Din
-    TRISD = 0b0010000001001010;
 }
 
 static void init_auxiliary_clock(void)
