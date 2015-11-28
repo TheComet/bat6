@@ -9,11 +9,6 @@
 #include "drv/hw.h"
 #include "core/event.h"
 
-static void foo(void* args)
-{
-    U1TXREG = 0x55;
-}
-
 int beenhere=0;
 int beenthere=0;
 /* -------------------------------------------------------------------------- */
@@ -73,7 +68,6 @@ void uart_init(void)
     DELAY_105uS
             
     //U1TXREG = 'a';                  // transmit one character
-    event_register_listener(EVENT_UPDATE,foo);
 }
 
 

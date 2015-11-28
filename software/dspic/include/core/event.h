@@ -55,8 +55,8 @@ typedef enum
  */
 typedef enum
 {
-    BUTTON_TWISTED_LEFT = 0,
-    BUTTON_TWISTED_RIGHT = 1
+    BUTTON_TWISTED_LEFT = 1,
+    BUTTON_TWISTED_RIGHT = 2
 } event_args_e;
 
 /*!
