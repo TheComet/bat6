@@ -70,11 +70,12 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.25</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibFileItem>../../../../../../../../Program Files (x86)/Microchip/xc16/v1.25/lib/libq-elf.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -429,8 +430,6 @@
         <property key="warningmessagebreakoptions.W0228_ADC_INVALID_ADCS"
                   value="report"/>
         <property key="warningmessagebreakoptions.W0229_ADC_INVALID_ADCS"
-                  value="report"/>
-        <property key="warningmessagebreakoptions.W0400_PWM_PWM_FASTER_THAN_FOSC"
                   value="report"/>
         <property key="warningmessagebreakoptions.W1201_DATAFLASH_MEM_OUTSIDE_RANGE"
                   value="report"/>
@@ -499,11 +498,12 @@
         <platformTool>Simulator</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.25</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibFileItem>../../../../../../../../Program Files (x86)/Microchip/xc16/v1.25/lib/libq-elf.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -859,8 +859,6 @@
                   value="report"/>
         <property key="warningmessagebreakoptions.W0229_ADC_INVALID_ADCS"
                   value="report"/>
-        <property key="warningmessagebreakoptions.W0400_PWM_PWM_FASTER_THAN_FOSC"
-                  value="report"/>
         <property key="warningmessagebreakoptions.W1201_DATAFLASH_MEM_OUTSIDE_RANGE"
                   value="report"/>
         <property key="warningmessagebreakoptions.W1202_DATAFLASH_ERASE_WHILE_LOCKED"
@@ -928,11 +926,12 @@
         <platformTool>Simulator</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.25</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibFileItem>../../../../../../../../Program Files (x86)/Microchip/xc16/v1.25/lib/libq-elf.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -1160,8 +1159,6 @@
         <property key="periphComp4.gte" value="gt"/>
         <property key="periphComp5.gte" value="gt"/>
         <property key="periphComp6.gte" value="gt"/>
-        <property key="reset.scl" value="false"/>
-        <property key="reset.type" value="MCLR"/>
         <property key="tracecontrol.include.timestamp" value="summarydataenabled"/>
         <property key="tracecontrol.select" value="0"/>
         <property key="tracecontrol.stallontracebufferfull" value="false"/>
@@ -1287,8 +1284,6 @@
         <property key="warningmessagebreakoptions.W0228_ADC_INVALID_ADCS"
                   value="report"/>
         <property key="warningmessagebreakoptions.W0229_ADC_INVALID_ADCS"
-                  value="report"/>
-        <property key="warningmessagebreakoptions.W0400_PWM_PWM_FASTER_THAN_FOSC"
                   value="report"/>
         <property key="warningmessagebreakoptions.W1201_DATAFLASH_MEM_OUTSIDE_RANGE"
                   value="report"/>

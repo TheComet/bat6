@@ -16,6 +16,7 @@ int main(void)
      * Event system must be initialised before hardware, because the hardware
      * drivers need to register listeners.
      */
+    
     event_init();
     hw_init();
     
