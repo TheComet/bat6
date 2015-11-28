@@ -12,7 +12,12 @@
 extern "C" {
 #endif
 
-
+typedef struct{
+    uint16_t voc; /* open circuit voltage Q5.11*/
+    uint16_t isc; /* short circuit current Q3.13*/
+    uint16_t vt; /* thermal voltage Q3.13*/
+    uint16_t g; /* relative solar iridation Q0.16*/
+}pv_cell_t;
 
 #ifdef	__cplusplus
 }
