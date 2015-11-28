@@ -1,21 +1,24 @@
-Die Ausgangsspannung wird \"uber zwei  Bananenstecker  $X_{6A}$ und $X_{6B}$ ans
-\"Aussere    des    Geh\"auses     gef\"uhrt.     Die    Ausgangsspannung    ist
-verpolungsgesch\"utzt mit der Diode $V_4$.
+Two banana  plugs $X_{6A}$ and $X_{6B}$  provide the connection to  the output
+voltage, while reverse voltage protection is implemented via diode $V_4$.
+
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.35\textwidth]{images/circuit/output-connectors.pdf}
-    \caption{Verpolungsschutz am Ausgang}
+    \caption{reverse voltage protection at output}
     \label{fig:circuit:output}
 \end{figure}
 
-Damit die ADCs und DACs  m\"oglichst  genau messen und m\"oglichst in Full-Range
-betrieben    werden   k\"onnen,   wird   eine   externe   Referenzspannung   von
-\SI{1.5}{\volt}    verwendet     (siehe    Abbildung    \ref{fig:circuit:vref}).
+An external  reference voltage of \SI{1.5}{\volt}  is used to ensure  that the
+ADCs and DACs can  make accurate measurements and can be  used over their full
+range (see figure \ref{fig:circuit:vref}).
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.4\textwidth]{images/circuit/vref.pdf}
-    \caption{1.5V Referenzspannung um die ADCs m\"oglichst in Full-Range betreiben zu k\"onnen}
+    \caption{%
+        \SI{1.5}{\volt} reference voltage for full-range operation of DACs and
+        DACs
+    }
     \label{fig:circuit:vref}
 \end{figure}
