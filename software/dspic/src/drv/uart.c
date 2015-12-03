@@ -9,8 +9,11 @@
 #include "drv/hw.h"
 #include "core/event.h"
 
-int beenhere=0;
-int beenthere=0;
+// based on Example 5-1 in UART pdf
+#define FP 60000000 /* 60 MIPS, see hw.c */
+#define BAUDRATE 115200
+#define BRGVAL ((FP/BAUDRATE)/16)-1
+
 /* -------------------------------------------------------------------------- */
 void uart_init(void)
 {
@@ -43,6 +46,9 @@ void uart_init(void)
     // Assign U1RTS to RP61
     RPOR14bits.RP61R = 0b000010;
     
+    /* RX requires pull-up */
+    CNPUCbits.CNPUC11 = 1;
+    
     // Lock Registers
     __builtin_write_OSCCONL(OSCCON | (1<<6));
     
@@ -52,8 +58,10 @@ void uart_init(void)
     U1MODEbits.PDSEL = 1;           // 8-bit data, even parity
     U1MODEbits.ABAUD = 0;           // Auto-Baud disabled
     U1MODEbits.BRGH = 0;            // Standard-Speech mode
+    U1MODEbits.RXINV = 1;           // Invert RX (due to isolating IC)
+    U1STAbits.TXINV = 1;            // Invert TX (due to isolating IC)
     
-    U1BRG = BRGVAL;                 // baud rate setting for 9600, check uart.h
+    U1BRG = BRGVAL;                 // baud rate setting, see #defines at top
     
     U1STAbits.UTXISEL0 = 0;         // interrupt after one Tx char is transmitted
     U1STAbits.UTXISEL1 = 0;
@@ -64,9 +72,9 @@ void uart_init(void)
     IFS0bits.U1TXIF = 0;
     IEC0bits.U1TXIE = 1;            // enable UART TX interrupt
     
-    /* wait at least 105 microseconds (1/9600) before transmitting first char*/
-    DELAY_105uS
-            
+    IFS0bits.U1RXIF = 0;
+    IEC0bits.U1RXIE = 1;            /* enable RX interrupt */
+
     //U1TXREG = 'a';                  // transmit one character
 }
 
@@ -75,9 +83,10 @@ void uart_init(void)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
+    U1TXREG = U1RXREG; /* echo back whatever we receive */
+    
     /* clear interrupt flag */
     IFS0bits.U1RXIF = 0;
-    beenthere++;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,5 +94,4 @@ void _ISR_NOPSV _U1TXInterrupt(void)
 {
     /* clear interrupt flag */
     IFS0bits.U1TXIF = 0;
-    beenhere++;
 }
