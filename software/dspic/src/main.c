@@ -10,7 +10,11 @@
 #include "core/event.h"
 
 /* -------------------------------------------------------------------------- */
+#ifdef TESTING
+int dspic_main(void)
+#else
 int main(void)
+#endif
 {
     /* 
      * Event system must be initialised before hardware, because the hardware

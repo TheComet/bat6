@@ -95,3 +95,20 @@ void _ISR_NOPSV _U1TXInterrupt(void)
     /* clear interrupt flag */
     IFS0bits.U1TXIF = 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Unit Tests */
+/* -------------------------------------------------------------------------- */
+
+#ifdef TESTING
+
+#include "gmock/gmock.h"
+
+using namespace ::testing;
+
+TEST(test, foo)
+{
+    ASSERT_THAT(1, Eq(1));
+}
+
+#endif /* TESTING */
