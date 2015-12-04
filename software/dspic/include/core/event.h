@@ -43,7 +43,7 @@ typedef enum
      *  rail sinks below 25V. The 3.3V rail remains stable until the 36V rail
      *  reaches ~4V */
     EVENT_UVLO,
-
+    EVENT_DATA_RECEIVED,
     /* ---------------------------------------------------------------------- */
     /*! The number of event IDs. Used to size the static table. 
      *  NOTE: Keep this at the end of the enum! */

@@ -14,6 +14,39 @@
 #define BAUDRATE 115200
 #define BRGVAL ((FP/BAUDRATE)/16)-1
 
+static void process_incoming_data(void* data);
+
+typedef enum
+{
+    STATE_IDLE,
+    STATE_SELECT_MODEL,
+    /* awaits a selector for what is to be done to a model*/
+    STATE_AWAIT_MODEL_CONFIG,
+    STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE,
+    STATE_CONFIG_SHORT_CIRCUIT_CURRENT,
+    STATE_CONFIG_TEMPERATURE,
+    STATE_CONFIG_EXPOSURE,
+} state_e;
+
+typedef enum
+{
+    CASE_SELECT_MODEL = 'm',
+} case_e;
+
+struct data_t {
+    union 
+    {
+        struct {
+            unsigned char decimal;
+            unsigned char selected_model;
+            unsigned int param;
+        } config_model;
+    };
+};
+
+static state_e state = STATE_IDLE;
+static struct data_t state_data;
+
 /* -------------------------------------------------------------------------- */
 void uart_init(void)
 {
@@ -76,14 +109,70 @@ void uart_init(void)
     IEC0bits.U1RXIE = 1;            /* enable RX interrupt */
 
     //U1TXREG = 'a';                  // transmit one character
+    
+    event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
 }
 
+static void process_incoming_data(void* args)
+{
+    unsigned int data = (unsigned int)args;
+    
+    switch (state)
+    {
+        case STATE_IDLE:
+            if (data == CASE_SELECT_MODEL)
+            {
+                state_data.config_model.decimal = 1;
+                state_data.config_model.selected_model = 0;
+                state = STATE_SELECT_MODEL;
+            }
+            break;
+            
+        case STATE_SELECT_MODEL:
+            if (data >= '0' && data <= '9')
+            {
+                /* Process multi-digit model numbers*/
+                state_data.config_model.selected_model 
+                    += data * state_data.config_model.decimal;
+                state_data.config_model.decimal *= 10;
+            } else if (state_data.config_model.decimal == 1) {
+                /* 
+                 * Letter directly followed by another letter: error, 
+                 * revert back to idle state
+                 */
+                state = STATE_IDLE;
+            } else {
+                state = STATE_AWAIT_MODEL_CONFIG;
+            }
+            break;
+            
+        case STATE_AWAIT_MODEL_CONFIG:
+            break;
+            
+        case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
+            break;
+            
+        case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
+            break;
+            
+        case STATE_CONFIG_TEMPERATURE:
+            break;
+            
+        case STATE_CONFIG_EXPOSURE:
+            break;
+            
+        default:
+            break;
+    }
+}
 
 
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
-    U1TXREG = U1RXREG; /* echo back whatever we receive */
+    //U1TXREG = U1RXREG; /* echo back whatever we receive */
+    
+    event_post(EVENT_DATA_RECEIVED, (void*)U1RXREG);
     
     /* clear interrupt flag */
     IFS0bits.U1RXIF = 0;
