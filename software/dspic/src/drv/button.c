@@ -10,12 +10,6 @@
 #include "core/event.h"
 #include <stdlib.h>
 
-static void foo(void* args)
-{
-    event_args_e arg = (event_args_e)args;
-    U1TXREG = arg;
-}
-
 /* -------------------------------------------------------------------------- */
 void button_init(void)
 {
@@ -38,10 +32,6 @@ void button_init(void)
     CNENC |= 0x30;          /* enable interrupts for bits 4 and 5 */
     IFS1bits.CNIF = 0;      /* clear interrupt flag for change notifications */
     IEC1bits.CNIE = 1;      /* enable change notification interrupts */
-    
-    event_register_listener(EVENT_BUTTON_PRESSED,foo);
-    event_register_listener(EVENT_BUTTON_TWISTED,foo);
-
 }
 
 /* -------------------------------------------------------------------------- */
