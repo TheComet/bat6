@@ -225,10 +225,6 @@ void event_dispatch_all(void)
 /* Unit Tests */
 /* -------------------------------------------------------------------------- */
 
-#ifndef TESTING
-#define TESTING
-#endif
-
 #ifdef TESTING
 
 #include "gmock/gmock.h"

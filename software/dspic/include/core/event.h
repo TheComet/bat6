@@ -32,11 +32,7 @@ typedef enum
 {
     /*! Gets posted every 10ms. Useful for time-critical things. */
     EVENT_UPDATE = 0,
-    /*! Gets posted when the twist button is twisted, left or right. The
-     *  direction is passed as an argument */
-    EVENT_BUTTON_TWISTED,
-    /*! Gets posted when the twist button is pressed (falling edge). */
-    EVENT_BUTTON_PRESSED,
+    EVENT_BUTTON,
     /*! Gets posted when an undervoltage lockout is in progress. This usually
      *  means the device was unplugged, in which case the device has a short
      *  time to prepare for total power off. UVLO is triggered when the 36V
@@ -56,7 +52,8 @@ typedef enum
 typedef enum
 {
     BUTTON_TWISTED_LEFT = 1,
-    BUTTON_TWISTED_RIGHT = 2
+    BUTTON_TWISTED_RIGHT = 2,
+	BUTTON_PRESSED = 3
 } event_args_e;
 
 /*!
