@@ -221,3 +221,38 @@ void event_process_all(void)
     ring_buffer.read = write;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Unit Tests */
+/* -------------------------------------------------------------------------- */
+
+#ifdef TESTING
+
+#include "gmock/gmock.h"
+
+using namespace ::testing;
+
+class event : public Test
+{
+	virtual void SetUp()
+	{
+		/* clears all listeners */
+		event_init();
+	}
+};
+
+void test_listener(unsigned int arg)
+{
+
+}
+
+TEST_F(event, listeners_are_cleared_on_init)
+{
+	event_register_listener(EVENT_UPDATE, test_listener);
+	ASSERT_THAT(event_table[EVENT_UPDATE].head, NotNull());
+	EXPECT_THAT(event_table[EVENT_UPDATE].head->callback, Eq(test_listener));
+
+	event_init();
+	EXPECT_THAT(event_table[EVENT_UPDATE].head, IsNull());
+}
+
+#endif /* TESTING */
