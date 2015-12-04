@@ -11,7 +11,7 @@
 #include "core/event.h"
 
 /* -------------------------------------------------------------------------- */
-static void on_update(void* args)
+static void on_update(unsigned int arg)
 {
     
 }

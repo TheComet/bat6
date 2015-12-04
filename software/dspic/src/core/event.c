@@ -56,7 +56,7 @@ static struct listener_list_t event_table[EVENT_COUNT] = {{0}};
 struct ring_buffer_data_t
 {
     event_id_e                  event_id;
-    void*                       args;
+    unsigned int                arg;
 };
 
 /* 
@@ -157,7 +157,7 @@ void event_unregister_listener(event_id_e event_id,
 }
 
 /* -------------------------------------------------------------------------- */
-void event_post_(event_id_e event_id, void* args)
+void event_post(event_id_e event_id, unsigned int arg)
 {
     unsigned char write;
     
@@ -181,7 +181,7 @@ void event_post_(event_id_e event_id, void* args)
     
     /* add event ID and arguments into queue */
     ring_buffer.data[write].event_id = event_id;
-    ring_buffer.data[write].args = args;
+    ring_buffer.data[write].arg = arg;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -209,7 +209,7 @@ void event_process_all(void)
         list = (event_table + data->event_id);
         for(listener = list->head; listener; listener = listener->next)
         {
-            listener->callback(data->args);
+            listener->callback(data->arg);
         }
         
         /* increment and wrap read position */
@@ -220,3 +220,4 @@ void event_process_all(void)
     /* update read position */
     ring_buffer.read = write;
 }
+

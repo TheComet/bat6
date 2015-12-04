@@ -41,7 +41,7 @@ void timer_init(void)
 /* 10ms timer interrupt */
 void _ISR_NOPSV _T4Interrupt(void)
 {
-    event_post(EVENT_UPDATE, NULL);
+    event_post(EVENT_UPDATE, 0);
     
     /* clear interrupt flag */
     IFS1bits.T4IF = 0;

@@ -229,14 +229,14 @@ void buck_set_current(_Q16 current){
 
 
 // ADC AN0 ISR
-void __attribute__((interrupt, no_auto_psv)) _ADCAN0Interrupt(void)
+void _ISR_NOPSV _ADCAN0Interrupt(void)
 {
     ADCdata0 = ADCBUF0; // read conversion result
     _ADCAN0IF = 0; // clear interrupt flag
 }
 
 // ADC AN1 ISR
-void __attribute__((interrupt, no_auto_psv)) _ADCAN1Interrupt(void)
+void _ISR_NOPSV _ADCAN1Interrupt(void)
 {
     ADCdata1 = ADCBUF1; // read conversion result
     _ADCAN1IF = 0; // clear interrupt flag
@@ -247,8 +247,9 @@ void __attribute__((interrupt, no_auto_psv)) _ADCAN1Interrupt(void)
 void _ISR_NOPSV _INT2Interrupt(void)
 {
     buck_disable();
-    event_post(EVENT_UVLO, NULL);
+    event_post(EVENT_UVLO, 0);
     
     /* clear interrupt flag */
     IFS1bits.INT2IF = 0;
 }
+

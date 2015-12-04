@@ -39,7 +39,7 @@ void button_init(void)
 void _ISR_NOPSV _INT1Interrupt(void)
 {
     /* button was pressed, trigger event */
-    event_post(EVENT_BUTTON_PRESSED, NULL);
+    event_post(EVENT_BUTTON_PRESSED, 0);
     
     /* clear interrupt flag */
     IFS1bits.INT1IF = 0;
@@ -68,9 +68,9 @@ void _ISR_NOPSV _CNInterrupt(void)
      * accordingly.
      */
     if(AB > current_AB || (current_AB == 3 && AB == 0))
-        event_post(EVENT_BUTTON_TWISTED, (void*)BUTTON_TWISTED_LEFT);
+        event_post(EVENT_BUTTON_TWISTED, BUTTON_TWISTED_LEFT);
     else
-        event_post(EVENT_BUTTON_TWISTED, (void*)BUTTON_TWISTED_RIGHT);
+        event_post(EVENT_BUTTON_TWISTED, BUTTON_TWISTED_RIGHT);
     
     /* update current AB */
     current_AB = AB;
@@ -78,3 +78,4 @@ void _ISR_NOPSV _CNInterrupt(void)
     /* clear interrupt flag */
     IFS1bits.CNIF = 0;
 }
+

@@ -14,7 +14,7 @@
 #define BAUDRATE 115200
 #define BRGVAL ((FP/BAUDRATE)/16)-1
 
-static void process_incoming_data(void* data);
+static void process_incoming_data(unsigned int data);
 
 typedef enum
 {
@@ -113,10 +113,8 @@ void uart_init(void)
     event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
 }
 
-static void process_incoming_data(void* args)
+static void process_incoming_data(unsigned int data)
 {
-    unsigned int data = (unsigned int)args;
-    
     switch (state)
     {
         case STATE_IDLE:
@@ -172,7 +170,7 @@ void _ISR_NOPSV _U1RXInterrupt(void)
 {
     //U1TXREG = U1RXREG; /* echo back whatever we receive */
     
-    event_post(EVENT_DATA_RECEIVED, (void*)U1RXREG);
+    event_post(EVENT_DATA_RECEIVED, U1RXREG);
     
     /* clear interrupt flag */
     IFS0bits.U1RXIF = 0;
@@ -207,7 +205,8 @@ TEST(receive_state_machine, model_is_correctly_selected)
     sendByte('2');
     event_process_all();
     
-    ASSERT_THAT(state_data.model.selected, Eq(2));
+    ASSERT_THAT(state_data.config_model.selected_model, Eq(2));
 }
 
 #endif /* TESTING */
+

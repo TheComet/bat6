@@ -18,7 +18,7 @@ extern "C" {
  * @brief Callback function type. All listeners need to implement this
  * signature.
  */
-typedef void (*event_listener_func)(void* args);
+typedef void (*event_listener_func)(unsigned int arg);
 
 /*!
  * @brief List of global events.
@@ -81,21 +81,15 @@ void event_register_listener(event_id_e event, event_listener_func callback);
 void event_unregister_listener(event_id_e event_id,
         event_listener_func callback);
 
-/* see macro below for doc */
-void event_post_(event_id_e event, void* args);
-
 /*!
  * @brief Queues an event. This can be called from interrupts or from the main
  * thread.
- * @param[in] event The event ID to post. Event IDs are defined in the event
+ * @param[in] event_id The event ID to post. Event IDs are defined in the event
  * enum in event.h.
- * @param[in] event_data Optional event data. The data specified here gets
+ * @param[in] arg Optional event data. The data specified here gets
  * passed to the registered listener callback function.
  */
-#define event_post(event, event_data) do {              \
-    static_assert(sizeof(event_data) <= sizeof(void*)); \
-    event_post_(event, event_data);                     \
-} while(0)
+void event_post(event_id_e event_id, unsigned int arg);
 
 /*!
  * @brief Processes all queued events.

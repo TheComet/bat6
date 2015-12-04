@@ -11,6 +11,18 @@ public:
 
     virtual void SetUp()
     {
+        /* prevent waiting for PLL to lock */
+        OSCCONbits.COSC = 0x01;
+        OSCCONbits.LOCK = 1;
+
+        /* prevent waiting for ADC cores */
+        ADCON5Lbits.C0RDY = 1;
+        ADCON5Lbits.C1RDY = 1;
+        ADCAL0Lbits.CAL0RDY = 1;
+        ADCAL0Lbits.CAL0RDY = 1;
+        ADCAL0Lbits.CAL1RDY = 1;
+        ADCAL0Lbits.CAL1RDY = 1;
+
         event_init();
         hw_init();
     }
