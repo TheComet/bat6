@@ -109,8 +109,6 @@ extern "C" {
 /* macros */
 #define lcd_enable()        (LCD_RESET = 1)
 #define lcd_disable()       (LCD_RESET = 0) 
-#define buck_enable()       (BUCK_EN = 1)
-#define buck_disable()      (BUCK_EN = 0)
     
 /* interrupt related things */
 #define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
