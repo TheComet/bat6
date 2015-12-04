@@ -106,9 +106,19 @@ void _ISR_NOPSV _U1TXInterrupt(void)
 
 using namespace ::testing;
 
-TEST(test, foo)
+void sendByte(unsigned char byte)
 {
-    ASSERT_THAT(1, Eq(1));
+    U1RXREG = byte;
+    _U1RXInterrupt();
+}
+
+TEST(receive_state_machine, model_is_correctly_selected)
+{
+    sendByte('I');
+    sendByte('2');
+    event_process_all();
+    
+    ASSERT_THAT(state_data.model.selected, Eq(2));
 }
 
 #endif /* TESTING */

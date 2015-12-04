@@ -113,6 +113,7 @@ endif ()
 
 add_definitions (${DEFINE_CMD}TESTING)
 
+file (GLOB tests_SOURCES "src/*.cpp")
 file (GLOB_RECURSE tests_dsPIC_SOURCES
     RELATIVE "${CMAKE_SOURCE_DIR}"
             "${CMAKE_SOURCE_DIR}/../dspic/src/*.c")
@@ -122,6 +123,7 @@ set_source_files_properties (${tests_dsPIC_SOURCES} PROPERTIES LANGUAGE CXX)
 include_directories ("${CMAKE_SOURCE_DIR}/../dspic/include")
 
 add_executable (unit_tests
+    ${tests_SOURCES}
     ${tests_dsPIC_SOURCES}
 )
 
