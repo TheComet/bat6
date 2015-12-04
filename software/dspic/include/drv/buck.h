@@ -8,6 +8,8 @@
 #ifndef BUCK_H
 #define	BUCK_H
 
+#include <libq.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
