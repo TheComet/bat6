@@ -1,7 +1,7 @@
 /*!
  * @file init_hw.c
  * @author Alex Murray
- * 
+ *
  * Created on 18 October 2015, 14:34
  */
 
@@ -19,7 +19,7 @@
 _FWDT(WDTEN_OFF)
 
 /* -------------------------------------------------------------------------- */
-/* 
+/*
  * Oscillator setup - We have to boot using a clock without PLL. We switch
  * to PLL during initialisation.
  */
@@ -35,7 +35,7 @@ _FOSC(
 
 static void init_sysclk60mips(void)
 {
-    /* 
+    /*
      * Configure PLL - Target execution speed is Fcy = 60 MIPS
      *   Fpllo = 2*Fcy = 120 MHz (15 MHz < Fpllo < 120 MHz)
      *   Fvco = 2*Fpllo = 240 MHz (120 MHz < Fvco < 340 MHz)
@@ -45,15 +45,15 @@ static void init_sysclk60mips(void)
     PLLFBD = 63;             /* Feedback divider M = 65 */
     CLKDIVbits.PLLPOST = 0;  /* N2 = 2 (can't go lower) */
     CLKDIVbits.PLLPRE = 0;   /* N1 = 2 (can't go lower) */
-    
+
     /* initiate clock switch */
     __builtin_write_OSCCONH(0x01);          /* 0x01 = FRC oscillator with PLL */
     __builtin_write_OSCCONL(OSCCON | 0x01); /* requests oscillator switch to
                                              * the selection specified above */
-    
+
     /* wait for clock switch to occur */
     while(OSCCONbits.COSC != 0x01);
-    
+
     /* wait for PLL to lock */
     while(OSCCONbits.LOCK != 1);
 }
@@ -61,7 +61,7 @@ static void init_sysclk60mips(void)
 /* -------------------------------------------------------------------------- */
 static void init_ports(void)
 {
-    /* 
+    /*
      * Set unused pins as output and drive low.
      * For TRISx: "1" means input, "0" means output. Default is input.
      */
@@ -94,12 +94,18 @@ static void init_auxiliary_clock(void)
 void hw_init(void)
 {
     disable_interrupts();
-    
+
     /* system clock and initial port config */
     init_sysclk60mips();
     init_auxiliary_clock();
     init_ports();
-    
+
+	drivers_init();
+}
+
+/* -------------------------------------------------------------------------- */
+void drivers_init(void)
+{
     /* initialise all drivers here */
     buck_init();
     button_init();
@@ -109,4 +115,11 @@ void hw_init(void)
     uart_init();
 
     enable_interrupts();
+}
+
+/* -------------------------------------------------------------------------- */
+void drivers_deinit(void)
+{
+	/* de-initialise all drivers here */
+	event_deinit();
 }

@@ -23,7 +23,6 @@ public:
         ADCAL0Lbits.CAL1RDY = 1;
         ADCAL0Lbits.CAL1RDY = 1;
 
-        event_init();
         hw_init();
     }
 

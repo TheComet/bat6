@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file hw.h
  * @author Alex Murray
  *
@@ -108,8 +108,8 @@ extern "C" {
 
 /* macros */
 #define lcd_enable()        (LCD_RESET = 1)
-#define lcd_disable()       (LCD_RESET = 0) 
-    
+#define lcd_disable()       (LCD_RESET = 0)
+
 /* interrupt related things */
 #define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
 #define enable_interrupts() (_GIE = 1)
@@ -120,6 +120,16 @@ extern "C" {
  * called.
  */
 void hw_init(void);
+
+/*!
+ * @brief Initialises all drivers.
+ */
+void drivers_init(void);
+
+/*!
+ * @brief De-initialises all drivers.
+ */
+void drivers_deinit(void);
 
 #ifdef	__cplusplus
 }

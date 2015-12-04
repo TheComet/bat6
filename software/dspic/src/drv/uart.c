@@ -203,12 +203,16 @@ class receive_state_machine : public Test
 protected:
     virtual void SetUp()
     {
-        /* initialising events destroys all existing listeners */
-        event_init();
         /* initialise uart so our listeners are registered and the initial
          * state is defined (STATE_IDLE) */
         uart_init();
     }
+
+    virtual void TearDown()
+	{
+		/* free all listeners and destroy pending events */
+		event_deinit();
+	}
 };
 
 /* -------------------------------------------------------------------------- */
@@ -217,7 +221,12 @@ void sendByte(unsigned char byte)
 {
     U1RXREG = byte;
     _U1RXInterrupt();
-    event_process_all();
+    event_dispatch_all();
+}
+void sendString(const char* str)
+{
+	while(*str)
+		sendByte(*(unsigned char*)const_cast<char*>(str++));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -226,7 +235,7 @@ TEST_F(receive_state_machine, selected_model_and_decimal_is_reset_correctly_when
     state_data.config_model.selected_model = 5;
     state_data.config_model.decimal = 88;
 
-    sendByte('m');
+    sendString("m");
 
     EXPECT_THAT(state_data.config_model.selected_model, Eq(0));
     EXPECT_THAT(state_data.config_model.decimal, Eq(1));
@@ -234,8 +243,7 @@ TEST_F(receive_state_machine, selected_model_and_decimal_is_reset_correctly_when
 
 TEST_F(receive_state_machine, model_is_correctly_selected)
 {
-    sendByte('m');
-    sendByte('2');
+    sendString("m2");
 
     EXPECT_THAT(state_data.config_model.selected_model, Eq(2));
 }
