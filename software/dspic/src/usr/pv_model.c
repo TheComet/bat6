@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file pv_model.c
  * @author Alex Murray
  *
@@ -11,33 +11,33 @@
 /* -------------------------------------------------------------------------- */
 
 static uint16_t _fp_exp(const uint16_t exponent){
-    /* 
+    /*
      * calculates exp using a spline approximation
-     * exponent range: 0 to ln(2) 
+     * exponent range: 0 to ln(2)
      * result range: 1 to 2
      */
-    
+
     static const uint16_t spline_coefs[8][3] = {
-        {5702,    16374,    32768},    
-        {6217,    17856,    35734},    
-        {6780,    19472,    38968},    
-        {7394,    21234,    42495},    
-        {8063,    23156,    46341},    
-        {8793,    25252,    50535},    
-        {9588,    27537,    55109},    
-        {10458,   30029,    60097}        
+        {5702,    16374,    32768},
+        {6217,    17856,    35734},
+        {6780,    19472,    38968},
+        {7394,    21234,    42495},
+        {8063,    23156,    46341},
+        {8793,    25252,    50535},
+        {9588,    27537,    55109},
+        {10458,   30029,    60097}
     };
-    
+
     const uint16_t spline_index = exponent >> 13;
     const uint32_t delta = exponent << 3;
     const uint32_t delta2 = (delta * delta) >> 16;
     const uint32_t delta3 = (delta * delta2) >> 16;
-    
+
     uint32_t sum = spline_coefs[spline_index][2];
     sum += delta * spline_coefs[spline_index][2] >> 16;
     sum += delta2 * spline_coefs[spline_index][1] >> 16;
     sum += delta3 * spline_coefs[spline_index][0] >> 16;
-    
+
     return sum >> 1;
 }
 
@@ -47,16 +47,16 @@ static uint16_t fp_exp(const int16_t exponent){
      * range -16 to 1 format: S4.11;
      * result range 0 to 2 format: Q1.15
      */
-    
+
     int32_t num = (int32_t)exponent * 47274; // 47274 = 1/ln(2) * 2^15
-    int16_t k = num >> 26; // 26 = 11 + 15; 
-    uint16_t x = (num - (((int32_t)k)<<26)) >> 10; 
-    
+    int16_t k = num >> 26; // 26 = 11 + 15;
+    uint16_t x = (num - (((int32_t)k)<<26)) >> 10;
+
     if(k > 0){
         //Overflow return max
         return 0xffff;
     }
-   
+
     return _fp_exp(x) >> (-k);
 }
 
@@ -80,6 +80,6 @@ uint16_t calc_voltage(pv_cell_t* cell, uint16_t voltage_is, int16_t current_is){
      *current format: Q3.13 */
     const int16_t Idiff = Id(cell, voltage_is) - current_is;
     const int16_t Udiff = (int32_t)Idiff * voltage_is / current_is;
-    
+
     return voltage_is + Udiff;
 }

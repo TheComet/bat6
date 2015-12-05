@@ -37,7 +37,6 @@ struct data_t {
     union
     {
         struct {
-            unsigned char decimal;
             unsigned char selected_model;
             unsigned int param;
         } config_model;
@@ -118,13 +117,16 @@ void uart_init(void)
 
 static void process_incoming_data(unsigned int data)
 {
+
+#define CHAR_TO_INT(x) ((unsigned short)(x - '0'))
+
     switch (state)
     {
         case STATE_IDLE:
             if (data == CASE_SELECT_MODEL)
             {
-                state_data.config_model.decimal = 1;
                 state_data.config_model.selected_model = 0;
+                state_data.config_model.param = 0;
                 state = STATE_SELECT_MODEL;
             }
             break;
@@ -133,10 +135,16 @@ static void process_incoming_data(unsigned int data)
             if (data >= '0' && data <= '9')
             {
                 /* Process multi-digit model numbers */
-                state_data.config_model.selected_model
-                    += data * state_data.config_model.decimal;
-                state_data.config_model.decimal *= 10;
-            } else if (state_data.config_model.decimal == 1) {
+                state_data.config_model.selected_model *= 10;
+                state_data.config_model.selected_model += CHAR_TO_INT(data);
+
+                /*
+                 * Hijack param as a flag to indicate if a number was received
+                 * or not so we can detect the error case when two characters
+                 * are sent consecutively.
+                 */
+                state_data.config_model.param = 1;
+            } else if (state_data.config_model.param == 0) {
                 /*
                  * Letter directly followed by another letter: error,
                  * revert back to idle state
@@ -209,10 +217,10 @@ protected:
     }
 
     virtual void TearDown()
-	{
-		/* free all listeners and destroy pending events */
-		event_deinit();
-	}
+    {
+        /* free all listeners and destroy pending events */
+        event_deinit();
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -225,27 +233,45 @@ void sendByte(unsigned char byte)
 }
 void sendString(const char* str)
 {
-	while(*str)
-		sendByte(*(unsigned char*)const_cast<char*>(str++));
+    while(*str)
+        sendByte(*(unsigned char*)const_cast<char*>(str++));
 }
 
 /* -------------------------------------------------------------------------- */
-TEST_F(receive_state_machine, selected_model_and_decimal_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
+TEST_F(receive_state_machine, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
 {
+    /* set some garbage values */
+    state_data.config_model.param = 88;
     state_data.config_model.selected_model = 5;
-    state_data.config_model.decimal = 88;
 
     sendString("m");
 
-    EXPECT_THAT(state_data.config_model.selected_model, Eq(0));
-    EXPECT_THAT(state_data.config_model.decimal, Eq(1));
+    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
+    EXPECT_THAT(state_data.config_model.param, Eq((unsigned int)0));
+    EXPECT_THAT(state_data.config_model.selected_model, Eq((unsigned int)0));
 }
 
 TEST_F(receive_state_machine, model_is_correctly_selected)
 {
     sendString("m2");
 
+    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
     EXPECT_THAT(state_data.config_model.selected_model, Eq(2));
+}
+
+TEST_F(receive_state_machine, model_with_multiple_digits_is_correctly_selected)
+{
+    sendString("m195");
+
+    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
+    EXPECT_THAT(state_data.config_model.selected_model, Eq(195));
+}
+
+TEST_F(receive_state_machine, abort_model_selection_if_no_number_is_sent)
+{
+    sendString("ma");
+
+    EXPECT_THAT(state, Eq(STATE_IDLE));
 }
 
 #endif /* TESTING */

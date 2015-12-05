@@ -91,7 +91,7 @@ static void destroy_listeners(struct listener_list_t* list)
 /* -------------------------------------------------------------------------- */
 void event_deinit(void)
 {
-	/* clear all lists of listeners */
+    /* clear all lists of listeners */
     unsigned short i = EVENT_COUNT;
     while(i --> 0)
     {
@@ -204,7 +204,7 @@ void event_dispatch_all(void)
     /* process all events up to the write position we acquired */
     while(read != write)
     {
-		/* increment and wrap read position */
+        /* increment and wrap read position */
         ++read;
         read = (read == RING_BUFFER_SIZE ? 0 : read);
 

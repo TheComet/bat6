@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file menu.h
  * @author Alex Murray
  *
@@ -6,16 +6,16 @@
  */
 
 #ifndef MENU_H
-#define	MENU_H
+#define MENU_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* MENU_H */
+#endif /* MENU_H */

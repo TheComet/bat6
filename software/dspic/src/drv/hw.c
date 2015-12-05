@@ -100,7 +100,7 @@ void hw_init(void)
     init_auxiliary_clock();
     init_ports();
 
-	drivers_init();
+    drivers_init();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,6 +120,6 @@ void drivers_init(void)
 /* -------------------------------------------------------------------------- */
 void drivers_deinit(void)
 {
-	/* de-initialise all drivers here */
-	event_deinit();
+    /* de-initialise all drivers here */
+    event_deinit();
 }

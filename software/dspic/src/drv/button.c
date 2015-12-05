@@ -68,11 +68,11 @@ void _ISR_NOPSV _CNInterrupt(void)
      * accordingly.
      */
     if((AB > current_AB || (current_AB == 3 && AB == 0)) && !(current_AB == 0 && AB == 3))
-	{
+    {
         event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
-	} else {
+    } else {
         event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
-	}
+    }
 
     /* update current AB */
     current_AB = AB;
@@ -95,91 +95,91 @@ using namespace ::testing;
 int button_action;
 void test_callback(unsigned int arg)
 {
-	button_action = (int)arg;
+    button_action = (int)arg;
 }
 
 class button : public Test
 {
-	virtual void SetUp()
-	{
-		button_init();
-		button_action = 0;
-	}
+    virtual void SetUp()
+    {
+        button_init();
+        button_action = 0;
+    }
 
-	virtual void TearDown()
-	{
-		event_deinit();
-	}
+    virtual void TearDown()
+    {
+        event_deinit();
+    }
 };
 
 void twist_button_left()
 {
-	unsigned int AB = KNOB_AB;
-	switch(AB) {
-		case 0 : PORTC = (1 << 4); break;
-		case 1 : PORTC = (3 << 4); break;
-		case 3 : PORTC = (2 << 4); break;
-		case 2 : PORTC = (0 << 4); break;
-	}
-	_CNInterrupt();
-	event_dispatch_all();
+    unsigned int AB = KNOB_AB;
+    switch(AB) {
+        case 0 : PORTC = (1 << 4); break;
+        case 1 : PORTC = (3 << 4); break;
+        case 3 : PORTC = (2 << 4); break;
+        case 2 : PORTC = (0 << 4); break;
+    }
+    _CNInterrupt();
+    event_dispatch_all();
 }
 
 void twist_button_right()
 {
-	unsigned int AB = KNOB_AB;
-	switch(AB) {
-		case 0 : PORTC = (2 << 4); break;
-		case 2 : PORTC = (3 << 4); break;
-		case 3 : PORTC = (1 << 4); break;
-		case 1 : PORTC = (0 << 4); break;
-	}
-	_CNInterrupt();
-	event_dispatch_all();
+    unsigned int AB = KNOB_AB;
+    switch(AB) {
+        case 0 : PORTC = (2 << 4); break;
+        case 2 : PORTC = (3 << 4); break;
+        case 3 : PORTC = (1 << 4); break;
+        case 1 : PORTC = (0 << 4); break;
+    }
+    _CNInterrupt();
+    event_dispatch_all();
 }
 
 void press_button()
 {
-	_INT1Interrupt();
-	event_dispatch_all();
+    _INT1Interrupt();
+    event_dispatch_all();
 }
 
 TEST_F(button, twist_left_posts_correct_event)
 {
-	event_register_listener(EVENT_BUTTON, test_callback);
+    event_register_listener(EVENT_BUTTON, test_callback);
 
-	twist_button_left();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
-	twist_button_left();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
-	twist_button_left();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
-	twist_button_left();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
+    twist_button_left();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
+    twist_button_left();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
+    twist_button_left();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
+    twist_button_left();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
 }
 
 TEST_F(button, twist_right_posts_correct_event)
 {
-	event_register_listener(EVENT_BUTTON, test_callback);
+    event_register_listener(EVENT_BUTTON, test_callback);
 
-	twist_button_right();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
-	twist_button_right();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
-	twist_button_right();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
-	twist_button_right();
-	EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
+    twist_button_right();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
+    twist_button_right();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
+    twist_button_right();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
+    twist_button_right();
+    EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
 }
 
 TEST_F(button, pressing_posts_correct_event)
 {
-	event_register_listener(EVENT_BUTTON, test_callback);
+    event_register_listener(EVENT_BUTTON, test_callback);
 
-	press_button();
-	EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
-	press_button();
-	EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+    press_button();
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+    press_button();
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
 }
 
 #endif /* TESTING */
