@@ -100,12 +100,14 @@ void hw_init(void)
     init_auxiliary_clock();
     init_ports();
 
-    drivers_init();
+    enable_interrupts();
 }
 
 /* -------------------------------------------------------------------------- */
 void drivers_init(void)
 {
+    disable_interrupts();
+
     /* initialise all drivers here */
     buck_init();
     button_init();
@@ -121,5 +123,7 @@ void drivers_init(void)
 void drivers_deinit(void)
 {
     /* de-initialise all drivers here */
+
+    /* de-initialise event system */
     event_deinit();
 }
