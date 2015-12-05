@@ -141,7 +141,7 @@ static void process_incoming_data(unsigned int data)
                 /*
                  * Hijack param as a flag to indicate if a number was received
                  * or not so we can detect the error case when two characters
-				 * are sent consecutively.
+                 * are sent consecutively.
                  */
                 state_data.config_model.param = 1;
             } else if (state_data.config_model.param == 0) {
