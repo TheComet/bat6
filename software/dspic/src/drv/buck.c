@@ -16,17 +16,20 @@
 static uint16_t ADCdata0 = 0;
 static uint16_t ADCdata1 = 0;
 
-void buck_enable(){
+void buck_enable()
+{
     BUCK_EN = 1;
     T1CONbits.TON = 1;      /* start timer */
 }
 
-void buck_disable(){
+void buck_disable()
+{
     BUCK_EN = 0;
     T1CONbits.TON = 0;      /* stop timer */
 }
 
-static void buck_timer_init(){
+static void buck_timer_init()
+{
     /*
      * Target interrupt frequency is 4 kHz
      * 
@@ -47,8 +50,9 @@ static void buck_timer_init(){
     /* IEC0bits.T1IE = 1;       enable timer 4 interrupts */
 }
 
-static void buck_gpio_init(){
-    /* 
+static void buck_gpio_init()
+{
+    /*
      * UVLO is a digital input signal. Because all pins are configured as analog
      * inputs by default, clear analog flag.
      */
@@ -64,7 +68,8 @@ static void buck_gpio_init(){
     IEC1bits.INT2IE = 1;    /* enable INT2 interrupt */
 }
 
-static void buck_pga_init(){
+static void buck_pga_init()
+{
     // Configure PGA1N2 to be used as analog input.
     ANSELBbits.ANSB2 = 1;
     
@@ -75,7 +80,8 @@ static void buck_pga_init(){
     PGA1CONbits.PGAEN = 1; //Enable PGA1
 }
 
-static void EnableAndCalibrate(){
+static void EnableAndCalibrate()
+{
     // Set initialisation time to maximum
     ADCON5Hbits.WARMTIME = 15;
     // Turn on ADC module
@@ -130,7 +136,8 @@ static void EnableAndCalibrate(){
     ADCAL0Lbits.CAL1EN = 0;
 }
 
-static void buck_adc_init(){
+static void buck_adc_init()
+{
     // ADC INITIALIZATION
     // Configure the I/O pins to be used as analog inputs.
     ADCON4Hbits.C0CHS = 2; //PGA1
@@ -168,7 +175,8 @@ static void buck_adc_init(){
     _ADCAN1IE = 1; // enable interrupt for AN1
 }
 
-static void buck_dac_init(){
+static void buck_dac_init()
+{
     CMP1CONbits.DACOE = 1;
     CMP1CONbits.RANGE = 1;
     CMP1DACbits.CMREF = 0;
@@ -189,17 +197,20 @@ void buck_init(void)
     buck_dac_init();
 }
 
-_Q16 buck_get_voltage(){
+_Q16 buck_get_voltage()
+{
     _Q16 value = (_Q16)ADCdata1 * 845;
     return value;
 }
 
-_Q16 buck_get_current(){
+_Q16 buck_get_current()
+{
     _Q16 value = ((_Q16)ADCdata0 - 1862) * 330;
     return value;    
 }
 
-void buck_set_voltage(_Q16 voltage){
+void buck_set_voltage(_Q16 voltage)
+{
     _Q16 max_v = 1507328; // 23V
     _Q16 div = 1769472; // 18 * 1.5V
     
@@ -213,7 +224,8 @@ void buck_set_voltage(_Q16 voltage){
     CMP1DACbits.CMREF = value;
 }
 
-void buck_set_current(_Q16 current){
+void buck_set_current(_Q16 current)
+{
     _Q16 max_i = 327680; // 5A
     
     int16_t value = _Q16div(current, max_i) >> 4;
@@ -252,4 +264,37 @@ void _ISR_NOPSV _INT2Interrupt(void)
     /* clear interrupt flag */
     IFS1bits.INT2IF = 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Unit Tests */
+/* -------------------------------------------------------------------------- */
+
+#ifdef TESTING
+
+#include "gmock/gmock.h"
+
+using namespace ::testing;
+
+class buck : public Test
+{
+    virtual void SetUp()
+    {
+        buck_init();
+        ADCdata0 = 0;
+        ADCdata1 = 0;
+    }
+
+    virtual void TearDown()
+    {
+        event_deinit();
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+TEST_F(buck, this_is_a_test)
+{
+    EXPECT_THAT(1, Eq(1));
+}
+
+#endif /* TESTING */
 
