@@ -89,9 +89,9 @@ static void destroy_listeners(struct listener_list_t* list)
 }
 
 /* -------------------------------------------------------------------------- */
-void event_init(void)
+void event_deinit(void)
 {
-    /* clear all lists of listeners */
+	/* clear all lists of listeners */
     unsigned short i = EVENT_COUNT;
     while(i --> 0)
     {
@@ -162,21 +162,21 @@ void event_post(event_id_e event_id, unsigned int arg)
     unsigned char write;
 
     /*
-     * Aquire unique write position in queue. If the queue is full, ignore this
+     * Acquire unique write position in queue. If the queue is full, ignore this
      * event and return.
      */
     disable_interrupts();
-    {
         write = ring_buffer.write + 1;
         write = (write == RING_BUFFER_SIZE ? 0 : write);
+
         if(write == ring_buffer.read)
         {
             /* buffer is full, discard this event */
             enable_interrupts();
             return;
         }
+
         ring_buffer.write = write;
-    }
     enable_interrupts();
 
     /* add event ID and arguments into queue */
@@ -185,7 +185,7 @@ void event_post(event_id_e event_id, unsigned int arg)
 }
 
 /* -------------------------------------------------------------------------- */
-void event_process_all(void)
+void event_dispatch_all(void)
 {
     unsigned char write, read;
     struct listener_t* listener;

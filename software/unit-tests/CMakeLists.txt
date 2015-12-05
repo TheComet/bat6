@@ -68,22 +68,12 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 # compiler definitions and flags
 ###############################################################################
 
-if(${PLATFORM} MATCHES "LINUX")
-    option (ENABLE_PROFILING "Compiles with -pg on linux" OFF)
-endif ()
-
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     set (DEFINE_CMD -D)
-    if (ENABLE_PROFILING)
-        add_definitions(-pg)
-    endif ()
-    add_definitions (-Werror)
+    add_definitions (-W -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     set (DEFINE_CMD -D)
-    if (ENABLE_PROFILING)
-        add_definitions(-pg)
-    endif ()
-    add_definitions (-Werror)
+    add_definitions (-W -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     set (DEFINE_CMD /D)
@@ -117,6 +107,9 @@ file (GLOB tests_SOURCES "src/*.cpp")
 file (GLOB_RECURSE tests_dsPIC_SOURCES
     RELATIVE "${CMAKE_SOURCE_DIR}"
             "${CMAKE_SOURCE_DIR}/../dspic/src/*.c")
+file (GLOB_RECURSE tests_dsPIC_HEADERS
+	RELATIVE "${CMAKE_SOURCE_DIR}"
+			"${CMAKE_SOURCE_DIR}/../dspic/include/*.h")
 
 set_source_files_properties (${tests_dsPIC_SOURCES} PROPERTIES LANGUAGE CXX)
 
@@ -125,6 +118,7 @@ include_directories ("${CMAKE_SOURCE_DIR}/../dspic/include")
 add_executable (unit_tests
     ${tests_SOURCES}
     ${tests_dsPIC_SOURCES}
+    ${tests_dsPIC_HEADERS}
 )
 
 target_link_libraries (unit_tests
