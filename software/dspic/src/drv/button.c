@@ -98,6 +98,7 @@ void test_callback(unsigned int arg)
     button_action = (int)arg;
 }
 
+/* -------------------------------------------------------------------------- */
 class button : public Test
 {
     virtual void SetUp()
@@ -144,6 +145,7 @@ void press_button()
     event_dispatch_all();
 }
 
+/* -------------------------------------------------------------------------- */
 TEST_F(button, twist_left_posts_correct_event)
 {
     event_register_listener(EVENT_BUTTON, test_callback);
@@ -183,3 +185,4 @@ TEST_F(button, pressing_posts_correct_event)
 }
 
 #endif /* TESTING */
+

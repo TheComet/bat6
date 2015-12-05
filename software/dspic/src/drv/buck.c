@@ -275,6 +275,7 @@ void _ISR_NOPSV _INT2Interrupt(void)
 
 using namespace ::testing;
 
+/* -------------------------------------------------------------------------- */
 class buck : public Test
 {
     virtual void SetUp()
@@ -291,7 +292,7 @@ class buck : public Test
 };
 
 /* -------------------------------------------------------------------------- */
-TEST_F(buck, this_is_a_test)
+TEST_F(buck, example_test)
 {
     EXPECT_THAT(1, Eq(1));
 }

@@ -205,7 +205,6 @@ using namespace ::testing;
 /* Test fixture -- Defines stuff that gets called for every test case */
 class uart : public Test
 {
-protected:
     virtual void SetUp()
     {
         /* free all listeners and destroy pending events */

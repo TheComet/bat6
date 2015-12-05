@@ -26,3 +26,4 @@ void leds_init(void)
     /* listen to 10 ms update events */
     event_register_listener(EVENT_UPDATE, on_update);
 }
+

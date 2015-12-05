@@ -127,3 +127,4 @@ void drivers_deinit(void)
     /* de-initialise event system */
     event_deinit();
 }
+

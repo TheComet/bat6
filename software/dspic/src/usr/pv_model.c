@@ -9,7 +9,6 @@
 #include "usr/pv_model.h"
 
 /* -------------------------------------------------------------------------- */
-
 static uint16_t _fp_exp(const uint16_t exponent){
     /*
      * calculates exp using a spline approximation
@@ -60,6 +59,7 @@ static uint16_t fp_exp(const int16_t exponent){
     return _fp_exp(x) >> (-k);
 }
 
+/* -------------------------------------------------------------------------- */
 static uint16_t Io_rel(pv_cell_t* cell, const uint16_t vd){
     /* calculates exp((vd-voc)/vt) */
     const int16_t diff = vd - cell->voc; //
@@ -67,6 +67,7 @@ static uint16_t Io_rel(pv_cell_t* cell, const uint16_t vd){
     return fp_exp(exponent);
 }
 
+/* -------------------------------------------------------------------------- */
 static uint16_t Id(pv_cell_t* cell, const uint16_t vd){
     const int16_t io = Io_rel(cell, vd);
     const int16_t irel = (cell->g >> 1) - io;
@@ -74,6 +75,7 @@ static uint16_t Id(pv_cell_t* cell, const uint16_t vd){
     return id;
 }
 
+/* -------------------------------------------------------------------------- */
 uint16_t calc_voltage(pv_cell_t* cell, uint16_t voltage_is, int16_t current_is){
     /*calculates the new voltage depending on the measured voltage and current
      *voltage format: Q5.11
@@ -83,3 +85,29 @@ uint16_t calc_voltage(pv_cell_t* cell, uint16_t voltage_is, int16_t current_is){
 
     return voltage_is + Udiff;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Unit Tests */
+/* -------------------------------------------------------------------------- */
+
+#ifdef TESTING
+
+#include "gmock/gmock.h"
+
+using namespace ::testing;
+
+/* -------------------------------------------------------------------------- */
+class pv_model : public Test
+{
+    virtual void SetUp() {}
+    virtual void TearDown() {}
+};
+
+/* -------------------------------------------------------------------------- */
+TEST_F(pv_model, example_test)
+{
+    EXPECT_THAT(1, Eq(1));
+}
+
+#endif /* TESTING */
+
