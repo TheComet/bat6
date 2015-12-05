@@ -256,6 +256,9 @@ class event : public Test
 {
     virtual void SetUp()
     {
+        /* clears all listeners and destroys pending events */
+        event_deinit();
+
         /* Reset counters */
          times_called = 0;
         last_argument_received = 0;
@@ -263,8 +266,6 @@ class event : public Test
 
     virtual void TearDown()
     {
-        /* clears all listeners and destroys pending events */
-        event_deinit();
     }
 };
 

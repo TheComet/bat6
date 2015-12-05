@@ -110,9 +110,6 @@ void uart_init(void)
     //U1TXREG = 'a';                  // transmit one character
 
     event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
-
-    /* set initial state */
-    state = STATE_IDLE;
 }
 
 static void process_incoming_data(unsigned int data)
@@ -206,20 +203,22 @@ using namespace ::testing;
 
 /* -------------------------------------------------------------------------- */
 /* Test fixture -- Defines stuff that gets called for every test case */
-class receive_state_machine : public Test
+class uart : public Test
 {
 protected:
     virtual void SetUp()
     {
-        /* initialise uart so our listeners are registered and the initial
-         * state is defined (STATE_IDLE) */
+        /* free all listeners and destroy pending events */
+        event_deinit();
+
+        /* initialise uart so our listeners are registered */
         uart_init();
+        /* set initial state */
+        state = STATE_IDLE;
     }
 
     virtual void TearDown()
     {
-        /* free all listeners and destroy pending events */
-        event_deinit();
     }
 };
 
@@ -238,7 +237,7 @@ void sendString(const char* str)
 }
 
 /* -------------------------------------------------------------------------- */
-TEST_F(receive_state_machine, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
+TEST_F(uart, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
 {
     /* set some garbage values */
     state_data.config_model.param = 88;
@@ -251,7 +250,7 @@ TEST_F(receive_state_machine, selected_model_and_param_is_reset_correctly_when_s
     EXPECT_THAT(state_data.config_model.selected_model, Eq((unsigned int)0));
 }
 
-TEST_F(receive_state_machine, model_is_correctly_selected)
+TEST_F(uart, model_is_correctly_selected)
 {
     sendString("m2");
 
@@ -259,7 +258,7 @@ TEST_F(receive_state_machine, model_is_correctly_selected)
     EXPECT_THAT(state_data.config_model.selected_model, Eq(2));
 }
 
-TEST_F(receive_state_machine, model_with_multiple_digits_is_correctly_selected)
+TEST_F(uart, model_with_multiple_digits_is_correctly_selected)
 {
     sendString("m195");
 
@@ -267,7 +266,7 @@ TEST_F(receive_state_machine, model_with_multiple_digits_is_correctly_selected)
     EXPECT_THAT(state_data.config_model.selected_model, Eq(195));
 }
 
-TEST_F(receive_state_machine, abort_model_selection_if_no_number_is_sent)
+TEST_F(uart, abort_model_selection_if_no_number_is_sent)
 {
     sendString("ma");
 
@@ -275,3 +274,4 @@ TEST_F(receive_state_machine, abort_model_selection_if_no_number_is_sent)
 }
 
 #endif /* TESTING */
+

@@ -24,13 +24,14 @@ public:
         ADCAL0Lbits.CAL1RDY = 1;
 
         hw_init();
+        drivers_init();
     }
 
     virtual void TearDown()
     {
+        drivers_deinit();
     }
 };
 
 const testing::Environment* const memoryManagementEnvironment =
         testing::AddGlobalTestEnvironment(new dsPICGlobalEnvironment);
-

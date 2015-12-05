@@ -17,6 +17,7 @@ int main(void)
 #endif
 {
     hw_init();
+    drivers_init();
 
     while(1)
     {

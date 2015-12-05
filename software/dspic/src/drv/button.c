@@ -102,13 +102,13 @@ class button : public Test
 {
     virtual void SetUp()
     {
+        event_deinit();
         button_init();
         button_action = 0;
     }
 
     virtual void TearDown()
     {
-        event_deinit();
     }
 };
 
