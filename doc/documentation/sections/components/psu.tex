@@ -9,28 +9,36 @@ supplying  \SI{28}{\volt}  at   \SI{75}{\watt}   and   can  be  seen  in  figure
 \ref{fig:circuit:mains-input}.
 
 \begin{figure}[th!]
-    \center
-    \includegraphics[width=.35\textwidth]{images/circuit/mains-input.pdf}
-    \caption{Netzspannung wird gefiltert und auf 36V DC durch ein externes Netzmodul transformiert}
-    \label{fig:circuit:mains-input}
+    \centering
+    \begin{minipage}{.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/circuit/external-power-supply.JPG}
+        \caption{External PSU}
+        \label{fig:circuit:mains-input}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{images/circuit/power-entry-module.JPG}
+        \caption{Power Entry Module}
+        \label{fig:circuit:iec60320c13}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+        \centering
+        \includegraphics[width=.6\textwidth]{images/circuit/rocker-switch.JPG}
+        \caption{Rocker Switch}
+        \label{fig:circuit:rocker-switch}
+    \end{minipage}
 \end{figure}
 
 The  device  can be plugged into a power outlet by means of  an  IEC  60320  C13
-socket, as illustrated in figure \ref{fig:circuit:iec60320c13}. The socket has a
+socket seen in figure \ref{fig:circuit:iec60320c13}. The socket has a
 built-in  fuse  as  well  as  a  built-in  mains  filter, which will reduce high
-frequency coupling from the device back into the mains. A rocker switch  is  connected in series with
-the socket and the power supply,  allowing  for the end user to cut power at any
-time.
+frequency coupling from the device back into the mains.
 
-\begin{wrapfigure}{r}{.4\textwidth}
-    \center
-    \includegraphics[width=.2\textwidth]{images/circuit/power-entry-module.JPG}
-    \caption{IEC 60320 C13 power socket used in this device}
-    \label{fig:circuit:iec60320c13}
-\end{wrapfigure}
+A rocker switch (figure \ref{fig:circuit:rocker-switch}) is  connected in series
+with the socket and  the power supply, allowing for the end user to cut power at
+any time.
 
-Weiter  wird  eine  Netzeingangs-Steckverbinder  mit integriertem Netzfilter und
-Sicherung  verwendet,  was  in der Abbildung  \ref{fig:circuit:mains-input}  als
-$X_1$  zu  sehen  ist. Ein auf der R\"uckseit des Geh\"auses montierter Schalter
-$X_7$ erlaubt das Ein- und Ausschalten des Endproduktes.
+\emph{TODO: Show photo of wiring in housing}
+
 
