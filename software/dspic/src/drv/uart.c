@@ -10,7 +10,7 @@
 #include "core/event.h"
 
 /*  based on Example 5-1 in UART pdf */
-#define FP 60000000 /* 60 MIPS, see hw.c */
+
 #define BAUDRATE 115200
 #define BRGVAL ((FP/BAUDRATE)/16)-1
 
@@ -40,12 +40,6 @@ struct data_t {
     {
         struct {
             unsigned char selected_model; /* number representing the model */
-            unsigned int param;
-        } config_model;
-    };
-    union
-    {
-        struct {
             unsigned char selected_param; /* defines whether param holds value
                                            * for Current, Voltage, Temperature
                                            * or Exposure */
@@ -55,7 +49,7 @@ struct data_t {
                                            * U: milli volt
                                            * T: degrees celsius
                                            * E: percent */
-        } config_equation;
+        } config_model;
     };
 };
 
@@ -167,22 +161,22 @@ static void process_incoming_data(unsigned int data)
             switch (data)
             {
                 case 'I':
-                    state_data.config_equation.selected_param = data;
+                    state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
                     break;
                     
                 case 'U':
-                    state_data.config_equation.selected_param = data;
+                    state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE;
                     break;
                     
                 case 'T':
-                    state_data.config_equation.selected_param = data;
+                    state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_TEMPERATURE;
                     break;
                     
                 case 'E':
-                    state_data.config_equation.selected_param = data;
+                    state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_EXPOSURE;
                     break;
                     
@@ -193,27 +187,6 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
-            if (data >= '0' && data <= '9')
-            {
-                /* Process multi-digit model numbers */
-                state_data.config_equation.param *= 10;
-                state_data.config_equation.param += CHAR_TO_INT(data);
-
-                /*
-                 * Hijack param as a flag to indicate if a number was received
-                 * or not so we can detect the error case when two non-numbers
-                 * are sent consecutively.
-                 */
-                state_data.config_model.param = 1;
-            } else if (state_data.config_model.param == 0) {
-                /*
-                 * Letter directly followed by another letter: error,
-                 * revert back to idle state
-                 */
-                state = STATE_IDLE;
-            } else {
-                state = STATE_AWAIT_MODEL_CONFIG;
-            }
             break;
 
         case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
@@ -235,7 +208,7 @@ static void process_incoming_data(unsigned int data)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
-    //U1TXREG = U1RXREG; /* echo back whatever we receive */
+    // U1TXREG = U1RXREG; /* echo back whatever we receive */
 
     event_post(EVENT_DATA_RECEIVED, U1RXREG);
 
