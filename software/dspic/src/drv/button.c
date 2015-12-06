@@ -10,6 +10,15 @@
 #include "core/event.h"
 #include <stdlib.h>
 
+#define TIME_THRESHOLD_IN_MILLISECONDS 500
+
+#define TIME_THRESHOLD \
+    TIME_THRESHOLD_IN_MILLISECONDS / 10
+
+volatile static unsigned char button_timer = 0;
+
+static void on_update(unsigned int arg);
+
 /* -------------------------------------------------------------------------- */
 void button_init(void)
 {
@@ -22,32 +31,46 @@ void button_init(void)
     /* twist/push button has three wires that need pull-ups */
     CNPUC |= 0x0070;        /* bit 4, 5, 6 */
 
-    /* configure KNOB_BTN to trigger an interrupt when pressed */
-    RPINR0bits.INT1R = 54;  /* assign INT1 to pin RP54 */
-    INTCON2bits.INT1EP = 1; /* interrupt on falling edge (pressed) */
-    IFS1bits.INT1IF = 0;    /* clear interrupt flag */
-    IEC1bits.INT1IE = 1;    /* enable INT1 interrupt */
-
-    /* configure encoder to trigger interrupts whenever A or B changes */
-    CNENC |= 0x30;          /* enable interrupts for bits 4 and 5 */
+    /* configure encoder and button to trigger interrupts on change */
+    CNENC |= 0x70;          /* enable interrupts for bits 4, 5, and 6 */
     IFS1bits.CNIF = 0;      /* clear interrupt flag for change notifications */
     IEC1bits.CNIE = 1;      /* enable change notification interrupts */
+
+    /* listen to 10ms update events, required for "long press" timings of the
+     * button */
+    event_register_listener(EVENT_UPDATE, on_update);
 }
 
 /* -------------------------------------------------------------------------- */
-/* called when the button is pressed (falling edge) */
-void _ISR_NOPSV _INT1Interrupt(void)
+static void on_update(unsigned int arg)
 {
-    /* button was pressed, trigger event */
-    event_post(EVENT_BUTTON, BUTTON_PRESSED);
-
-    /* clear interrupt flag */
-    IFS1bits.INT1IF = 0;
+    /* If the timer is active (non-zero) and hasn't reached the max value yet,
+     * increment it */
+    if(button_timer && button_timer < 255)
+        ++button_timer;
 }
 
 /* -------------------------------------------------------------------------- */
-/* called when the button is twisted (A or B changed) */
-void _ISR_NOPSV _CNInterrupt(void)
+static void process_press_event(void)
+{
+    /* Was the button pressed? (falling edge) */
+    if(!KNOB_BUTTON)
+    {
+        event_post(EVENT_BUTTON, BUTTON_PRESSED);
+        button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
+    /* The button was released */
+    } else {
+
+        if(button_timer >= TIME_THRESHOLD)
+            event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
+
+        /* stop timer */
+        button_timer = 0;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+static void process_twist_event(void)
 {
     static unsigned char current_AB = 0;
 
@@ -63,11 +86,17 @@ void _ISR_NOPSV _CNInterrupt(void)
     unsigned char AB = KNOB_AB;  /* read from register */
     AB ^= (AB >> 1); /* flip bit0 if bit1 is set */
 
+    /* Was the knob even twisted? */
+    if(current_AB == AB)
+        return;
+
     /*
      * Determine the direction the knob was twisted and post an event
      * accordingly.
      */
-    if((AB > current_AB || (current_AB == 3 && AB == 0)) && !(current_AB == 0 && AB == 3))
+    if((AB > current_AB ||
+         (current_AB == 3 && AB == 0)) &&
+        !(current_AB == 0 && AB == 3))
     {
         event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
     } else {
@@ -76,11 +105,18 @@ void _ISR_NOPSV _CNInterrupt(void)
 
     /* update current AB */
     current_AB = AB;
+}
+
+/* -------------------------------------------------------------------------- */
+/* called when the button is twisted (A or B changed) */
+void _ISR_NOPSV _CNInterrupt(void)
+{
+    process_press_event();
+    process_twist_event();
 
     /* clear interrupt flag */
     IFS1bits.CNIF = 0;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* Unit tests */
@@ -103,9 +139,14 @@ class button : public Test
 {
     virtual void SetUp()
     {
+        /* re-initialise events and button */
         event_deinit();
         button_init();
         button_action = 0;
+
+        /* By default, the button isn't pressed, which means BIT6 is high and
+         * all other bits are low */
+        PORTC = BIT6;
     }
 
     virtual void TearDown()
@@ -117,10 +158,10 @@ void twist_button_left()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
-        case 0 : PORTC = (1 << 4); break;
-        case 1 : PORTC = (3 << 4); break;
-        case 3 : PORTC = (2 << 4); break;
-        case 2 : PORTC = (0 << 4); break;
+        case 0 : PORTC |=  BIT4; break;
+        case 1 : PORTC |=  BIT5; break;
+        case 3 : PORTC &= ~BIT4; break;
+        case 2 : PORTC &= ~BIT5; break;
     }
     _CNInterrupt();
     event_dispatch_all();
@@ -130,10 +171,10 @@ void twist_button_right()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
-        case 0 : PORTC = (2 << 4); break;
-        case 2 : PORTC = (3 << 4); break;
-        case 3 : PORTC = (1 << 4); break;
-        case 1 : PORTC = (0 << 4); break;
+        case 0 : PORTC |=  BIT5; break;
+        case 2 : PORTC |=  BIT4; break;
+        case 3 : PORTC &= ~BIT5; break;
+        case 1 : PORTC &= ~BIT4; break;
     }
     _CNInterrupt();
     event_dispatch_all();
@@ -141,8 +182,29 @@ void twist_button_right()
 
 void press_button()
 {
-    _INT1Interrupt();
+    PORTC &= ~BIT6;
+    _CNInterrupt();
     event_dispatch_all();
+}
+
+void release_button()
+{
+    PORTC |= BIT6;
+    _CNInterrupt();
+    event_dispatch_all();
+}
+
+void press_button_for(int time_to_pass_in_milliseconds)
+{
+    press_button();
+
+    /* button uses EVENT_UPDATE to measure time. One EVENT_UPDATE = 10ms */
+    int number_of_updates = time_to_pass_in_milliseconds / 10;
+    for(int i = 0; i != number_of_updates; ++i)
+    {
+        event_post(EVENT_UPDATE, 0);
+        event_dispatch_all();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -180,9 +242,34 @@ TEST_F(button, pressing_posts_correct_event)
 
     press_button();
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+
+    button_action = 0;
+    release_button();
+    EXPECT_THAT(button_action, Eq(0));
+
     press_button();
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
 }
 
-#endif /* TESTING */
+TEST_F(button, pressing_for_1_second_posts_correct_event)
+{
+    event_register_listener(EVENT_BUTTON, test_callback);
 
+    press_button_for(1000);
+    release_button();
+
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED_LONGER));
+}
+
+TEST_F(button, pressing_for_100_milliseconds_doesnt_post_event)
+{
+    event_register_listener(EVENT_BUTTON, test_callback);
+
+    press_button_for(100);
+    release_button();
+
+    /* Only expect the button press event, without the longer press */
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+}
+
+#endif /* TESTING */

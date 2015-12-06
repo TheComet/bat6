@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file menu.c
  * @author Alex Murray
  *
@@ -12,6 +12,8 @@ void menu_init(void)
 {
     /* initialise menu and register event listeners here */
 }
+
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* Unit Tests */
@@ -37,4 +39,3 @@ TEST_F(menu, example_test)
 }
 
 #endif /* TESTING */
-

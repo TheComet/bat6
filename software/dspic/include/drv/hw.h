@@ -105,6 +105,7 @@ extern "C" {
 #define LCD_ADDRESS         0x00
 #define BUCK_EN             PORTAbits.RA2
 #define KNOB_AB             ((PORTC & 0x30) >> 4)
+#define KNOB_BUTTON         ((PORTC & BIT6) >> 6)
 
 /* macros */
 #define lcd_enable()        (LCD_RESET = 1)

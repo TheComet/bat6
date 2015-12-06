@@ -12,7 +12,11 @@
 extern "C" {
 #endif
 
-
+/*!
+ * @brief Initialises the menu. Call this before calling any other menu related
+ * functions.
+ */
+void menu_init(void);
 
 #ifdef __cplusplus
 }
