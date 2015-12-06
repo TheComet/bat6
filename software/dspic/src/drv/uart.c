@@ -39,9 +39,23 @@ struct data_t {
     union
     {
         struct {
-            unsigned char selected_model;
+            unsigned char selected_model; /* number representing the model */
             unsigned int param;
         } config_model;
+    };
+    union
+    {
+        struct {
+            unsigned char selected_param; /* defines whether param holds value
+                                           * for Current, Voltage, Temperature
+                                           * or Exposure */
+            unsigned int param;           /* holds numerical value
+                                           * UNITS:
+                                           * I: milli ampere
+                                           * U: milli volt
+                                           * T: degrees celsius
+                                           * E: percent */
+        } config_equation;
     };
 };
 
@@ -130,7 +144,7 @@ static void process_incoming_data(unsigned int data)
 
                 /*
                  * Hijack param as a flag to indicate if a number was received
-                 * or not so we can detect the error case when two characters
+                 * or not so we can detect the error case when two non-numbers
                  * are sent consecutively.
                  */
                 state_data.config_model.param = 1;
@@ -146,9 +160,60 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_AWAIT_MODEL_CONFIG:
+            /* 
+             * We can configure current, voltage, temp or exposure. Anything
+             * else is an error and results in reverting back to idle state.
+             */
+            switch (data)
+            {
+                case 'I':
+                    state_data.config_equation.selected_param = data;
+                    state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
+                    break;
+                    
+                case 'U':
+                    state_data.config_equation.selected_param = data;
+                    state = STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE;
+                    break;
+                    
+                case 'T':
+                    state_data.config_equation.selected_param = data;
+                    state = STATE_CONFIG_TEMPERATURE;
+                    break;
+                    
+                case 'E':
+                    state_data.config_equation.selected_param = data;
+                    state = STATE_CONFIG_EXPOSURE;
+                    break;
+                    
+                default:
+                    state = STATE_IDLE;
+                    break;
+            }
             break;
 
         case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
+            if (data >= '0' && data <= '9')
+            {
+                /* Process multi-digit model numbers */
+                state_data.config_equation.param *= 10;
+                state_data.config_equation.param += CHAR_TO_INT(data);
+
+                /*
+                 * Hijack param as a flag to indicate if a number was received
+                 * or not so we can detect the error case when two non-numbers
+                 * are sent consecutively.
+                 */
+                state_data.config_model.param = 1;
+            } else if (state_data.config_model.param == 0) {
+                /*
+                 * Letter directly followed by another letter: error,
+                 * revert back to idle state
+                 */
+                state = STATE_IDLE;
+            } else {
+                state = STATE_AWAIT_MODEL_CONFIG;
+            }
             break;
 
         case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
@@ -161,6 +226,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         default:
+            state = STATE_IDLE;
             break;
     }
 }
