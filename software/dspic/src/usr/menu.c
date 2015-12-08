@@ -12,3 +12,4 @@ void menu_init(void)
 {
     /* initialise menu and register event listeners here */
 }
+
