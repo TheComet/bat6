@@ -1,24 +1,35 @@
-Die Spule $L_1$, ersichtlich in der Abbildung \ref{fig:circuit:buck}, wurde  mit
-der Formel \ref{eq:circuit:buck:inductor} berechnet,
-
+The size of the inductor $L_1$, as illustrated in figure \ref{fig:circuit:buck},
+was calculated using formula \ref{eq:circuit:buck:inductor}
 \begin{equation}
     L_1 = \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot U_{in}} \right) = \SI{6}{\micro\henry}
     \label{eq:circuit:buck:inductor}
 \end{equation}
+where $U_{in}$ is the  input  voltage  \SI{28}{\volt},  $U_{out}$  is the output
+voltage at peak power (which exists at $U_{out} = \SI{14}{\volt}$), $f_S$ is the
+switching frequency \SI{1}{\mega\hertz} and $I_o$ is the maximum output current,
+assumed   to   be   $I_o  =  \SI{5}{\ampere}$  for   some   additional   leeway.
 
-wobei  $U_{in}$  die  Eingangsspannung von  \SI{36}{\volt}  ist,  $U_{out}$  die
-Ausgangsspannung  bei  gr\"osster   Leistung  ist  (\SI{18}{\volt}),  $f_S$  die
-Schaltfrequenz von  \SI{1}{\mega\hertz} ist und $I_o$ der maximale Ausgangsstrom
-von \SI{5}{\ampere} ist.
+We ended up selecting a  larger  inductor  of  $L_1  = \SI{22}{\micro\henry}$ to
+further decrease ripple current.
 
-Um den Rippel  noch ein wenig mehr zu gl\"atten, wurde eine gr\"ossere Spule von
-\SI{22}{\micro\henry} ausgew\"ahlt.
+In addition to the value of  the  inductor, the maximum current rating, DCR, and
+saturation  current are also important factors to consider. The maximum  current
+of the inductor is calculated using formula 
+\ref{eq:circuit:buck:inductor_peak}
+\begin{equation}
+    I_{L1_{peak}} = I_O + \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{2 \cdot f_S \cdot L \cdot U_{in}} \right) = \SI{5.2}{\ampere}
+    \label{eq:circuit:buck:inductor_peak}
+\end{equation}
+Where $L$  is  the  value  of  the selected inductor, \SI{22}{\micro\henry}. The
+saturation  current  of the inductor was sized factor $1.2$ higher than the peak
+current.
+\begin{equation}
+    I_{L1_{saturation}} = 1.2 \cdot I_{L1_{peak}}
+    \label{eq:circuit:buck:inductor_saturation}
+\end{equation}
 
-Der Maximalstrom durch die Spule ist gleich gross wie  der  Strom, der durch den
-MOSFET   fliesst   und   wird  mit  der  Formel  \ref{eq:circuit:buck:mosfet_id}
-berechnet.  Der  S\"attigungsstrom   wurde   mit   $1.2   \cdot   I_{D_{max}}  =
-\SI{6.2}{\ampere}$ berechnet. Es  wurde  nach passende Spulen gesucht, welche in
-der Tabelle \ref{tab:circuit:buck:inductor} eingetragen sind.
+A  list  of  candidates  matching  the  above  parameters  are  listed in  table
+\ref{tab:circuit:buck:inductor}.
 
 \begin{table}[th!]
     \begin{center}
@@ -37,5 +48,6 @@ der Tabelle \ref{tab:circuit:buck:inductor} eingetragen sind.
     \end{center}
 \end{table}
 
-Unter den Kandidaten ist ganz klar wegen des niedrigen DCRs die Erste,  mit Grau
-hervorgehobene Spule, die optimalste.
+It  is  clear that the one with the lowest DCR will be the most optimal. The one
+highlighted in grey is the one we chose.
+
