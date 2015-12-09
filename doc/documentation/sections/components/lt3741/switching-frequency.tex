@@ -1,5 +1,10 @@
-Eine h\"ohere Schaltfrequenz $f_S$ bedeutet eine niedrigere Rippelspannung, aber
-eine h\"ohere Verlustleistung. $f_S$ wurde so hoch wie m\"oglich  dimensioniert,
-was sich als $\approx \SI{800}{\kilo\hertz}$ herausstellte. In den nachfolgenden
-Berechnungen  wird mit \SI{1}{\mega\hertz} berechnet, damit ein wenig  Spielraum
-\"ubrig bleibt.
+There is  a  tradeoff  when  selecting the switching frequency $f_S$. The higher
+$f_S$  is  selected,  the  lower  the output ripple voltage will be, but the higher the
+power consumption will be (caused by switching losses). Generally, one will want
+to maximise $f_S$.
+
+Due to all of  the  factors depending on $f_S$, it is only possible to determine
+this value imperically. We found a value of $f_S = \approx\SI{800}{\kilo\hertz}$
+to be best suitable. In  the  rest  of  the calculations, $f_S$ is assumed to be
+\SI{1}{\mega\hertz} to allow for some leeway.
+
