@@ -17,14 +17,14 @@ saturation  current are also important factors to consider. The maximum  current
 of the inductor is calculated using formula 
 \ref{eq:circuit:buck:inductor_peak}
 \begin{equation}
-    I_{L1_{peak}} = I_O + \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{2 \cdot f_S \cdot L \cdot U_{in}} \right) = \SI{5.2}{\ampere}
+    I_{L_{1_{peak}}} = I_O + \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{2 \cdot f_S \cdot L_1 \cdot U_{in}} \right) = \SI{5.2}{\ampere}
     \label{eq:circuit:buck:inductor_peak}
 \end{equation}
 Where $L$  is  the  value  of  the selected inductor, \SI{22}{\micro\henry}. The
 saturation  current  of the inductor was sized factor $1.2$ higher than the peak
 current.
 \begin{equation}
-    I_{L1_{saturation}} = 1.2 \cdot I_{L1_{peak}}
+    I_{L_{1_{saturation}}} = 1.2 \cdot I_{L_{1_{peak}}}
     \label{eq:circuit:buck:inductor_saturation}
 \end{equation}
 
