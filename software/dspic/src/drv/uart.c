@@ -10,9 +10,10 @@
 #include "core/event.h"
 
 /*  based on Example 5-1 in UART pdf */
-
 #define BAUDRATE 115200
 #define BRGVAL ((FP/BAUDRATE)/16)-1
+
+#define SEND_QUEUE_SIZE 64
 
 static void process_incoming_data(unsigned int data);
 static void configure_pins();
@@ -53,30 +54,66 @@ struct data_t {
     };
 };
 
-static state_e state = STATE_IDLE;
-static struct data_t state_data;
+struct ring_buffer_t
+{
+    volatile unsigned char read;
+    unsigned char write;
+    unsigned char data[SEND_QUEUE_SIZE];
+};
+
+static state_e              state       = STATE_IDLE;
+static struct data_t        state_data;
+static struct ring_buffer_t send_queue;
 
 /* -------------------------------------------------------------------------- */
 void uart_init(void)
 {
     configure_pins();
     configure_uart();
-    
+
     event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
+
+    /* init ring buffer */
+    send_queue.read = 0;
+    send_queue.write = 0;
 }
 
+/* -------------------------------------------------------------------------- */
+void uart_send_byte(unsigned char byte)
+{
+    unsigned char write = send_queue.write;
+
+    if(write == send_queue.read)
+        if(U1STA.TRMT)
+        {
+            U1TXREG = byte;
+            return;
+        }
+
+    /* increment and wrap write position */
+    ++send_queue.write;
+    send_queue.write = (send_queue.write == SEND_QUEUE_SIZE ?
+            0 : send_queue.write);
+
+    /* if queue is full, block until space frees up */
+    while(send_queue.write == send_queue.read);
+
+    send_queue.data[write] = byte;
+}
+
+/* -------------------------------------------------------------------------- */
 static void configure_pins()
 {
     /* See also Example 10-2 from I/O Ports pdf.*/
-    
+
     ANSELCbits.ANSC10 = 0;    /* Set RP58 to digital */
     ANSELCbits.ANSC11 = 0;    /* Set RP59 to digital */
     ANSELCbits.ANSC12 = 0;    /* set RP60 to digital */
                               /* RP61 seems to already be digital. */
-    
+
     __builtin_write_OSCCONL(OSCCON & ~ (1<<6)); /* Unlock registers */
 
-    RPINR18bits.U1RXR = 59;  /* Assign U1Rx to Pin RP59 */ 
+    RPINR18bits.U1RXR = 59;  /* Assign U1Rx to Pin RP59 */
     RPINR18bits.U1CTSR = 58; /* Assign U1TCS to Pin RP58 */
 
     RPOR14bits.RP60R = 1; /* Assign U1Tx to Pin RP60, see p.10-11 I/O
@@ -87,6 +124,7 @@ static void configure_pins()
     __builtin_write_OSCCONL(OSCCON | (1<<6)); /* Lock registers */
 }
 
+/* -------------------------------------------------------------------------- */
 static void configure_uart()
 {
     /* Example 5-1 from UART manual pdf */
@@ -113,6 +151,7 @@ static void configure_uart()
     IEC0bits.U1RXIE = 1;            /* enable RX interrupt */
 }
 
+/* -------------------------------------------------------------------------- */
 static void process_incoming_data(unsigned int data)
 {
 
@@ -154,7 +193,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_AWAIT_MODEL_CONFIG:
-            /* 
+            /*
              * We can configure current, voltage, temp or exposure. Anything
              * else is an error and results in reverting back to idle state.
              */
@@ -164,22 +203,22 @@ static void process_incoming_data(unsigned int data)
                     state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
                     break;
-                    
+
                 case 'U':
                     state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE;
                     break;
-                    
+
                 case 'T':
                     state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_TEMPERATURE;
                     break;
-                    
+
                 case 'E':
                     state_data.config_model.selected_param = data;
                     state = STATE_CONFIG_EXPOSURE;
                     break;
-                    
+
                 default:
                     state = STATE_IDLE;
                     break;
@@ -219,6 +258,19 @@ void _ISR_NOPSV _U1RXInterrupt(void)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1TXInterrupt(void)
 {
+    for(;;)
+    {
+        /* send the next queued byte if available, otherwise stop sending */
+        if(send_queue.read != send_queue.write)
+            U1TXREG = send_queue.data[send_queue.read];
+        else
+            break;
+
+        /* increment and write read position */
+        ++send_queue.read;
+        if(send_queue == SEND_QUEUE_SIZE) send_queue.read = 0;
+    }
+
     /* clear interrupt flag */
     IFS0bits.U1TXIF = 0;
 }

@@ -17,6 +17,12 @@ extern "C" {
  */
 void uart_init(void);
 
+/*!
+ * @brief Queues a byte for sending.
+ * @param byte The byte to send.
+ */
+void uart_send_byte(unsigned char byte);
+
 #ifdef	__cplusplus
 }
 #endif
