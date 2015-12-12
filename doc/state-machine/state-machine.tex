@@ -35,8 +35,8 @@
   \tikzstyle{every state}=[fill=red,draw=none,text=white]
 
   \node[initial,state] (A)                    {\texttt{IDLE}};
-  \node[state]         (B) [below right of=A] {\texttt{SELMOD}}; % SELECT MODEL
-  \node[state]         (C) [below right of=B] {\texttt{AWMC}}; % AWAIT MODEL CONFIG
+  \node[state]         (B) [below right of=A] {\texttt{SELCELL}}; % SELECT CELL
+  \node[state]         (C) [below right of=B] {\texttt{AWMC}}; % AWAIT CELL CONFIG
   \node[state]         (D) [below left  of=C] {\texttt{I}};    % Configure short circuit current
   \node[state]         (E) [below right of=C] {\texttt{U}};    % Configure open circuit voltage
   \node[state]         (F) [      left  of=D] {\texttt{T}};    % Configure temperature
@@ -64,15 +64,15 @@
 \begin{itemize}
     \item[\texttt{IDLE}]
         Machine is idling
-    \item[\texttt{SELMOD}]
-        Selecting a model by its number to configure it.
+    \item[\texttt{SELCELL}]
+        Selecting a cell by its number to configure it.
     \item[\texttt{rcv}]
         Keep reading out input.
     \item[\texttt{AWMC}]
-        Awaiting model configuration (whether short circuit current, open loop
+        Awaiting cell configuration (whether short circuit current, open loop
         voltage, temperature or exposure is to be confingured).
     \item[\texttt{$[$0-9$]$*}]
-        One or more digits, indicating the number of the selected model.
+        One or more digits, indicating the number of the selected cell.
     \item[\texttt{I}]
         Configuring short-circuit current.
     \item[\texttt{U}]
