@@ -10,8 +10,8 @@
 #include "models/pvchain.h"
 #include "models/pvcell.h"
 
-#include "qwt5/qwt_plot.h"
-#include "qwt5/qwt_plot_curve.h"
+#include "qwt6/qwt_plot.h"
+#include "qwt6/qwt_plot_curve.h"
 
 #include <QPushButton>
 #include <QSplitter>
