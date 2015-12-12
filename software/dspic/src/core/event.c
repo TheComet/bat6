@@ -441,4 +441,3 @@ TEST_F(event, ring_buffer_wraps_correctly)
 }
 
 #endif /* TESTING */
-

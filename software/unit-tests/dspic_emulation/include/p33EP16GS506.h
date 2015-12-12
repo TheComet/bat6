@@ -6,42 +6,38 @@
  *
  * This software is developed by Microchip Technology Inc. and its
  * subsidiaries ("Microchip").
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are 
+ * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1.      Redistributions of source code must retain the above copyright
  *         notice, this list of conditions and the following disclaimer.
- * 2.      Redistributions in binary form must reproduce the above 
- *         copyright notice, this list of conditions and the following 
- *         disclaimer in the documentation and/or other materials provided 
+ * 2.      Redistributions in binary form must reproduce the above
+ *         copyright notice, this list of conditions and the following
+ *         disclaimer in the documentation and/or other materials provided
  *         with the distribution.
  * 3.      Microchip's name may not be used to endorse or promote products
- *         derived from this software without specific prior written 
+ *         derived from this software without specific prior written
  *         permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY MICROCHIP "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ * MERCHANTABILITY AND FITNESS FOR PURPOSE ARE DISCLAIMED. IN NO EVENT
  * SHALL MICROCHIP BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED TO
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS;
  * OR BUSINESS INTERRUPTION) HOWSOEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
-
-
-#define __interrupt__
-#define no_auto_psv
-#define __builtin_write_OSCCONL(x)
-#define __builtin_write_OSCCONH(x)
 
 #ifndef __33EP16GS506_H
 #define __33EP16GS506_H
+
+#include "compiler_symbols.h"
 
 #define __XC16_PART_SUPPORT_VERSION 1025
 #define __XC16_PART_SUPPORT_UPDATE 'A'
@@ -27586,7 +27582,7 @@ extern  unsigned int _FOSCSEL;
 **
 **   Oscillator Source Selection:
 **     FNOSC_FRC            Internal Fast RC (FRC)
-**     FNOSC_FRCPLL         Fast RC Oscillator with divide-by-N with PLL module (FRCPLL) 
+**     FNOSC_FRCPLL         Fast RC Oscillator with divide-by-N with PLL module (FRCPLL)
 **     FNOSC_PRI            Primary Oscillator (XT, HS, EC)
 **     FNOSC_PRIPLL         Primary Oscillator with PLL module (XT + PLL, HS + PLL, EC + PLL)
 **     FNOSC_LPRC           Low-Power RC Oscillator (LPRC)

@@ -115,6 +115,11 @@ extern "C" {
 #define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
 #define enable_interrupts() (_GIE = 1)
 #define disable_interrupts()(_GIE = 0)
+    
+/* Among other things, required for UART
+ * Fosc = 120 MHz, FP = Fosc / 2, according to Fig 1-1 in Oscillator Module
+ * Documentation. See also init_sysclk60mips() in hw.c */
+#define FP 60000000
 
 /*!
  * @brief Initialises and configures the hardware. Must be the first thing
