@@ -1,0 +1,10 @@
+The LT3741 is powered by the \SI{28}{\volt} rail, which can  be  seen  in figure
+\ref{fig:circuit:buck} in  the  top  right.  Because  the  LT3741  consumes high
+amounts of power in very high frequent, short intervals (caused by the switching
+of the MOSFETs), the LT3741 is keen to feed high frequency disturbance back into
+the  \SI{28}{\volt}   rail,   which,  if  not  handled  correctly,  could  cause
+disturbances in the rest of the circuit. As a countermeasure we used a multitude
+of different ceramic and electrolytic  bypass  capacitors  in  parallel  to help
+reduce  EMI.  Additionally,  we  used  ferrite beads placed in series  with  the
+supply, which will absorb any high frequency feedback.
+
