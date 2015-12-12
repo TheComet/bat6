@@ -9,15 +9,34 @@
 #include "drv/hw.h"
 #include "core/event.h"
 
-/*  based on Example 5-1 in UART pdf */
+/* Based on Example 5-1 in UART pdf */
+/* Calculates value to write to register for the specified baud rate */
 #define BAUDRATE 115200
 #define BRGVAL ((FP/BAUDRATE)/16)-1
 
-#define SEND_QUEUE_SIZE 64
+/* Sets the size of the send queue */
+#define TRANSMIT_QUEUE_SIZE 4
+
+/* Enables or disables transmit interrupt */
+#define disable_tx_interrupt() (IEC0bits.U1TXIE = 0)
+#define enable_tx_interrupt()  (IEC0bits.U1TXIE = 1)
+
+/*
+ * In order to test some of the concurrency situations present in the transmit
+ * queue, we need to call an "update" function while uart_send() is blocking.
+ */
+#ifdef TESTING
+static void tx_send_update(); /* is implemented in the tests below */
+#   define TX_SEND_UPDATE() \
+            (tx_send_update())
+#else
+#   define TX_SEND_UPDATE()
+#endif
 
 static void process_incoming_data(unsigned int data);
-static void configure_pins();
-static void configure_uart();
+static void configure_pins(void);
+static void configure_uart(void);
+static void send_next_byte(void);
 
 typedef enum
 {
@@ -58,12 +77,12 @@ struct ring_buffer_t
 {
     volatile unsigned char read;
     unsigned char write;
-    unsigned char data[SEND_QUEUE_SIZE];
+    unsigned char data[TRANSMIT_QUEUE_SIZE];
 };
 
 static state_e              state       = STATE_IDLE;
 static struct data_t        state_data;
-static struct ring_buffer_t send_queue;
+static struct ring_buffer_t transmit_queue  = {0, 0, {0}};
 
 /* -------------------------------------------------------------------------- */
 void uart_init(void)
@@ -72,37 +91,57 @@ void uart_init(void)
     configure_uart();
 
     event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
-
-    /* init ring buffer */
-    send_queue.read = 0;
-    send_queue.write = 0;
 }
 
 /* -------------------------------------------------------------------------- */
-void uart_send_byte(unsigned char byte)
+void uart_send(const unsigned char* bytes, unsigned short len)
 {
-    unsigned char write = send_queue.write;
+    /* sets "write" to the next write position in the ring buffer */
+#define get_next_write_position(write) do {                         \
+        write = transmit_queue.write + 1;                               \
+        write = (write == TRANSMIT_QUEUE_SIZE ? 0 : write); } while(0)
 
-    if(write == send_queue.read)
-        if(U1STA.TRMT)
+    /* sends the first byte in the queue if the TX buffer is idle */
+#define try_send_first_byte() do {        \
+        disable_tx_interrupt();           \
+            if(U1STAbits.TRMT)            \
+                send_next_byte();         \
+        enable_tx_interrupt(); } while(0)
+    /*
+     * Note: The assumption is that this never gets called from an interrupt,
+     * only from event handlers.
+     */
+
+    while(len --> 0)
+    {
+        /* increment and wrap write position */
+        unsigned char write;
+        get_next_write_position(write);
+
+        /* if queue is full, block until space frees up */
+        while(write == transmit_queue.read)
         {
-            U1TXREG = byte;
-            return;
+            try_send_first_byte(); /* send, so buffer is emptied */
+            while(write == transmit_queue.read) { TX_SEND_UPDATE(); }
+            get_next_write_position(write);
         }
 
-    /* increment and wrap write position */
-    ++send_queue.write;
-    send_queue.write = (send_queue.write == SEND_QUEUE_SIZE ?
-            0 : send_queue.write);
+        /* add data to queue and update write position */
+        transmit_queue.data[write] = *bytes++;
+        transmit_queue.write = write;
+    }
 
-    /* if queue is full, block until space frees up */
-    while(send_queue.write == send_queue.read);
-
-    send_queue.data[write] = byte;
+    /*
+     * At this point the data is in the queue, but we don't know if the TX
+     * interrupt is in the process of reading the buffer or not. If the
+     * transmit buffer is empty, it should be safe to assume it isn't, in
+     * which case we must manually trigger it to send.
+     */
+    try_send_first_byte();
 }
 
 /* -------------------------------------------------------------------------- */
-static void configure_pins()
+static void configure_pins(void)
 {
     /* See also Example 10-2 from I/O Ports pdf.*/
 
@@ -113,42 +152,41 @@ static void configure_pins()
 
     __builtin_write_OSCCONL(OSCCON & ~ (1<<6)); /* Unlock registers */
 
-    RPINR18bits.U1RXR = 59;  /* Assign U1Rx to Pin RP59 */
-    RPINR18bits.U1CTSR = 58; /* Assign U1TCS to Pin RP58 */
+    RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
+    RPINR18bits.U1CTSR = 58;  /* Assign U1TCS to Pin RP58 */
 
-    RPOR14bits.RP60R = 1; /* Assign U1Tx to Pin RP60, see p.10-11 I/O
-                           * ports documentation */
-    RPOR14bits.RP61R = 3; /* Assign U1RTS to RP61 */
-    CNPUCbits.CNPUC11 = 1; /* RX requires pull-up */
+    RPOR14bits.RP60R = 1;     /* Assign U1Tx to Pin RP60, see p.10-11 I/O
+                               * ports documentation */
+    RPOR14bits.RP61R = 3;     /* Assign U1RTS to RP61 */
+    CNPUCbits.CNPUC11 = 1;    /* RX requires pull-up */
 
     __builtin_write_OSCCONL(OSCCON | (1<<6)); /* Lock registers */
 }
 
 /* -------------------------------------------------------------------------- */
-static void configure_uart()
+static void configure_uart(void)
 {
     /* Example 5-1 from UART manual pdf */
-    U1MODEbits.STSEL = 0;           /* 1 stop bit */
-    /*U1MODEbits.PDSEL = 0;             no parity */
-    U1MODEbits.PDSEL = 1;           /* 8-bit data, even parity */
-    U1MODEbits.ABAUD = 0;           /* Auto-Baud disabled */
-    U1MODEbits.BRGH = 0;            /* Standard-Speech mode */
-    U1MODEbits.RXINV = 1;           /* Invert RX (due to isolating IC) */
-    U1STAbits.TXINV = 1;            /* Invert TX (due to isolating IC) */
+    U1MODEbits.STSEL = 0;     /* 1 stop bit */
+    U1MODEbits.PDSEL = 1;     /* 8-bit data, even parity */
+    U1MODEbits.ABAUD = 0;     /* Auto-Baud disabled */
+    U1MODEbits.BRGH = 0;      /* Standard-Speech mode */
+    U1MODEbits.RXINV = 1;     /* Invert RX (due to isolating IC) */
+    U1STAbits.TXINV = 1;      /* Invert TX (due to isolating IC) */
 
-    U1BRG = BRGVAL;                 /* baud rate setting, see #defines at top */
+    U1BRG = BRGVAL;           /* baud rate setting, see #defines at top */
 
-    U1STAbits.UTXISEL0 = 0;         /* interrupt after one Tx char is transmitted */
+    U1STAbits.UTXISEL0 = 0;   /* interrupt after one Tx char is transmitted */
     U1STAbits.UTXISEL1 = 0;
 
-    U1MODEbits.UARTEN = 1;          /* enable UART */
-    U1STAbits.UTXEN = 1;            /* enable UART TX */
+    U1MODEbits.UARTEN = 1;    /* enable UART */
+    U1STAbits.UTXEN = 1;      /* enable UART TX */
 
     IFS0bits.U1TXIF = 0;
-    IEC0bits.U1TXIE = 1;            /* enable UART TX interrupt */
+    IEC0bits.U1TXIE = 1;      /* enable TX interrupt */
 
     IFS0bits.U1RXIF = 0;
-    IEC0bits.U1RXIE = 1;            /* enable RX interrupt */
+    IEC0bits.U1RXIE = 1;      /* enable RX interrupt */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -247,8 +285,6 @@ static void process_incoming_data(unsigned int data)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
-    // U1TXREG = U1RXREG; /* echo back whatever we receive */
-
     event_post(EVENT_DATA_RECEIVED, U1RXREG);
 
     /* clear interrupt flag */
@@ -258,21 +294,26 @@ void _ISR_NOPSV _U1RXInterrupt(void)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1TXInterrupt(void)
 {
-    for(;;)
-    {
-        /* send the next queued byte if available, otherwise stop sending */
-        if(send_queue.read != send_queue.write)
-            U1TXREG = send_queue.data[send_queue.read];
-        else
-            break;
-
-        /* increment and write read position */
-        ++send_queue.read;
-        if(send_queue == SEND_QUEUE_SIZE) send_queue.read = 0;
-    }
+    send_next_byte();
 
     /* clear interrupt flag */
     IFS0bits.U1TXIF = 0;
+}
+
+/* -------------------------------------------------------------------------- */
+static void send_next_byte(void)
+{
+    /* send the next queued byte if available, otherwise stop sending */
+    if(transmit_queue.read == transmit_queue.write)
+        return;
+
+    /* increment and wrap read position */
+    ++transmit_queue.read;
+    if(transmit_queue.read == TRANSMIT_QUEUE_SIZE)
+        transmit_queue.read = 0;
+
+    /* send */
+    U1TXREG = transmit_queue.data[transmit_queue.read];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -286,8 +327,8 @@ void _ISR_NOPSV _U1TXInterrupt(void)
 using namespace ::testing;
 
 /* -------------------------------------------------------------------------- */
-/* Test fixture -- Defines stuff that gets called for every test case */
-class uart : public Test
+/* Test fixture for UART receive state machine */
+class uart_rx_fss : public Test
 {
     virtual void SetUp()
     {
@@ -296,13 +337,37 @@ class uart : public Test
 
         /* initialise uart so our listeners are registered */
         uart_init();
+
         /* set initial state */
         state = STATE_IDLE;
     }
 
-    virtual void TearDown()
+    virtual void TearDown() {}
+};
+
+/* -------------------------------------------------------------------------- */
+/* Test fixture for UART send buffer */
+static int send_after_n_cycles = 0;
+
+class uart_transmit_queue : public Test
+{
+    virtual void SetUp()
     {
+        event_deinit();
+        uart_init();
+
+        transmit_queue.read = 0;
+        transmit_queue.write = 0;
+
+        /* TX buffer is idle (nothing being sent) */
+        U1TXREG = 0;
+        U1STAbits.TRMT = 1;
+
+        /* Used in the blocking test when the buffer is full */
+        send_after_n_cycles = 0;
     }
+
+    virtual void TearDown() {}
 };
 
 /* -------------------------------------------------------------------------- */
@@ -320,7 +385,25 @@ void sendString(const char* str)
 }
 
 /* -------------------------------------------------------------------------- */
-TEST_F(uart, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
+/* Simulates a byte being sent */
+static void tx_send_update()
+{
+    if(send_after_n_cycles)
+        send_after_n_cycles--;
+    else
+    {
+        U1STAbits.TRMT = 1; /* TX buffer is now idle */
+        _U1TXInterrupt();   /* send byte */
+    }
+}
+static void tx_send_update_send_all()
+{
+    while(transmit_queue.read != transmit_queue.write)
+        _U1TXInterrupt();
+}
+
+/* -------------------------------------------------------------------------- */
+TEST_F(uart_rx_fss, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
 {
     /* set some garbage values */
     state_data.config_model.param = 88;
@@ -333,7 +416,7 @@ TEST_F(uart, selected_model_and_param_is_reset_correctly_when_switching_to_STATE
     EXPECT_THAT(state_data.config_model.selected_model, Eq((unsigned int)0));
 }
 
-TEST_F(uart, model_is_correctly_selected)
+TEST_F(uart_rx_fss, model_is_correctly_selected)
 {
     sendString("m2");
 
@@ -341,7 +424,7 @@ TEST_F(uart, model_is_correctly_selected)
     EXPECT_THAT(state_data.config_model.selected_model, Eq(2));
 }
 
-TEST_F(uart, model_with_multiple_digits_is_correctly_selected)
+TEST_F(uart_rx_fss, model_with_multiple_digits_is_correctly_selected)
 {
     sendString("m195");
 
@@ -349,12 +432,94 @@ TEST_F(uart, model_with_multiple_digits_is_correctly_selected)
     EXPECT_THAT(state_data.config_model.selected_model, Eq(195));
 }
 
-TEST_F(uart, abort_model_selection_if_no_number_is_sent)
+TEST_F(uart_rx_fss, abort_model_selection_if_no_number_is_sent)
 {
     sendString("ma");
 
     EXPECT_THAT(state, Eq(STATE_IDLE));
 }
 
-#endif /* TESTING */
+/* -------------------------------------------------------------------------- */
+TEST_F(uart_transmit_queue, inserting_byte_when_tx_buffer_is_idle_sends_byte)
+{
+    U1STAbits.TRMT = 1; /* TX buffer is idle */
 
+    static const unsigned char zero = 0;
+    static const unsigned char one  = 1;
+    static const unsigned char data = 'a';
+
+    /* some sanity checks */
+    EXPECT_THAT(transmit_queue.write, Eq(zero));
+    EXPECT_THAT(transmit_queue.read, Eq(zero));
+
+    uart_send(&data, 1);
+
+    EXPECT_THAT(transmit_queue.write, Eq(one));
+    EXPECT_THAT(transmit_queue.read, Eq(one));
+    EXPECT_THAT(U1TXREG, Eq(data));
+}
+
+TEST_F(uart_transmit_queue, inserting_byte_when_tx_buffer_is_busy_queues_byte)
+{
+    U1STAbits.TRMT = 0; /* TX buffer is busy */
+
+    static const unsigned char zero = 0;
+    static const unsigned char one  = 1;
+    static const unsigned char data = 'c';
+
+    uart_send(&data, 1);
+
+    EXPECT_THAT(transmit_queue.write, Eq(one));
+    EXPECT_THAT(transmit_queue.read, Eq(zero));
+    EXPECT_THAT(U1TXREG, Ne(data));
+}
+
+TEST_F(uart_transmit_queue, buffer_wraps_correctly)
+{
+    static const unsigned char data = 'b';
+
+    for(int i = 0; i != TRANSMIT_QUEUE_SIZE * 2; ++i)
+    {
+        U1TXREG = 0; /* reset this so we can test it */
+
+        uart_send(&data, 1);
+        EXPECT_THAT(transmit_queue.write, Ne(TRANSMIT_QUEUE_SIZE));
+        EXPECT_THAT(transmit_queue.read, Ne(TRANSMIT_QUEUE_SIZE));
+        EXPECT_THAT(U1TXREG, Eq(data));
+    }
+}
+
+TEST_F(uart_transmit_queue, sending_blocks_until_buffer_has_space)
+{
+    /* build ourselves a string (warning: not null-terminated) */
+    unsigned char* data = new unsigned char[TRANSMIT_QUEUE_SIZE + 3];
+
+    {   int i;
+        unsigned char d;
+        for(i = 0, d = 'a'; i != TRANSMIT_QUEUE_SIZE + 3; i++, d++)
+            data[i] = d;
+    }
+
+    /* tell TX buffer to be busy for 10 cycles after queue has been filled */
+    send_after_n_cycles = 10;
+    U1STAbits.TRMT = 0;
+
+    uart_send(data, TRANSMIT_QUEUE_SIZE + 3);
+
+    /* If uart_send blocked, it should have called tx_send_update()
+     * 10 times before unblocking */
+    EXPECT_THAT(send_after_n_cycles, Eq(0));
+
+    /* After unblocking, the three bytes that wouldn't fit into the buffer
+     * should now be in the buffer, placing the write pointer at 3 */
+    static const unsigned char three = 3;
+    EXPECT_THAT(transmit_queue.write, Eq(three));
+
+    /* sending all bytes should place the read pointer at 3 too */
+    tx_send_update_send_all();
+    EXPECT_THAT(transmit_queue.read, Eq(three));
+
+    delete[] data;
+}
+
+#endif /* TESTING */
