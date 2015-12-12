@@ -41,9 +41,9 @@ static void send_next_byte(void);
 typedef enum
 {
     STATE_IDLE,
-    STATE_SELECT_MODEL,
-    /* awaits a selector for what is to be done to a model*/
-    STATE_AWAIT_MODEL_CONFIG,
+    STATE_SELECT_CELL,
+    /* awaits a selector for what is to be done to a cell*/
+    STATE_AWAIT_CELL_CONFIG,
     STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE,
     STATE_CONFIG_SHORT_CIRCUIT_CURRENT,
     STATE_CONFIG_TEMPERATURE,
@@ -52,14 +52,14 @@ typedef enum
 
 typedef enum
 {
-    CASE_SELECT_MODEL = 'm',
+    CASE_SELECT_CELL = 'm',
 } case_e;
 
 struct data_t {
     union
     {
         struct {
-            unsigned char selected_model; /* number representing the model */
+            unsigned char selected_cell; /* number representing the cell */
             unsigned char selected_param; /* defines whether param holds value
                                            * for Current, Voltage, Temperature
                                            * or Exposure */
@@ -69,7 +69,7 @@ struct data_t {
                                            * U: milli volt
                                            * T: degrees celsius
                                            * E: percent */
-        } config_model;
+        } config_cell;
     };
 };
 
@@ -199,39 +199,39 @@ static void process_incoming_data(unsigned int data)
     switch (state)
     {
         case STATE_IDLE:
-            if (data == CASE_SELECT_MODEL)
+            if (data == CASE_SELECT_CELL)
             {
-                state_data.config_model.selected_model = 0;
-                state_data.config_model.param = 0;
-                state = STATE_SELECT_MODEL;
+                state_data.config_cell.selected_cell = 0;
+                state_data.config_cell.param = 0;
+                state = STATE_SELECT_CELL;
             }
             break;
 
-        case STATE_SELECT_MODEL:
+        case STATE_SELECT_CELL:
             if (data >= '0' && data <= '9')
             {
-                /* Process multi-digit model numbers */
-                state_data.config_model.selected_model *= 10;
-                state_data.config_model.selected_model += CHAR_TO_INT(data);
+                /* Process multi-digit cell numbers */
+                state_data.config_cell.selected_cell *= 10;
+                state_data.config_cell.selected_cell += CHAR_TO_INT(data);
 
                 /*
                  * Hijack param as a flag to indicate if a number was received
                  * or not so we can detect the error case when two non-numbers
                  * are sent consecutively.
                  */
-                state_data.config_model.param = 1;
-            } else if (state_data.config_model.param == 0) {
+                state_data.config_cell.param = 1;
+            } else if (state_data.config_cell.param == 0) {
                 /*
                  * Letter directly followed by another letter: error,
                  * revert back to idle state
                  */
                 state = STATE_IDLE;
             } else {
-                state = STATE_AWAIT_MODEL_CONFIG;
+                state = STATE_AWAIT_CELL_CONFIG;
             }
             break;
 
-        case STATE_AWAIT_MODEL_CONFIG:
+        case STATE_AWAIT_CELL_CONFIG:
             /*
              * We can configure current, voltage, temp or exposure. Anything
              * else is an error and results in reverting back to idle state.
@@ -239,22 +239,22 @@ static void process_incoming_data(unsigned int data)
             switch (data)
             {
                 case 'I':
-                    state_data.config_model.selected_param = data;
+                    state_data.config_cell.selected_param = data;
                     state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
                     break;
 
                 case 'U':
-                    state_data.config_model.selected_param = data;
+                    state_data.config_cell.selected_param = data;
                     state = STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE;
                     break;
 
                 case 'T':
-                    state_data.config_model.selected_param = data;
+                    state_data.config_cell.selected_param = data;
                     state = STATE_CONFIG_TEMPERATURE;
                     break;
 
                 case 'E':
-                    state_data.config_model.selected_param = data;
+                    state_data.config_cell.selected_param = data;
                     state = STATE_CONFIG_EXPOSURE;
                     break;
 
@@ -404,36 +404,36 @@ static void tx_send_update_send_all()
 }
 
 /* -------------------------------------------------------------------------- */
-TEST_F(uart_rx_fss, selected_model_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_MODEL)
+TEST_F(uart_rx_fss, selected_cell_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_CELL)
 {
     /* set some garbage values */
-    state_data.config_model.param = 88;
-    state_data.config_model.selected_model = 5;
+    state_data.config_cell.param = 88;
+    state_data.config_cell.selected_cell = 5;
 
     sendString("m");
 
-    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
-    EXPECT_THAT(state_data.config_model.param, Eq((unsigned int)0));
-    EXPECT_THAT(state_data.config_model.selected_model, Eq((unsigned int)0));
+    EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
+    EXPECT_THAT(state_data.config_cell.param, Eq((unsigned int)0));
+    EXPECT_THAT(state_data.config_cell.selected_cell, Eq((unsigned int)0));
 }
 
-TEST_F(uart_rx_fss, model_is_correctly_selected)
+TEST_F(uart_rx_fss, cell_is_correctly_selected)
 {
     sendString("m2");
 
-    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
-    EXPECT_THAT(state_data.config_model.selected_model, Eq(2));
+    EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
+    EXPECT_THAT(state_data.config_cell.selected_cell, Eq(2));
 }
 
-TEST_F(uart_rx_fss, model_with_multiple_digits_is_correctly_selected)
+TEST_F(uart_rx_fss, cell_with_multiple_digits_is_correctly_selected)
 {
     sendString("m195");
 
-    EXPECT_THAT(state, Eq(STATE_SELECT_MODEL));
-    EXPECT_THAT(state_data.config_model.selected_model, Eq(195));
+    EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
+    EXPECT_THAT(state_data.config_cell.selected_cell, Eq(195));
 }
 
-TEST_F(uart_rx_fss, abort_model_selection_if_no_number_is_sent)
+TEST_F(uart_rx_fss, abort_cell_selection_if_no_number_is_sent)
 {
     sendString("ma");
 
