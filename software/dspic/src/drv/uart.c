@@ -15,7 +15,7 @@
 #define BRGVAL ((FP/BAUDRATE)/16)-1
 
 /* Sets the size of the send queue */
-#define TRANSMIT_QUEUE_SIZE 4
+#define TRANSMIT_QUEUE_SIZE (unsigned)64
 
 /* Enables or disables transmit interrupt */
 #define disable_tx_interrupt() (IEC0bits.U1TXIE = 0)
@@ -96,6 +96,11 @@ void uart_init(void)
 /* -------------------------------------------------------------------------- */
 void uart_send(const unsigned char* bytes, unsigned short len)
 {
+    /*
+     * Note: The assumption is that this never gets called from an interrupt,
+     * only from event handlers.
+     */
+
     /* sets "write" to the next write position in the ring buffer */
 #define get_next_write_position(write) do {                         \
         write = transmit_queue.write + 1;                               \
@@ -107,10 +112,6 @@ void uart_send(const unsigned char* bytes, unsigned short len)
             if(U1STAbits.TRMT)            \
                 send_next_byte();         \
         enable_tx_interrupt(); } while(0)
-    /*
-     * Note: The assumption is that this never gets called from an interrupt,
-     * only from event handlers.
-     */
 
     while(len --> 0)
     {
@@ -489,6 +490,23 @@ TEST_F(uart_transmit_queue, buffer_wraps_correctly)
     }
 }
 
+TEST_F(uart_transmit_queue, strings_are_correctly_copied_into_queue)
+{
+    const char* str = "Test";
+
+    ASSERT_THAT(strlen(str), Le(TRANSMIT_QUEUE_SIZE));
+
+    uart_send((const unsigned char*)str, strlen(str));
+
+    EXPECT_THAT((unsigned char)U1TXREG, Eq(str[0]));
+    tx_send_update();
+    EXPECT_THAT((unsigned char)U1TXREG, Eq(str[1]));
+    tx_send_update();
+    EXPECT_THAT((unsigned char)U1TXREG, Eq(str[2]));
+    tx_send_update();
+    EXPECT_THAT((unsigned char)U1TXREG, Eq(str[3]));
+}
+
 TEST_F(uart_transmit_queue, sending_blocks_until_buffer_has_space)
 {
     /* build ourselves a string (warning: not null-terminated) */
@@ -520,6 +538,19 @@ TEST_F(uart_transmit_queue, sending_blocks_until_buffer_has_space)
     EXPECT_THAT(transmit_queue.read, Eq(three));
 
     delete[] data;
+}
+
+TEST_F(uart_transmit_queue, tx_interrupt_does_nothing_if_queue_is_empty)
+{
+    static const unsigned char data = 'a';
+
+    uart_send(&data, 1);
+
+    tx_send_update(); /* this is what's being tested */
+
+    static const unsigned char one = 1;
+    EXPECT_THAT(transmit_queue.read, Eq(one));
+    EXPECT_THAT(transmit_queue.write, Eq(one));
 }
 
 #endif /* TESTING */
