@@ -25,19 +25,19 @@ void leds_init(void)
      * NOTE: Auxiliary clock configuration is implemented in hw.c. It is clocked
      * at 120 MHz.
      */
-    
-    /* 
+
+    /*
      * - The PWM outputs are configured to use the master time base. This means
      *   PTPER controls the period of PWMxH and STPER controls the period of
      *   PWMxL.
      * - PDCx controls the duty cycle of PWMxH and SDCx controls the duty cycle
      *   of PWMxL.
-     * - Period is set to support 
+     * - Period is set to support
      */
-    
+
     unlock_registers();
-    
-        /* 
+
+        /*
          * Because all pins are configured as analog inputs by default,  clear
          * analog flags.
          */
@@ -49,9 +49,9 @@ void leds_init(void)
         TRISD &= ~(BIT1 & BIT3 & BIT6);
 
         PORTCbits.RC3 = 1;
-    
+
     lock_registers();
-    
+
     /* Disable PWM module for configuration */
     PTCONbits.PTEN = 0;
 

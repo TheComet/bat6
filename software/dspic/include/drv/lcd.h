@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file lcd.h
  * @author Alex Murray
  *
@@ -14,7 +14,7 @@ extern "C" {
 
 /*!
  * @brief List of commands that can be sent to the LCD.
- * 
+ *
  * The following describes what each command does and what arguments can be
  * supplied in addition to the command, if any.
  *  + LCD_CLEAR_DISPLAY**
@@ -43,11 +43,11 @@ typedef enum
     LCD_SELECT_CHAR_GEN         = 0x72,
     LCD_ENABLE_OLED_CMD_SET     = 0x78,
     LCD_DISABLE_OLED_CMD_SET    = 0X79,
-    
+
     LCD_CONTRAST                = 0x81,
     LCD_CFG_OSCILLATOR          = 0xD5,
     LCD_PHASE_LENGTH            = 0xD9
-    
+
 } lcd_command_e;
 
 typedef enum

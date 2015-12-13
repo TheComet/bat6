@@ -22,23 +22,28 @@ static void on_update(unsigned int arg);
 /* -------------------------------------------------------------------------- */
 void button_init(void)
 {
-    /*
-     * Twist/push button (bit 4, 5 and 6) are digital input signals. Because all
-     * pins are configured as analog inputs by default,  clear analog flags.
-     */
-    ANSELC &= ~(BIT4 & BIT5 & BIT6);
+    unlock_registers();
 
-    /* twist/push button has three wires that need pull-ups */
-    CNPUC |= 0x0070;        /* bit 4, 5, 6 */
+        /*
+         * Twist/push button (bit 4, 5 and 6) are digital input signals. Because
+         * all pins are configured as analog inputs by default,  clear analog
+         * flags.
+         */
+        ANSELC &= ~(BIT4 & BIT5 & BIT6);
 
-    /* configure encoder and button to trigger interrupts on change */
-    CNENC |= 0x70;          /* enable interrupts for bits 4, 5, and 6 */
-    IFS1bits.CNIF = 0;      /* clear interrupt flag for change notifications */
-    IEC1bits.CNIE = 1;      /* enable change notification interrupts */
+        /* twist/push button has three wires that need pull-ups */
+        CNPUC |= 0x0070;     /* bit 4, 5, 6 */
 
-    /* listen to 10ms update events, required for "long press" timings of the
-     * button */
-    event_register_listener(EVENT_UPDATE, on_update);
+        /* configure encoder and button to trigger interrupts on change */
+        CNENC |= 0x70;       /* enable interrupts for bits 4, 5, and 6 */
+        IFS1bits.CNIF = 0;   /* clear interrupt flag for change notifications */
+        IEC1bits.CNIE = 1;   /* enable change notification interrupts */
+
+        /* listen to 10ms update events, required for "long press" timings of
+         * the button */
+        event_register_listener(EVENT_UPDATE, on_update);
+
+    lock_registers();
 }
 
 /* -------------------------------------------------------------------------- */

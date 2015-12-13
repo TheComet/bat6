@@ -112,7 +112,7 @@ extern "C" {
 #define lcd_disable()       (LCD_RESET = 0)
 #define unlock_registers()  (__builtin_write_OSCCONL(OSCCON & ~BIT6))
 #define lock_registers()    (__builtin_write_OSCCONL(OSCCON |  BIT6))
- 
+
 /* interrupt related things */
 #define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
 #define enable_interrupts() (_GIE = 1)
@@ -144,4 +144,3 @@ void drivers_deinit(void);
 #endif
 
 #endif	/* HW_H */
-

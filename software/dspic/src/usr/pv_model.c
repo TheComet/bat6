@@ -9,7 +9,8 @@
 #include "usr/pv_model.h"
 
 /* -------------------------------------------------------------------------- */
-static uint16_t _fp_exp(const uint16_t exponent){
+static uint16_t _fp_exp(const uint16_t exponent)
+{
     /*
      * calculates exp using a spline approximation
      * exponent range: 0 to ln(2)

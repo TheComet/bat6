@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file leds.h
  * @author Alex Murray
  *
@@ -11,7 +11,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
 /*!
  * @brief Initialise LED driver. Call this for LEDs to work.
  */

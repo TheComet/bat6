@@ -1,14 +1,14 @@
 /*!
  * @file static_assert.h
  * @author Alex Murray
- * 
+ *
  * Created on 14 November 2015, 22:37
  */
 
 /*!
  * @brief Allows for compile-time checks.
  * @param[in] X A compiler error is generated if the condition X is untrue.
- * 
+ *
  * See http://stackoverflow.com/questions/3385515/static-assert-in-c/3385694#3385694
  * GCC 4.3 (I guess) introduced the "error" and "warning" function attributes.
  * If a call to a function with that attribute could not be eliminated through
