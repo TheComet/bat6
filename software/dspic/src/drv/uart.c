@@ -151,17 +151,17 @@ static void configure_pins(void)
     ANSELCbits.ANSC12 = 0;    /* set RP60 to digital */
                               /* RP61 seems to already be digital. */
 
-    __builtin_write_OSCCONL(OSCCON & ~ (1<<6)); /* Unlock registers */
+    unlock_registers();
 
-    RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
-    RPINR18bits.U1CTSR = 58;  /* Assign U1TCS to Pin RP58 */
+        RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
+        RPINR18bits.U1CTSR = 58;  /* Assign U1TCS to Pin RP58 */
 
-    RPOR14bits.RP60R = 1;     /* Assign U1Tx to Pin RP60, see p.10-11 I/O
-                               * ports documentation */
-    RPOR14bits.RP61R = 3;     /* Assign U1RTS to RP61 */
-    CNPUCbits.CNPUC11 = 1;    /* RX requires pull-up */
+        RPOR14bits.RP60R = 1;     /* Assign U1Tx to Pin RP60, see p.10-11 I/O
+                                   * ports documentation */
+        RPOR14bits.RP61R = 3;     /* Assign U1RTS to RP61 */
+        CNPUCbits.CNPUC11 = 1;    /* RX requires pull-up */
 
-    __builtin_write_OSCCONL(OSCCON | (1<<6)); /* Lock registers */
+    lock_registers();
 }
 
 /* -------------------------------------------------------------------------- */

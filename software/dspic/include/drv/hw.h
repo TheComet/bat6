@@ -110,12 +110,14 @@ extern "C" {
 /* macros */
 #define lcd_enable()        (LCD_RESET = 1)
 #define lcd_disable()       (LCD_RESET = 0)
-
+#define unlock_registers()  (__builtin_write_OSCCONL(OSCCON & ~BIT6))
+#define lock_registers()    (__builtin_write_OSCCONL(OSCCON |  BIT6))
+ 
 /* interrupt related things */
 #define _ISR_NOPSV __attribute__((__interrupt__,no_auto_psv))
 #define enable_interrupts() (_GIE = 1)
 #define disable_interrupts()(_GIE = 0)
-    
+
 /* Among other things, required for UART
  * Fosc = 120 MHz, FP = Fosc / 2, according to Fig 1-1 in Oscillator Module
  * Documentation. See also init_sysclk60mips() in hw.c */
@@ -142,3 +144,4 @@ void drivers_deinit(void);
 #endif
 
 #endif	/* HW_H */
+

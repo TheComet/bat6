@@ -40,7 +40,8 @@ static uint16_t _fp_exp(const uint16_t exponent){
     return sum >> 1;
 }
 
-static uint16_t fp_exp(const int16_t exponent){
+static uint16_t fp_exp(const int16_t exponent)
+{
     /*
      * calculates exp using the formula exp(x) = 2^k * exp(x - k * ln(2))
      * range -16 to 1 format: S4.11;
@@ -60,7 +61,8 @@ static uint16_t fp_exp(const int16_t exponent){
 }
 
 /* -------------------------------------------------------------------------- */
-static uint16_t Io_rel(pv_cell_t* cell, const uint16_t vd){
+static uint16_t Io_rel(struct pv_cell_t* cell, const uint16_t vd)
+{
     /* calculates exp((vd-voc)/vt) */
     const int16_t diff = vd - cell->voc; //
     const int16_t exponent = ((int32_t)diff << 13) / cell->vt;
@@ -68,7 +70,8 @@ static uint16_t Io_rel(pv_cell_t* cell, const uint16_t vd){
 }
 
 /* -------------------------------------------------------------------------- */
-static uint16_t Id(pv_cell_t* cell, const uint16_t vd){
+static uint16_t Id(struct pv_cell_t* cell, const uint16_t vd)
+{
     const int16_t io = Io_rel(cell, vd);
     const int16_t irel = (cell->g >> 1) - io;
     const int16_t id = ((int32_t)cell->isc * irel) >> 16;
@@ -76,7 +79,10 @@ static uint16_t Id(pv_cell_t* cell, const uint16_t vd){
 }
 
 /* -------------------------------------------------------------------------- */
-uint16_t calc_voltage(pv_cell_t* cell, uint16_t voltage_is, int16_t current_is){
+uint16_t calc_voltage(struct pv_cell_t* cell,
+                      uint16_t voltage_is,
+                      int16_t current_is)
+{
     /*calculates the new voltage depending on the measured voltage and current
      *voltage format: Q5.11
      *current format: Q3.13 */

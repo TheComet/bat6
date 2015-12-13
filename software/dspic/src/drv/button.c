@@ -26,7 +26,7 @@ void button_init(void)
      * Twist/push button (bit 4, 5 and 6) are digital input signals. Because all
      * pins are configured as analog inputs by default,  clear analog flags.
      */
-    ANSELC &= ~0x0070;      /* bit 4, 5, 6 */
+    ANSELC &= ~(BIT4 & BIT5 & BIT6);
 
     /* twist/push button has three wires that need pull-ups */
     CNPUC |= 0x0070;        /* bit 4, 5, 6 */
