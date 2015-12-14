@@ -12,13 +12,16 @@
 extern "C" {
 #endif
 
-struct pv_cell_t
-{
-    uint16_t voc;  /* open circuit voltage Q5.11*/
-    uint16_t isc;  /* short circuit current Q3.13*/
-    uint16_t vt;   /* thermal voltage Q3.13*/
-    uint16_t g;    /* relative solar irradiation Q0.16*/
+struct pv_cell_t {
+    _Q16 voc; /* open circuit voltage Q5.11*/
+    _Q16 isc; /* short circuit current Q3.13*/
+    _Q16 vt; /* thermal voltage Q3.13*/
+    _Q16 g; /* relative solar iridation Q0.16*/
 };
+
+_Q16 calc_voltage(const struct pv_cell_t* cell,
+                      const _Q16 voltage_is,
+                      const _Q16 current_is);
 
 /*!
  * @brief Creates a new cell and adds it in series with the existing cells.
@@ -45,42 +48,42 @@ unsigned char model_select_cell(unsigned char cell_id);
 /*!
  * @brief Sets the open circuit voltage of the actively selected cell.
  */
-void model_set_open_circuit_voltage(uint16_t voc);
+void model_set_open_circuit_voltage(_Q16 voc);
 
 /*!
  * @brief Sets the short circuit current of the actively selected cell.
  */
-void model_set_short_circuit_current(uint16_t isc);
+void model_set_short_circuit_current(_Q16 isc);
 
 /*!
  * @brief Sets the thermal voltage of the actively selected cell.
  */
-void model_set_thermal_voltage(uint16_t vt);
+void model_set_thermal_voltage(_Q16 vt);
 
 /*!
  * @brief Sets the relative solar irradiation of the actively selected cell.
  */
-void model_set_relative_solar_irridation(uint16_t g);
+void model_set_relative_solar_irridation(_Q16 g);
 
 /*!
  * @brief Gets the open circuit voltage of the actively selected cell.
  */
-uint16_t model_get_open_circuit_voltage(void);
+_Q16 model_get_open_circuit_voltage(void);
 
 /*!
  * @brief Gets the short circuit current of the actively selected cell.
  */
-uint16_t model_get_short_circuit_current(void);
+_Q16 model_get_short_circuit_current(void);
 
 /*!
  * @brief Gets the thermal voltage of the actively selected cell.
  */
-uint16_t model_get_thermal_voltage(void);
+_Q16 model_get_thermal_voltage(void);
 
 /*!
  * @brief Gets the relative solar irradiation of the actively selected cell.
  */
-uint16_t model_get_relative_solar_irridation(void);
+_Q16 model_get_relative_solar_irridation(void);
 
 #ifdef	__cplusplus
 }

@@ -5,11 +5,22 @@
  * Created on 17 November 2015, 20:29
  */
 
+
+#include <libq.h>
 #include <stdint.h>
 #include "usr/pv_model.h"
 
+_Q16 _Q16exp(_Q16);
+_Q16 _Q16mpy(_Q16, _Q16);
+
+#ifdef TESTING
+#ifndef _libq_h_
+#error blub
+#endif
+#endif
+
 /* -------------------------------------------------------------------------- */
-static uint16_t _fp_exp(const uint16_t exponent)
+static _Q16 _fp_exp(const _Q16 exponent)
 {
     /*
      * calculates exp using a spline approximation
@@ -17,7 +28,7 @@ static uint16_t _fp_exp(const uint16_t exponent)
      * result range: 1 to 2
      */
 
-    static const uint16_t spline_coefs[8][3] = {
+    static const _Q16 spline_coefs[8][3] = {
         {5702,    16374,    32768},
         {6217,    17856,    35734},
         {6780,    19472,    38968},
@@ -28,7 +39,7 @@ static uint16_t _fp_exp(const uint16_t exponent)
         {10458,   30029,    60097}
     };
 
-    const uint16_t spline_index = exponent >> 13;
+    const _Q16 spline_index = exponent >> 13;
     const uint32_t delta = exponent << 3;
     const uint32_t delta2 = (delta * delta) >> 16;
     const uint32_t delta3 = (delta * delta2) >> 16;
@@ -41,7 +52,7 @@ static uint16_t _fp_exp(const uint16_t exponent)
     return sum >> 1;
 }
 
-static uint16_t fp_exp(const int16_t exponent)
+static _Q16 fp_exp(const _Q16 exponent)
 {
     /*
      * calculates exp using the formula exp(x) = 2^k * exp(x - k * ln(2))
@@ -50,8 +61,8 @@ static uint16_t fp_exp(const int16_t exponent)
      */
 
     int32_t num = (int32_t)exponent * 47274; // 47274 = 1/ln(2) * 2^15
-    int16_t k = num >> 26; // 26 = 11 + 15;
-    uint16_t x = (num - (((int32_t)k)<<26)) >> 10;
+    _Q16 k = num >> 26; // 26 = 11 + 15;
+    _Q16 x = (num - (((int32_t)k)<<26)) >> 10;
 
     if(k > 0){
         //Overflow return max
@@ -62,33 +73,33 @@ static uint16_t fp_exp(const int16_t exponent)
 }
 
 /* -------------------------------------------------------------------------- */
-static uint16_t Io_rel(struct pv_cell_t* cell, const uint16_t vd)
+static _Q16 Io_rel(const struct pv_cell_t* cell, const _Q16 vd)
 {
     /* calculates exp((vd-voc)/vt) */
-    const int16_t diff = vd - cell->voc; //
-    const int16_t exponent = ((int32_t)diff << 13) / cell->vt;
+    const _Q16 diff = vd - cell->voc; //
+    const _Q16 exponent = ((int32_t)diff << 13) / cell->vt;
     return fp_exp(exponent);
 }
 
 /* -------------------------------------------------------------------------- */
-static uint16_t Id(struct pv_cell_t* cell, const uint16_t vd)
+static _Q16 Id(const struct pv_cell_t* cell, const _Q16 vd)
 {
-    const int16_t io = Io_rel(cell, vd);
-    const int16_t irel = (cell->g >> 1) - io;
-    const int16_t id = ((int32_t)cell->isc * irel) >> 16;
+    const _Q16 io = Io_rel(cell, vd);
+    const _Q16 irel = (cell->g >> 1) - io;
+    const _Q16 id = ((int32_t)cell->isc * irel) >> 16;
     return id;
 }
 
 /* -------------------------------------------------------------------------- */
-uint16_t calc_voltage(struct pv_cell_t* cell,
-                      uint16_t voltage_is,
-                      int16_t current_is)
+_Q16 calc_voltage(const struct pv_cell_t* cell,
+                      const _Q16 voltage_is,
+                      const _Q16 current_is)
 {
     /*calculates the new voltage depending on the measured voltage and current
      *voltage format: Q5.11
      *current format: Q3.13 */
-    const int16_t Idiff = Id(cell, voltage_is) - current_is;
-    const int16_t Udiff = (int32_t)Idiff * voltage_is / current_is;
+    const _Q16 Idiff = Id(cell, voltage_is) - current_is;
+    const _Q16 Udiff = (int32_t)Idiff * voltage_is / current_is;
 
     return voltage_is + Udiff;
 }
@@ -112,45 +123,45 @@ unsigned char model_select_cell(unsigned char cell_id)
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_open_circuit_voltage(uint16_t voc)
+void model_set_open_circuit_voltage(_Q16 voc)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_short_circuit_current(uint16_t isc)
+void model_set_short_circuit_current(_Q16 isc)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_thermal_voltage(uint16_t vt)
+void model_set_thermal_voltage(_Q16 vt)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_relative_solar_irridation(uint16_t g)
+void model_set_relative_solar_irridation(_Q16 g)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-uint16_t model_get_open_circuit_voltage(void)
-{
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-uint16_t model_get_short_circuit_current(void)
+_Q16 model_get_open_circuit_voltage(void)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint16_t model_get_thermal_voltage(void)
+_Q16 model_get_short_circuit_current(void)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint16_t model_get_relative_solar_irridation(void)
+_Q16 model_get_thermal_voltage(void)
+{
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+_Q16 model_get_relative_solar_irridation(void)
 {
     return 0;
 }

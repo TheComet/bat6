@@ -8,10 +8,11 @@
 #include "drv/hw.h"
 #include "drv/leds.h"
 #include "core/event.h"
+#include "drv/buck.h"
 
 /* -------------------------------------------------------------------------- */
 #ifdef TESTING
-int dspic_main(void)
+void dspic_main(void)
 #else
 int main(void)
 #endif
