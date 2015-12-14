@@ -12,10 +12,7 @@
 /* -------------------------------------------------------------------------- */
 static void on_update(unsigned int arg)
 {
-    PDC4 = 0x8000;
-    SDC4 = 0x8000;
-    PDC5 = 0x8000;
-    SDC5 = 0x8000;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -48,8 +45,6 @@ void leds_init(void)
         TRISC &= ~(BIT3);
         TRISD &= ~(BIT1 & BIT3 & BIT6);
 
-        PORTCbits.RC3 = 1;
-
     lock_registers();
 
     /* Disable PWM module for configuration */
@@ -59,7 +54,7 @@ void leds_init(void)
     IOCON4bits.PMOD = 0b11;
     IOCON5bits.PMOD = 0b11;
 
-    PTCONbits.PTEN = 1;
+    PTCONbits.PTEN = 0;
 
     /* listen to 10 ms update events */
     event_register_listener(EVENT_UPDATE, on_update);
