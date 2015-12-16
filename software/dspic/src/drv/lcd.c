@@ -137,9 +137,13 @@ static void lcd_reset(){
 }
 
 static void on_update(unsigned int arg) {
-    //lcd_send(1, "Applejack is an farm animal!", 28);
+    lcd_send(1, "Applejack is a farm animal", 27);
     //char shit = 'a' + arg;
     //lcd_send(1, &shit, 1);
+    if(arg == BUTTON_PRESSED)
+        LED0_ON;
+    else
+        LED0_OFF;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -160,10 +164,10 @@ void lcd_init(void) {
      */
 
     /* 
-     * (1/400kHz - 120ns) * FS/2 - 2
+     * (1/100kHz - 120ns) * FS/2 - 2
      * FS = 60MHz, see hw.h
      */
-    I2C2BRG = 141;
+    I2C2BRG = 591;
 
     I2C2CONHbits.SCIE = 1; /* enable start condition interrupt */
     I2C2CONHbits.PCIE = 1; /* enable stop condition interrupt */
@@ -177,8 +181,8 @@ void lcd_init(void) {
     I2C2CONLbits.I2CEN = 1;
 
     lcd_reset();
-       
-    event_register_listener(EVENT_UPDATE, on_update);
+
+    event_register_listener(EVENT_BUTTON, on_update);
 }
 
 void _ISR_NOPSV _MI2C2Interrupt(void)

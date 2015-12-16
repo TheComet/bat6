@@ -10,7 +10,7 @@
 #include "core/event.h"
 #include <stdlib.h>
 
-#define TIME_THRESHOLD_IN_MILLISECONDS 500
+#define TIME_THRESHOLD_IN_MILLISECONDS 800
 
 #define TIME_THRESHOLD \
     TIME_THRESHOLD_IN_MILLISECONDS / 10
@@ -34,6 +34,7 @@ void button_init(void)
         /* twist/push button has three wires that need pull-ups */
         CNPUC |= 0x0070;     /* bit 4, 5, 6 */
         
+    lock_registers();
 
     /* configure encoder and button to trigger interrupts on change */
     CNENC |= 0x70;       /* enable interrupts for bits 4, 5, and 6 */
@@ -42,10 +43,7 @@ void button_init(void)
 
     /* listen to 10ms update events, required for "long press" timings of
      * the button */
-    //event_register_listener(EVENT_UPDATE, on_update);
-
-    lock_registers();
-    
+    event_register_listener(EVENT_UPDATE, on_update);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -53,8 +51,13 @@ static void on_update(unsigned int arg)
 {
     /* If the timer is active (non-zero) and hasn't reached the max value yet,
      * increment it */
-    if(button_timer && button_timer < 255)
+    if(button_timer)
         ++button_timer;
+    if(button_timer > TIME_THRESHOLD)
+    {
+        event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
+        button_timer = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -65,17 +68,8 @@ static void process_press_event(void)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
-    /* The button was released */
-    } else {
-
-        if(button_timer >= TIME_THRESHOLD)
-            event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
-
-        /* stop timer */
-        button_timer = 0;
-    }
-    
-    on_update(0);
+    } else
+        button_timer = 0; /* stop timer on release */
 }
 
 /* -------------------------------------------------------------------------- */
