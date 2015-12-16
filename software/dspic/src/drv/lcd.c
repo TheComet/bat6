@@ -12,13 +12,10 @@
 
 #define NULL ((void*)0)
 
-static int timer = 0;
-
 static enum{
     lcd_idle = 0,
     lcd_starting,
-    lcd_addressing,
-    lcd_setting,
+    lcd_configuring,
     lcd_sending,
     lcd_stopping
 }lcd_state = lcd_idle;
@@ -55,7 +52,6 @@ int lcd_send(char is_command, char * data, unsigned char length) {
         return 1;
     }
     
-    LED0_ON;
     c_or_d = !!is_command;
     lcd_data = data;
     lcd_length = length;
@@ -67,8 +63,35 @@ int lcd_send(char is_command, char * data, unsigned char length) {
 /* -------------------------------------------------------------------------- */
 
 static void lcd_statemachine_tick(){
-    
-    IFS3bits.MI2C2IF = 0; /* clear interrupt flag */    
+    switch(lcd_state){
+        case lcd_starting:
+            lcd_state = lcd_configuring;
+            I2C2TRN = 0x78;         
+            break;
+        case lcd_configuring:
+            if(I2C2STATbits.ACKSTAT){
+                lcd_state = lcd_stopping;
+                I2C2CON1bits.PEN = 1;
+                break;
+            }
+            lcd_state = lcd_sending;
+            I2C2TRN = 0x80 | (c_or_d << 6);         
+            break;
+        case lcd_sending:
+            if(I2C2STATbits.ACKSTAT || (lcd_length == 0)){
+                lcd_state = lcd_stopping;
+                I2C2CON1bits.PEN = 1;
+                break;
+            }
+            lcd_length--;
+            I2C2TRN = *lcd_data++;        
+            break;
+        case lcd_stopping:
+            lcd_state = lcd_idle;
+            break;
+        default:
+            break;
+    }    
 }
 
 static void lcd_reset(){
@@ -114,12 +137,9 @@ static void lcd_reset(){
 }
 
 static void on_update(unsigned int arg) {
-    /* remove this shit at some point */
-    timer++;
-    if (timer > 100) {
-        timer = 0;
-        lcd_send(1, "SuperGay!", 9);
-    }
+    //lcd_send(1, "Applejack is an farm animal!", 28);
+    //char shit = 'a' + arg;
+    //lcd_send(1, &shit, 1);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -159,4 +179,10 @@ void lcd_init(void) {
     lcd_reset();
        
     event_register_listener(EVENT_UPDATE, on_update);
+}
+
+void _ISR_NOPSV _MI2C2Interrupt(void)
+{
+    lcd_statemachine_tick();
+    IFS3bits.MI2C2IF = 0;  /* clear interrupt flag */
 }

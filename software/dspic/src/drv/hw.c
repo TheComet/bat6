@@ -116,7 +116,7 @@ void drivers_init(void)
     lcd_init();
     leds_init();
     timer_init();
-    uart_init();
+    //uart_init();
 
     enable_interrupts();
 }
