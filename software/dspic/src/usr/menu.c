@@ -80,6 +80,9 @@ static void on_button(unsigned int button)
     {
         case STATE_NAVIGATE_MANUFACTURERS :
             if(button == BUTTON_RELEASED)
+            {
+                
+            }
             break;
 
         case STATE_NAVIGATE_PANELS :

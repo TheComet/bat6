@@ -16,6 +16,7 @@
     TIME_THRESHOLD_IN_MILLISECONDS / 10
 
 volatile static unsigned char button_timer = 0;
+volatile static unsigned char button_was_pressed_longer = 0;
 
 static void on_update(unsigned int arg);
 
@@ -57,6 +58,7 @@ static void on_update(unsigned int arg)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
         button_timer = 0;
+        button_was_pressed_longer = 1;
     }
 }
 
@@ -70,7 +72,9 @@ static void process_press_event(void)
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
     /* was the button released? (rising edge) */
     } else {
-        event_post(EVENT_BUTTON, BUTTON_RELEASED);
+        if(!button_was_pressed_longer)
+            event_post(EVENT_BUTTON, BUTTON_RELEASED);
+        button_was_pressed_longer = 0;
         button_timer = 0; /* stop timer on release */
     }
 }
@@ -149,6 +153,7 @@ class button : public Test
         event_deinit();
         button_init();
         button_action = 0;
+        button_was_pressed_longer = 0;
 
         /* By default, the button isn't pressed, which means BIT6 is high and
          * all other bits are low */
@@ -262,6 +267,16 @@ TEST_F(button, pressing_for_1_second_posts_correct_event)
     event_register_listener(EVENT_BUTTON, test_callback);
 
     press_button_for(1000);
+
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED_LONGER));
+}
+
+TEST_F(button, pressing_for_1_second_and_releasing_doesnt_post_released_event)
+{
+    event_register_listener(EVENT_BUTTON, test_callback);
+
+    press_button_for(1000);
+    release_button();
 
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED_LONGER));
 }
