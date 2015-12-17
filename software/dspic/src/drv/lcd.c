@@ -6,11 +6,10 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include "drv/lcd.h"
 #include "drv/hw.h"
 #include "core/event.h"
-
-#define NULL ((void*)0)
 
 static enum{
     lcd_idle = 0,
@@ -60,7 +59,23 @@ int lcd_send(char is_command, char * data, unsigned char length) {
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
+void lcd_writeline(unsigned char lineN, const char * string){
+    static char lcd_lines[4][20] = {};
+    char size = 0;
+     
+    if(string == NULL){
+        return;
+    }
+    
+    lineN %= 4;
+    size = strlen(string);
+    if(size > 20) size = 20;
+    memcpy(lcd_lines[lineN], string, size);
+    memset(lcd_lines[lineN] + size, ' ', 20 - size);
+    
+    lcd_send(1, lcd_lines[lineN], 20);
+    
+}
 
 static void lcd_statemachine_tick(){
     switch(lcd_state){
@@ -146,7 +161,6 @@ static void on_update(unsigned int arg) {
         LED0_OFF;
 }
 
-/* -------------------------------------------------------------------------- */
 void lcd_init(void) {
     
     unlock_registers();
