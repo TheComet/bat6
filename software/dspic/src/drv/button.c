@@ -33,7 +33,7 @@ void button_init(void)
 
         /* twist/push button has three wires that need pull-ups */
         CNPUC |= 0x0070;     /* bit 4, 5, 6 */
-        
+
     lock_registers();
 
     /* configure encoder and button to trigger interrupts on change */
@@ -68,8 +68,11 @@ static void process_press_event(void)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
-    } else
+    /* was the button released? (rising edge) */
+    } else {
+        event_post(EVENT_BUTTON, BUTTON_RELEASED);
         button_timer = 0; /* stop timer on release */
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -248,7 +251,7 @@ TEST_F(button, pressing_posts_correct_event)
 
     button_action = 0;
     release_button();
-    EXPECT_THAT(button_action, Eq(0));
+    EXPECT_THAT(button_action, Eq(BUTTON_RELEASED));
 
     press_button();
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
@@ -259,7 +262,6 @@ TEST_F(button, pressing_for_1_second_posts_correct_event)
     event_register_listener(EVENT_BUTTON, test_callback);
 
     press_button_for(1000);
-    release_button();
 
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED_LONGER));
 }
@@ -272,7 +274,7 @@ TEST_F(button, pressing_for_100_milliseconds_doesnt_post_event)
     release_button();
 
     /* Only expect the button press event, without the longer press */
-    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+    EXPECT_THAT(button_action, Eq(BUTTON_RELEASED));
 }
 
 #endif /* TESTING */
