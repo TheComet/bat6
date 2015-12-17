@@ -16,6 +16,7 @@
     TIME_THRESHOLD_IN_MILLISECONDS / 10
 
 volatile static unsigned char button_timer = 0;
+volatile static unsigned char button_was_pressed_longer = 0;
 
 static void on_update(unsigned int arg);
 
@@ -33,7 +34,7 @@ void button_init(void)
 
         /* twist/push button has three wires that need pull-ups */
         CNPUC |= 0x0070;     /* bit 4, 5, 6 */
-        
+
     lock_registers();
 
     /* configure encoder and button to trigger interrupts on change */
@@ -57,6 +58,7 @@ static void on_update(unsigned int arg)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
         button_timer = 0;
+        button_was_pressed_longer = 1;
     }
 }
 
@@ -68,8 +70,13 @@ static void process_press_event(void)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
-    } else
+    /* was the button released? (rising edge) */
+    } else {
+        if(!button_was_pressed_longer)
+            event_post(EVENT_BUTTON, BUTTON_RELEASED);
+        button_was_pressed_longer = 0;
         button_timer = 0; /* stop timer on release */
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -132,7 +139,7 @@ void _ISR_NOPSV _CNInterrupt(void)
 using namespace ::testing;
 
 int button_action;
-void test_callback(unsigned int arg)
+static void test_callback(unsigned int arg)
 {
     button_action = (int)arg;
 }
@@ -146,6 +153,7 @@ class button : public Test
         event_deinit();
         button_init();
         button_action = 0;
+        button_was_pressed_longer = 0;
 
         /* By default, the button isn't pressed, which means BIT6 is high and
          * all other bits are low */
@@ -157,7 +165,7 @@ class button : public Test
     }
 };
 
-void twist_button_left()
+static void twist_button_left()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
@@ -170,7 +178,7 @@ void twist_button_left()
     event_dispatch_all();
 }
 
-void twist_button_right()
+static void twist_button_right()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
@@ -183,21 +191,21 @@ void twist_button_right()
     event_dispatch_all();
 }
 
-void press_button()
+static void press_button()
 {
     PORTC &= ~BIT6;
     _CNInterrupt();
     event_dispatch_all();
 }
 
-void release_button()
+static void release_button()
 {
     PORTC |= BIT6;
     _CNInterrupt();
     event_dispatch_all();
 }
 
-void press_button_for(int time_to_pass_in_milliseconds)
+static void press_button_for(int time_to_pass_in_milliseconds)
 {
     press_button();
 
@@ -248,13 +256,22 @@ TEST_F(button, pressing_posts_correct_event)
 
     button_action = 0;
     release_button();
-    EXPECT_THAT(button_action, Eq(0));
+    EXPECT_THAT(button_action, Eq(BUTTON_RELEASED));
 
     press_button();
     EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
 }
 
 TEST_F(button, pressing_for_1_second_posts_correct_event)
+{
+    event_register_listener(EVENT_BUTTON, test_callback);
+
+    press_button_for(1000);
+
+    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED_LONGER));
+}
+
+TEST_F(button, pressing_for_1_second_and_releasing_doesnt_post_released_event)
 {
     event_register_listener(EVENT_BUTTON, test_callback);
 
@@ -272,7 +289,7 @@ TEST_F(button, pressing_for_100_milliseconds_doesnt_post_event)
     release_button();
 
     /* Only expect the button press event, without the longer press */
-    EXPECT_THAT(button_action, Eq(BUTTON_PRESSED));
+    EXPECT_THAT(button_action, Eq(BUTTON_RELEASED));
 }
 
 #endif /* TESTING */

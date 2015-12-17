@@ -17,8 +17,10 @@ extern "C" {
  * related functions.
  */
 void lcd_init(void);
+
 short lcd_send(char is_command, unsigned char data);
 int lcd_writeline(unsigned char lineN, const char * string);
+
 
 #ifdef	__cplusplus
 }

@@ -75,6 +75,7 @@ static void lcd_send_blocking(char is_command, char data){
     while(I2C2CONLbits.PEN);
 }
 
+
 static void lcd_statemachine_tick(){
     static unsigned char current_config = 0;
     
@@ -87,7 +88,9 @@ static void lcd_statemachine_tick(){
             break;
         case lcd_starting:
             lcd_state = lcd_configuring;
+
             I2C2TRN = 0x78; // I2C Address of Display      
+
             break;
         case lcd_configuring:
             lcd_state = lcd_sending;
@@ -104,6 +107,7 @@ static void lcd_statemachine_tick(){
             }else{
                 I2C2TRN = lcd_fifo_get() & 0xff;
             }
+
             break;
         case lcd_stopping:
             if(lcd_fifo_empty()){
@@ -115,7 +119,7 @@ static void lcd_statemachine_tick(){
             break;
         default:
             break;
-    }    
+    }
 }
 
 short lcd_send(char is_command, unsigned char data) {
@@ -134,8 +138,9 @@ short lcd_send(char is_command, unsigned char data) {
 }
 
 static void lcd_reset(){
+
     volatile unsigned int delay = 0;
- 
+
     PORTBbits.RB11 = 0; /* reset LCD */
     for(delay = 0; delay < 10000; delay++);
     PORTBbits.RB11 = 1; /* enable LCD */
@@ -189,7 +194,7 @@ static void on_update(unsigned int arg) {
 }
 
 void lcd_init(void) {
-    
+
     unlock_registers();
 
     /* LCD reset is a 5V output signal, set to open drain and let external
@@ -204,7 +209,7 @@ void lcd_init(void) {
      * is defined in hw.h as LCD_ADDRESS.
      */
 
-    /* 
+    /*
      * (1/100kHz - 120ns) * FS/2 - 2
      * FS = 60MHz, see hw.h
      */
@@ -221,7 +226,9 @@ void lcd_init(void) {
     /* enable I2C2 module, master mode*/
     I2C2CONLbits.I2CEN = 1;
 
+#ifndef TESTING
     lcd_reset();
+#endif
 
     event_register_listener(EVENT_UPDATE, on_update);
 }

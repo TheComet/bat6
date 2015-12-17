@@ -54,7 +54,8 @@ typedef enum
     BUTTON_TWISTED_LEFT = 1,
     BUTTON_TWISTED_RIGHT = 2,
     BUTTON_PRESSED = 3,
-    BUTTON_PRESSED_LONGER = 4
+    BUTTON_PRESSED_LONGER = 4,
+    BUTTON_RELEASED = 5
 } event_args_e;
 
 /*!

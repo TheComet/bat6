@@ -1,12 +1,12 @@
 /*!
- * @file solar_panels.h
+ * @file panels_db.h
  * @author Alex Murray
  *
  * Created on 17 December 2015, 13:53
  */
 
-#ifndef SOLAR_PANELS_H
-#define SOLAR_PANELS_H
+#ifndef PANELS_DB_H
+#define PANELS_DB_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -33,4 +33,4 @@ const char* solar_panels_get_model_name(short manufacturer_index,
 }
 #endif
 
-#endif /* SOLAR_PANELS_H */
+#endif /* PANELS_DB_H */

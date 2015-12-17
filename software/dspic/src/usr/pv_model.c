@@ -10,15 +10,6 @@
 #include <stdint.h>
 #include "usr/pv_model.h"
 
-_Q16 _Q16exp(_Q16);
-_Q16 _Q16mpy(_Q16, _Q16);
-
-#ifdef TESTING
-#ifndef _libq_h_
-#error blub
-#endif
-#endif
-
 /* -------------------------------------------------------------------------- */
 static _Q16 _fp_exp(const _Q16 exponent)
 {
