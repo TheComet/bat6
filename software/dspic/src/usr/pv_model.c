@@ -85,8 +85,8 @@ static _Q16 Io_rel(const struct pv_cell_t* cell, const _Q16 vd)
 static _Q16 Id(const struct pv_cell_t* cell, const _Q16 vd)
 {
     const _Q16 io = Io_rel(cell, vd);
-    const _Q16 irel = (cell->g >> 1) - io;
-    const _Q16 id = ((int32_t)cell->isc * irel) >> 16;
+    const _Q16 irel = cell->g - io;
+    const _Q16 id = _Q16mpy(cell->isc, irel);
     return id;
 }
 
