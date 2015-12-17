@@ -6,63 +6,85 @@
  */
 
 #include "usr/menu.h"
+#include "usr/solar_panels.h"
 #include "core/event.h"
+#include <stddef.h>
 
 typedef enum menu_state_e
 {
-    STATE_MANUFACTURERS
+    STATE_NAVIGATE_MANUFACTURERS,
+    STATE_NAVIGATE_PANELS
 } menu_state_e;
 
 struct menu_t
 {
     menu_state_e state;
+    short selected_item;
+    short max_items;
 };
 
-static struct menu_t menu;
+static struct menu_t menu = {};
 
 static void on_button(unsigned int arg);
 
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
-    menu.state = STATE_MANUFACTURERS;
-    
     event_register_listener(EVENT_BUTTON, on_button);
 }
 
 /* -------------------------------------------------------------------------- */
-static void menu_next_item(void)
+static void menu_update(void)
 {
-    
-}
+    /*char buffer[40];*/
 
-/* -------------------------------------------------------------------------- */
-static void menu_previous_item(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void menu_select_item(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void menu_go_back(void)
-{
-    
-}
-
-/* -------------------------------------------------------------------------- */
-static void on_button(unsigned int arg)
-{
-    switch(arg)
+    switch(menu.state)
     {
-        case BUTTON_PRESSED        : menu_select_item();   break;
-        case BUTTON_PRESSED_LONGER : menu_go_back();       break;
-        case BUTTON_TWISTED_LEFT   : menu_next_item();     break;
-        case BUTTON_TWISTED_RIGHT  : menu_previous_item(); break;
+        case STATE_NAVIGATE_MANUFACTURERS :
+            menu.max_items = solar_panels_get_manufacturers_count();
+            menu.selected_item = 0;
+            break;
+
+        case STATE_NAVIGATE_PANELS :
+            menu.max_items = solar_panels_get_panel_count(menu.selected_item);
+            menu.selected_item = 0;
+            break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+static void handle_button_twist(unsigned int button)
+{
+    if(button == BUTTON_TWISTED_LEFT)
+    {
+        ++menu.selected_item;
+        menu.selected_item = (menu.selected_item == menu.max_items ?
+                0 : menu.selected_item);
+    }
+
+    if(button == BUTTON_TWISTED_RIGHT)
+    {
+        --menu.selected_item;
+        menu.selected_item = (menu.selected_item == -1 ?
+                menu.max_items -1 : menu.selected_item);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+static void on_button(unsigned int button)
+{
+    handle_button_twist(button);
+    menu_update();
+
+    switch(menu.state)
+    {
+        case STATE_NAVIGATE_MANUFACTURERS :
+            if(button == BUTTON_RELEASED)
+            break;
+
+        case STATE_NAVIGATE_PANELS :
+            break;
+
         default: break;
     }
 }

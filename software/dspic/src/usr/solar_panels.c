@@ -21,21 +21,23 @@ struct manufacturer_t
     struct panel_t panels[2];
 };
 
+#define CELL_PARAM(x) ((unsigned int)(x * 65536))
+
 struct manufacturer_t database[] = {
     { "Generic Manufacturer", {
         { "Generic Panel 1", {
-            {24 * 65536, 3 * 65536, 1.5 * 65536, 1 * 65536}
+            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
         { "Generic Panel 2", {
-            {12 * 65536, 1 * 65536, 1.5 * 65536, 1 * 65536}
+            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }},
     { "Batshit Insane Coorporation", {
         { "Panel of Shit", {
-            {24 * 65536, 2 * 65536, 1.2 * 65536, 1 * 65536}
+            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
         { "Panel of Fuck", {
-            {24 * 65536, 2 * 65536, 1.2 * 65536, 1 * 65536}
+            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }}
 };
@@ -43,7 +45,7 @@ struct manufacturer_t database[] = {
 /* -------------------------------------------------------------------------- */
 void solar_panels_init(void)
 {
-    
+
 }
 
 /* -------------------------------------------------------------------------- */

@@ -20,7 +20,7 @@ static enum{
 }lcd_state = lcd_idle;
 
 static unsigned char c_or_d = 0;
-static char *lcd_data = NULL; 
+static const char* lcd_data = NULL;
 static unsigned char lcd_length = 0;
 
 static void lcd_single_byte(char is_command, char byte){
@@ -40,7 +40,7 @@ static void lcd_single_byte(char is_command, char byte){
     while(I2C2CONLbits.PEN);
 }
 
-int lcd_send(char is_command, char * data, unsigned char length) {
+int lcd_send(char is_command, const char * data, unsigned char length) {
     if(lcd_state != lcd_idle){
         return 1;
     }
@@ -50,7 +50,7 @@ int lcd_send(char is_command, char * data, unsigned char length) {
     if(length == 0){
         return 1;
     }
-    
+
     c_or_d = !!is_command;
     lcd_data = data;
     lcd_length = length;
@@ -62,26 +62,26 @@ int lcd_send(char is_command, char * data, unsigned char length) {
 void lcd_writeline(unsigned char lineN, const char * string){
     static char lcd_lines[4][20] = {};
     char size = 0;
-     
+
     if(string == NULL){
         return;
     }
-    
+
     lineN %= 4;
     size = strlen(string);
     if(size > 20) size = 20;
     memcpy(lcd_lines[lineN], string, size);
     memset(lcd_lines[lineN] + size, ' ', 20 - size);
-    
+
     lcd_send(1, lcd_lines[lineN], 20);
-    
+
 }
 
 static void lcd_statemachine_tick(){
     switch(lcd_state){
         case lcd_starting:
             lcd_state = lcd_configuring;
-            I2C2TRN = 0x78;         
+            I2C2TRN = 0x78;
             break;
         case lcd_configuring:
             if(I2C2STATbits.ACKSTAT){
@@ -90,7 +90,7 @@ static void lcd_statemachine_tick(){
                 break;
             }
             lcd_state = lcd_sending;
-            I2C2TRN = 0x80 | (c_or_d << 6);         
+            I2C2TRN = 0x80 | (c_or_d << 6);
             break;
         case lcd_sending:
             if(I2C2STATbits.ACKSTAT || (lcd_length == 0)){
@@ -99,19 +99,19 @@ static void lcd_statemachine_tick(){
                 break;
             }
             lcd_length--;
-            I2C2TRN = *lcd_data++;        
+            I2C2TRN = *lcd_data++;
             break;
         case lcd_stopping:
             lcd_state = lcd_idle;
             break;
         default:
             break;
-    }    
+    }
 }
 
-static void lcd_reset(){
+void lcd_reset(){
     volatile unsigned int delay = 0;
- 
+
     PORTBbits.RB11 = 0; /* reset LCD */
     for(delay = 0; delay < 10000; delay++);
     PORTBbits.RB11 = 1; /* enable LCD */
@@ -162,7 +162,7 @@ static void on_update(unsigned int arg) {
 }
 
 void lcd_init(void) {
-    
+
     unlock_registers();
 
     /* LCD reset is a 5V output signal, set to open drain and let external
@@ -177,7 +177,7 @@ void lcd_init(void) {
      * is defined in hw.h as LCD_ADDRESS.
      */
 
-    /* 
+    /*
      * (1/100kHz - 120ns) * FS/2 - 2
      * FS = 60MHz, see hw.h
      */
@@ -194,7 +194,9 @@ void lcd_init(void) {
     /* enable I2C2 module, master mode*/
     I2C2CONLbits.I2CEN = 1;
 
+#ifndef TESTING
     lcd_reset();
+#endif
 
     event_register_listener(EVENT_BUTTON, on_update);
 }
