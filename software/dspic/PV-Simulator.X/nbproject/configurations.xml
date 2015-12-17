@@ -20,7 +20,7 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../include/usr/menu.h</itemPath>
         <itemPath>../include/usr/pv_model.h</itemPath>
-        <itemPath>C:/Users/Reto/Documents/GitHub/bat6/software/dspic/include/usr/panels_db.h</itemPath>
+        <itemPath>../include/usr/panels_db.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -45,7 +45,7 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../src/usr/menu.c</itemPath>
         <itemPath>../src/usr/pv_model.c</itemPath>
-        <itemPath>C:/Users/Reto/Documents/GitHub/bat6/software/dspic/src/usr/panels_db.c</itemPath>
+        <itemPath>../src/usr/panels_db.c</itemPath>
       </logicalFolder>
       <itemPath>../src/main.c</itemPath>
     </logicalFolder>
@@ -71,8 +71,8 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.25</languageToolchainVersion>
-        <platform>3</platform>
+        <languageToolchainVersion></languageToolchainVersion>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -181,7 +181,7 @@
         <property key="general-code-protect" value="no_code_protect"/>
         <property key="general-write-protect" value="no_write_protect"/>
         <property key="generate-cross-reference-file" value="false"/>
-        <property key="heap-size" value="256"/>
+        <property key="heap-size" value="64"/>
         <property key="input-libraries" value="q-dsp"/>
         <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
@@ -247,7 +247,6 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
