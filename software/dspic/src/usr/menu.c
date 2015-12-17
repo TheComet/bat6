@@ -232,6 +232,7 @@ static void on_button(unsigned int button)
 using namespace ::testing;
 
 std::vector<std::pair<std::string, std::vector<std::string> > > manufacturers;
+std::string writeline;
 
 int solar_panels_get_manufacturers_count_test() {
     return manufacturers.size();
@@ -247,6 +248,30 @@ const char* solar_panels_get_model_name_test(int manufacturer, int panel) {
 }
 void lcd_writeline_test(int line, const char* str)
 {
+    char buf[sizeof(int)*8+1];
+    sprintf(buf, "%d", line);
+    writeline.append(std::string(buf) + ": " + str + "\n");
+}
+
+static void twist_button_left()
+{
+    on_button(BUTTON_TWISTED_LEFT);
+}
+
+static void twist_button_right()
+{
+    on_button(BUTTON_TWISTED_RIGHT);
+}
+
+static void press_button()
+{
+    on_button(BUTTON_PRESSED);
+    on_button(BUTTON_RELEASED);
+}
+
+static void press_button_longer()
+{
+    on_button(BUTTON_PRESSED_LONGER);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -286,6 +311,7 @@ class oled_menu : public Test
     virtual void TearDown()
     {
         manufacturers.clear();
+        writeline.clear();
     }
 };
 
@@ -296,7 +322,7 @@ TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
     menu.item.max = 0;
     menu.item.scroll = 0;
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(-1));
     EXPECT_THAT(menu.item.max, Eq(0));
     EXPECT_THAT(menu.item.scroll, Eq(0));
@@ -308,7 +334,7 @@ TEST_F(oled_menu, twisting_left_with_no_items_does_nothing)
     menu.item.max = 0;
     menu.item.scroll = 0;
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(-1));
     EXPECT_THAT(menu.item.max, Eq(0));
     EXPECT_THAT(menu.item.scroll, Eq(0));
@@ -320,27 +346,27 @@ TEST_F(oled_menu, item_selection_right_wraps_correctly)
     menu.item.max = 5;
     menu.item.scroll = 0;
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(1));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(2));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(3));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(4));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
 
-    on_button(BUTTON_TWISTED_RIGHT);
+    twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(0));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
@@ -352,27 +378,27 @@ TEST_F(oled_menu, item_selection_left_wraps_correctly)
     menu.item.max = 5;
     menu.item.scroll = 0;
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(4));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(3));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(2));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(1));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
 
-    on_button(BUTTON_TWISTED_LEFT);
+    twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(0));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
@@ -380,12 +406,30 @@ TEST_F(oled_menu, item_selection_left_wraps_correctly)
 
 TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 {
-    on_button(BUTTON_TWISTED_LEFT); // selects last item
-
-    on_button(BUTTON_PRESSED);
-    on_button(BUTTON_RELEASED);
+    twist_button_left(); // selects last item (which has a submenu with no items)
+    press_button();
 
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_into_a_submenu)
+{
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
+}
+
+TEST_F(oled_menu, go_into_a_supermenu)
+{
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, menu_update_is_called_during_init)
+{
+    EXPECT_THAT(writeline, StrEq("0: > Manufacturer 1\n1:   Manufacturer 2\n2:   Manufacturer 3\n3:   Manufacturer 4\n"));
 }
 
 #endif /* TESTING */

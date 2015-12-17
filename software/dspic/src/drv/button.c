@@ -139,7 +139,7 @@ void _ISR_NOPSV _CNInterrupt(void)
 using namespace ::testing;
 
 int button_action;
-void test_callback(unsigned int arg)
+static void test_callback(unsigned int arg)
 {
     button_action = (int)arg;
 }
@@ -165,7 +165,7 @@ class button : public Test
     }
 };
 
-void twist_button_left()
+static void twist_button_left()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
@@ -178,7 +178,7 @@ void twist_button_left()
     event_dispatch_all();
 }
 
-void twist_button_right()
+static void twist_button_right()
 {
     unsigned int AB = KNOB_AB;
     switch(AB) {
@@ -191,21 +191,21 @@ void twist_button_right()
     event_dispatch_all();
 }
 
-void press_button()
+static void press_button()
 {
     PORTC &= ~BIT6;
     _CNInterrupt();
     event_dispatch_all();
 }
 
-void release_button()
+static void release_button()
 {
     PORTC |= BIT6;
     _CNInterrupt();
     event_dispatch_all();
 }
 
-void press_button_for(int time_to_pass_in_milliseconds)
+static void press_button_for(int time_to_pass_in_milliseconds)
 {
     press_button();
 
