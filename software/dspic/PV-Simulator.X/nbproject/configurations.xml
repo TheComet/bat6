@@ -20,6 +20,7 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../include/usr/menu.h</itemPath>
         <itemPath>../include/usr/pv_model.h</itemPath>
+        <itemPath>C:/Users/Reto/Documents/GitHub/bat6/software/dspic/include/usr/panels_db.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -44,6 +45,7 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../src/usr/menu.c</itemPath>
         <itemPath>../src/usr/pv_model.c</itemPath>
+        <itemPath>C:/Users/Reto/Documents/GitHub/bat6/software/dspic/src/usr/panels_db.c</itemPath>
       </logicalFolder>
       <itemPath>../src/main.c</itemPath>
     </logicalFolder>
