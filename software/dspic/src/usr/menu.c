@@ -6,11 +6,20 @@
  */
 
 #include "usr/menu.h"
+#include "core/event.h"
+
+static void on_button(unsigned int arg);
 
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
-    /* initialise menu and register event listeners here */
+    event_register_listener(EVENT_BUTTON, on_button);
+}
+
+/* -------------------------------------------------------------------------- */
+static void on_button(unsigned int arg)
+{
+    
 }
 
 /* -------------------------------------------------------------------------- */

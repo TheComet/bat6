@@ -8,6 +8,8 @@
 #ifndef PV_MODEL_H
 #define	PV_MODEL_H
 
+#include <libq.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
