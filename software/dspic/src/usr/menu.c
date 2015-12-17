@@ -6,7 +6,7 @@
  */
 
 #include "usr/menu.h"
-#include "usr/solar_panels.h"
+#include "usr/panels_db.h"
 #include "drv/lcd.h"
 #include "core/event.h"
 
@@ -73,7 +73,7 @@ void menu_init(void)
     menu.manufacturer.selected = -1;
     menu.state = STATE_INIT;
 
-    handle_menu_switches(0);
+    handle_menu_switches(-1);
     menu_update();
 
     event_register_listener(EVENT_BUTTON, on_button);
@@ -213,8 +213,6 @@ static void on_button(unsigned int button)
     handle_menu_switches(button);
     menu_update();
 }
-
-/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* Unit Tests */
