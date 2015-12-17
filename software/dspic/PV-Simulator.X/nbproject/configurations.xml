@@ -20,7 +20,6 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../include/usr/menu.h</itemPath>
         <itemPath>../include/usr/pv_model.h</itemPath>
-        <itemPath>../include/usr/solar_panels.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -45,7 +44,6 @@
       <logicalFolder name="f3" displayName="usr" projectFiles="true">
         <itemPath>../src/usr/menu.c</itemPath>
         <itemPath>../src/usr/pv_model.c</itemPath>
-        <itemPath>../src/usr/solar_panels.c</itemPath>
       </logicalFolder>
       <itemPath>../src/main.c</itemPath>
     </logicalFolder>
