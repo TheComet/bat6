@@ -7,92 +7,145 @@
 
 #include "usr/menu.h"
 #include "usr/solar_panels.h"
+#include "drv/lcd.h"
 #include "core/event.h"
+
 #include <stddef.h>
+#include <string.h>
+#include <stdio.h>
 
 typedef enum menu_state_e
 {
+    STATE_INIT,
     STATE_NAVIGATE_MANUFACTURERS,
     STATE_NAVIGATE_PANELS
 } menu_state_e;
 
-struct selection_t
+struct item_t
 {
-    short item;
+    short selected;
     short max;
     short scroll;
+};
+
+struct manufacturer_t
+{
+    short selected;
 };
 
 struct menu_t
 {
     menu_state_e state;
-    struct selection_t selection;
+    struct item_t item;
+    struct manufacturer_t manufacturer;
 };
 
-struct menu_t menu = {};
+struct menu_t menu;
 
-static void on_button(unsigned int arg);
+static void handle_menu_switches(unsigned int button);
+static void menu_update(void);
+static void on_button(unsigned int button);
+
+#ifdef TESTING
+int solar_panels_get_manufacturers_count_test();
+int solar_panels_get_panel_count_test(int manufacturer);
+const char* solar_panels_get_manufacturer_name_test(int manufacturer);
+const char* solar_panels_get_model_name_test(int manufacturer, int panel);
+void lcd_writeline_test(int line, const char* str);
+#   define solar_panels_get_manufacturers_count \
+            solar_panels_get_manufacturers_count_test
+#   define solar_panels_get_panel_count \
+            solar_panels_get_panel_count_test
+#   define solar_panels_get_manufacturer_name \
+            solar_panels_get_manufacturer_name_test
+#   define solar_panels_get_model_name \
+            solar_panels_get_model_name_test
+#   define lcd_writeline \
+            lcd_writeline_test
+#endif
 
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
+    menu.item.selected = -1;
+    menu.item.max = 0;
+    menu.item.scroll = 0;
+    menu.manufacturer.selected = -1;
+    menu.state = STATE_INIT;
+
+    handle_menu_switches(0);
+    menu_update();
+
     event_register_listener(EVENT_BUTTON, on_button);
 }
 
 /* -------------------------------------------------------------------------- */
 static void handle_item_selection(unsigned int button)
 {
-    if(menu.selection.item == -1)
+    if(menu.item.selected == -1)
         return;
 
     if(button == BUTTON_TWISTED_LEFT)
     {
-        --menu.selection.item;
+        --menu.item.selected;
 
-        if(menu.selection.item == -1)
+        if(menu.item.selected == -1)
         {
-            menu.selection.item = menu.selection.max - 1;
-            menu.selection.scroll = menu.selection.max - 4;
-            if(menu.selection.scroll < 0)
-                menu.selection.scroll = 0;
+            menu.item.selected = menu.item.max - 1;
+            menu.item.scroll = menu.item.max - 4;
+            if(menu.item.scroll < 0)
+                menu.item.scroll = 0;
         }
 
-        if(menu.selection.item < menu.selection.scroll)
-            --menu.selection.scroll;
+        if(menu.item.selected < menu.item.scroll)
+            --menu.item.scroll;
     }
 
     if(button == BUTTON_TWISTED_RIGHT)
     {
-        ++menu.selection.item;
+        ++menu.item.selected;
 
-        if(menu.selection.item == menu.selection.max)
+        if(menu.item.selected == menu.item.max)
         {
-            menu.selection.item = 0;
-            menu.selection.scroll = 0;
+            menu.item.selected = 0;
+            menu.item.scroll = 0;
         }
 
-        if(menu.selection.item - menu.selection.scroll >= 4)
-            ++menu.selection.scroll;
+        if(menu.item.selected - menu.item.scroll >= 4)
+            ++menu.item.scroll;
     }
 }
 
 /* -------------------------------------------------------------------------- */
 static void handle_menu_switches(unsigned int button)
 {
-#define reset_selection()                                      \
-        menu.selection.item = (menu.selection.max ? 0 : -1);   \
-        menu.selection.scroll = 0;
+#define reset_selection()                                \
+        menu.item.selected = (menu.item.max ? 0 : -1);   \
+        menu.item.scroll = 0;
 
     switch(menu.state)
     {
+        case STATE_INIT :
+            menu.item.max = solar_panels_get_manufacturers_count();
+            reset_selection();
+            menu.state = STATE_NAVIGATE_MANUFACTURERS;
+            break;
+
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
-            if(button == BUTTON_RELEASED && menu.selection.item != -1)
+            if(button == BUTTON_RELEASED && menu.item.selected != -1)
             {
-                menu.selection.max =
-                        solar_panels_get_panel_count(menu.selection.item);
+                /* abort if there are no panels */
+                short panels = solar_panels_get_panel_count(menu.item.selected);
+                if(!panels)
+                    break;
+
+                /* select current item as selected manufacturer */
+                menu.manufacturer.selected = menu.item.selected;
+                menu.item.max = panels;
                 reset_selection();
+
                 menu.state = STATE_NAVIGATE_PANELS;
             }
 
@@ -103,7 +156,7 @@ static void handle_menu_switches(unsigned int button)
             /* Switch back to manufacturer selection */
             if(button == BUTTON_PRESSED_LONGER)
             {
-                menu.selection.max = solar_panels_get_manufacturers_count();
+                menu.item.max = solar_panels_get_manufacturers_count();
                 reset_selection();
                 menu.state = STATE_NAVIGATE_MANUFACTURERS;
             }
@@ -116,21 +169,40 @@ static void handle_menu_switches(unsigned int button)
 /* -------------------------------------------------------------------------- */
 static void menu_update(void)
 {
-    //char buffer[40];
+    char buffer[21];
     int i;
 
-    for(i = menu.selection.scroll;
-        i < menu.selection.max && i != menu.selection.scroll + 4;
+    for(i = menu.item.scroll;
+        i < menu.item.max && i != menu.item.scroll + 4;
         ++i)
     {
+        const char* selection;
+        const char* item = NULL;
+
+        /* set selection string */
+        if(i == menu.item.selected)
+            selection = "> ";
+        else
+            selection = "  ";
+
+        /* get item to append */
         switch(menu.state)
         {
+            case STATE_INIT :
+                break;
+
             case STATE_NAVIGATE_MANUFACTURERS :
+                item = solar_panels_get_manufacturer_name(i);
                 break;
 
             case STATE_NAVIGATE_PANELS :
+                item = solar_panels_get_model_name(menu.manufacturer.selected, i);
                 break;
         }
+
+        /* concatenate and write to LCD */
+        snprintf(buffer, 20, "%s%s", selection, item);
+        lcd_writeline(i - menu.item.scroll, buffer);
     }
 }
 
@@ -159,12 +231,22 @@ static void on_button(unsigned int button)
 
 using namespace ::testing;
 
-static void reset_menu_state()
+std::vector<std::pair<std::string, std::vector<std::string> > > manufacturers;
+
+int solar_panels_get_manufacturers_count_test() {
+    return manufacturers.size();
+}
+int solar_panels_get_panel_count_test(int manufacturer) {
+    return manufacturers[manufacturer].second.size();
+}
+const char* solar_panels_get_manufacturer_name_test(int manufacturer) {
+    return manufacturers[manufacturer].first.c_str();
+}
+const char* solar_panels_get_model_name_test(int manufacturer, int panel) {
+    return manufacturers[manufacturer].second[panel].c_str();
+}
+void lcd_writeline_test(int line, const char* str)
 {
-    menu.state = STATE_NAVIGATE_MANUFACTURERS;
-    menu.selection.item = -1;
-    menu.selection.max = 0;
-    menu.selection.scroll = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -172,91 +254,138 @@ class oled_menu : public Test
 {
     virtual void SetUp()
     {
-        reset_menu_state();
+        // create 5 manufacturers with 5 panels each
+        char buf[sizeof(int)*8+1];
+        for(int i = 1; i <= 5; ++i)
+        {
+            std::vector<std::string> panels;
+            for(int j = 1; j <= 5; ++j)
+            {
+                sprintf(buf, "%d", j);
+                panels.push_back(std::string("Panel ") + buf);
+            }
+
+            sprintf(buf, "%d", i);
+            manufacturers.push_back(
+                std::make_pair<std::string, std::vector<std::string> >(
+                    std::string("Manufacturer ") + buf,
+                    panels
+                )
+            );
+        }
+
+        // add manufacturer with no panels
+        manufacturers.push_back(std::make_pair<std::string, std::vector<std::string> >(
+            "No panels", std::vector<std::string>()
+        ));
+
+        event_deinit();
+        menu_init();
     }
 
-    virtual void TearDown() {}
+    virtual void TearDown()
+    {
+        manufacturers.clear();
+    }
 };
 
 /* -------------------------------------------------------------------------- */
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
+    menu.item.selected = -1;
+    menu.item.max = 0;
+    menu.item.scroll = 0;
+
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(-1));
-    EXPECT_THAT(menu.selection.max, Eq(0));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(-1));
+    EXPECT_THAT(menu.item.max, Eq(0));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, twisting_left_with_no_items_does_nothing)
 {
+    menu.item.selected = -1;
+    menu.item.max = 0;
+    menu.item.scroll = 0;
+
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(-1));
-    EXPECT_THAT(menu.selection.max, Eq(0));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(-1));
+    EXPECT_THAT(menu.item.max, Eq(0));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, item_selection_right_wraps_correctly)
 {
-    menu.selection.item = 0;
-    menu.selection.max = 5;
-    menu.selection.scroll = 0;
+    menu.item.selected = 0;
+    menu.item.max = 5;
+    menu.item.scroll = 0;
 
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(1));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(1));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(2));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(2));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(3));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(3));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(4));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(1));
+    EXPECT_THAT(menu.item.selected, Eq(4));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
 
     on_button(BUTTON_TWISTED_RIGHT);
-    EXPECT_THAT(menu.selection.item, Eq(0));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(0));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, item_selection_left_wraps_correctly)
 {
-    menu.selection.item = 0;
-    menu.selection.max = 5;
-    menu.selection.scroll = 0;
+    menu.item.selected = 0;
+    menu.item.max = 5;
+    menu.item.scroll = 0;
 
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(4));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(1));
+    EXPECT_THAT(menu.item.selected, Eq(4));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
 
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(3));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(1));
+    EXPECT_THAT(menu.item.selected, Eq(3));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
 
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(2));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(1));
+    EXPECT_THAT(menu.item.selected, Eq(2));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
 
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(1));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(1));
+    EXPECT_THAT(menu.item.selected, Eq(1));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
 
     on_button(BUTTON_TWISTED_LEFT);
-    EXPECT_THAT(menu.selection.item, Eq(0));
-    EXPECT_THAT(menu.selection.max, Eq(5));
-    EXPECT_THAT(menu.selection.scroll, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(0));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
+}
+
+TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
+{
+    on_button(BUTTON_TWISTED_LEFT); // selects last item
+
+    on_button(BUTTON_PRESSED);
+    on_button(BUTTON_RELEASED);
+
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 #endif /* TESTING */
