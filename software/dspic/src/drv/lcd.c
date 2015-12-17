@@ -78,7 +78,7 @@ static void lcd_send_blocking(char is_command, char data){
 
 static void lcd_statemachine_tick(){
     static unsigned char current_config = 0;
-    
+
     switch(lcd_state){
         case lcd_idle:
             if(!lcd_fifo_empty()){
@@ -89,13 +89,13 @@ static void lcd_statemachine_tick(){
         case lcd_starting:
             lcd_state = lcd_configuring;
 
-            I2C2TRN = 0x78; // I2C Address of Display      
+            I2C2TRN = 0x78; // I2C Address of Display
 
             break;
         case lcd_configuring:
             lcd_state = lcd_sending;
             current_config = lcd_fifo_peek() >> 8;
-            I2C2TRN = current_config << 6;         
+            I2C2TRN = current_config << 6;
             break;
         case lcd_sending:
             if(lcd_fifo_empty()){
@@ -129,7 +129,7 @@ short lcd_send(char is_command, unsigned char data) {
     if(is_command){
         lcd_fifo_put(0x0000 | data);
     }else{
-        lcd_fifo_put(0x0100 | data);        
+        lcd_fifo_put(0x0100 | data);
     }
     if(lcd_state == lcd_idle){
         lcd_statemachine_tick();
@@ -137,7 +137,7 @@ short lcd_send(char is_command, unsigned char data) {
     return 0;
 }
 
-static void lcd_reset(){
+void lcd_reset(){
 
     volatile unsigned int delay = 0;
 
@@ -181,16 +181,16 @@ static void lcd_reset(){
 }
 
 static void on_update(unsigned int arg) {
-    static int timer = 0;
-       
+    /*static int timer = 0;
+
     if(timer++ > 50){
         timer = 0;
         lcd_send(1, 0x01);
         lcd_writeline(0, "Applejack");
         lcd_writeline(1, "is totally");
         lcd_writeline(0, "gay");
-    }
-    
+    }*/
+
 }
 
 void lcd_init(void) {
@@ -240,9 +240,9 @@ int lcd_writeline(unsigned char lineN, const char * string){
     if(string == NULL){
         return 0;
     }
-    
+
     lcd_send(1, 0x80 | (lineN << 5));
-    
+
     while((c = *string++) != '\0'){
         if(lcd_send(0, c)){
             return n_send;
@@ -252,7 +252,7 @@ int lcd_writeline(unsigned char lineN, const char * string){
     for(i = n_send; i < 20; i++){
          if(lcd_send(0, ' ')){
             return n_send;
-        }    
+        }
     }
     return n_send;
 }

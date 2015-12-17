@@ -32,14 +32,6 @@ struct manufacturer_t database[] = {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }},
-    { "Batshit Coorporation", {
-        { "Panel of Shit", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Panel of Fuck", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }}
-    }},
     { "Actual Trash", {
         { "Panel of Shit", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
@@ -57,22 +49,7 @@ struct manufacturer_t database[] = {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }},
-    { "Panels? Panls.", {
-        { "Panel of Shit", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Panel of Fuck", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }}
-    }},
-    { "Sandals", {
-        { "Panel of Shit", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Panel of Fuck", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }}
-    }}
+    {"Sandals"}
 };
 
 /* -------------------------------------------------------------------------- */
@@ -109,7 +86,12 @@ const char* solar_panels_get_manufacturer_name(short index)
 /* -------------------------------------------------------------------------- */
 short solar_panels_get_panel_count(short manufacturer_index)
 {
-    return sizeof(database->panels) / sizeof(*database->panels);
+    short i;
+    short count = 0;
+    for(i = 0; i != sizeof(database->panels) / sizeof(*database->panels); ++i)
+        if(*database[manufacturer_index].panels[i].name)
+            ++count;
+    return count;
 }
 
 /* -------------------------------------------------------------------------- */

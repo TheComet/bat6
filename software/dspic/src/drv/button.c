@@ -16,7 +16,6 @@
     TIME_THRESHOLD_IN_MILLISECONDS / 10
 
 volatile static unsigned char button_timer = 0;
-volatile static unsigned char button_was_pressed_longer = 0;
 
 static void on_update(unsigned int arg);
 
@@ -58,7 +57,6 @@ static void on_update(unsigned int arg)
     {
         event_post(EVENT_BUTTON, BUTTON_PRESSED_LONGER);
         button_timer = 0;
-        button_was_pressed_longer = 1;
     }
 }
 
@@ -71,10 +69,8 @@ static void process_press_event(void)
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
     /* was the button released? (rising edge) */
-    } else {
-        if(!button_was_pressed_longer)
-            event_post(EVENT_BUTTON, BUTTON_RELEASED);
-        button_was_pressed_longer = 0;
+    } else if(button_timer) {
+        event_post(EVENT_BUTTON, BUTTON_RELEASED);
         button_timer = 0; /* stop timer on release */
     }
 }
@@ -83,6 +79,7 @@ static void process_press_event(void)
 static void process_twist_event(void)
 {
     static unsigned char current_AB = 0;
+    static unsigned char ticks = 0;
 
     /*
      * Read the new values of A and B.
@@ -108,9 +105,15 @@ static void process_twist_event(void)
          (current_AB == 3 && AB == 0)) &&
         !(current_AB == 0 && AB == 3))
     {
-        event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
+        ticks = (ticks + 1) & 0x3;
+        if(ticks == 0)
+            event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
+        LED0_OFF;
     } else {
-        event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
+        ticks = (ticks - 1) & 0x3;
+        if(ticks == 2)
+            event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
+        LED0_ON;
     }
 
     /* update current AB */

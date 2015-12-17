@@ -130,7 +130,7 @@ static void handle_menu_switches(unsigned int button)
             reset_selection();
             menu.state = STATE_NAVIGATE_MANUFACTURERS;
             break;
-
+            
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
@@ -169,10 +169,12 @@ static void handle_menu_switches(unsigned int button)
 /* -------------------------------------------------------------------------- */
 void cat_strings(char* dest, short n, const char* s1, const char* s2)
 {
-    while(n --> 0 && *s1)
+    --n;
+    while(*s1 && n --> 0)
         *dest++ = *s1++;
-    while(n --> 0 && *s2)
+    while(*s2 && n --> 0)
         *dest++ = *s2++;
+    *dest = '\0';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -181,37 +183,42 @@ static void menu_update(void)
     char buffer[21];
     int i;
 
-    for(i = menu.item.scroll;
-        i < menu.item.max && i != menu.item.scroll + 4;
-        ++i)
+    for(i = 0; i != 4; ++i)
     {
+        short current_item = i + menu.item.scroll;
         const char* selection;
         const char* item = NULL;
 
         /* set selection string */
-        if(i == menu.item.selected)
+        if(current_item == menu.item.selected)
             selection = "> ";
         else
             selection = "  ";
 
         /* get item to append */
-        switch(menu.state)
+        if(current_item < menu.item.max)
         {
-            case STATE_INIT :
-                break;
+            switch(menu.state)
+            {
+                case STATE_INIT :
+                    break;
 
-            case STATE_NAVIGATE_MANUFACTURERS :
-                item = solar_panels_get_manufacturer_name(i);
-                break;
+                case STATE_NAVIGATE_MANUFACTURERS :
+                    item = solar_panels_get_manufacturer_name(current_item);
+                    break;
 
-            case STATE_NAVIGATE_PANELS :
-                item = solar_panels_get_model_name(menu.manufacturer.selected, i);
-                break;
+                case STATE_NAVIGATE_PANELS :
+                    item = solar_panels_get_model_name(
+                            menu.manufacturer.selected, current_item);
+                    break;
+            }
+        } else {
+            item = "";
         }
 
         /* concatenate and write to LCD */
         cat_strings(buffer, 20, selection, item);
-        lcd_writeline(i - menu.item.scroll, buffer);
+        lcd_writeline(i, buffer);
     }
 }
 
@@ -352,26 +359,31 @@ TEST_F(oled_menu, item_selection_right_wraps_correctly)
     EXPECT_THAT(menu.item.selected, Eq(1));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(2));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(3));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(4));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
     EXPECT_THAT(menu.item.selected, Eq(0));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, item_selection_left_wraps_correctly)
@@ -384,26 +396,31 @@ TEST_F(oled_menu, item_selection_left_wraps_correctly)
     EXPECT_THAT(menu.item.selected, Eq(4));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(3));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(2));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(1));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(0));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, dont_go_into_submenu_with_no_items)

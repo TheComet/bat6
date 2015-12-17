@@ -9,6 +9,7 @@
 #include "drv/leds.h"
 #include "core/event.h"
 #include "drv/buck.h"
+#include "usr/menu.h"
 
 /* -------------------------------------------------------------------------- */
 #ifdef TESTING
@@ -19,6 +20,7 @@ int main(void)
 {
     hw_init();
     drivers_init();
+    menu_init();
 
     while(1)
     {
