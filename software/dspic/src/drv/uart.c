@@ -59,7 +59,7 @@ struct data_t {
     union
     {
         struct {
-            unsigned char selected_cell; /* number representing the cell */
+            unsigned char selected_cell;  /* number representing the cell */
             unsigned char selected_param; /* defines whether param holds value
                                            * for Current, Voltage, Temperature
                                            * or Exposure */
@@ -82,7 +82,7 @@ struct ring_buffer_t
 
 static state_e              state       = STATE_IDLE;
 static struct data_t        state_data;
-static struct ring_buffer_t transmit_queue  = {0, 0, {0}};
+static struct ring_buffer_t transmit_queue  = {};
 
 /* -------------------------------------------------------------------------- */
 void uart_init(void)

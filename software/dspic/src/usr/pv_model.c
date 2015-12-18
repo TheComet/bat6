@@ -96,13 +96,30 @@ _Q16 calc_voltage(const struct pv_cell_t* cell,
 }
 
 /* -------------------------------------------------------------------------- */
-unsigned char model_cell_create(void)
+unsigned char model_cell_add(void)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-unsigned char model_cell_destroy(void)
+unsigned char model_cell_remove(void)
+{
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+void model_cell_remove_all(void)
+{
+}
+
+/* -------------------------------------------------------------------------- */
+short model_cell_begin_iteration(void)
+{
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+short model_cell_get_next(void)
 {
     return 0;
 }
@@ -119,40 +136,40 @@ void model_set_open_circuit_voltage(_Q16 voc)
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_short_circuit_current(_Q16 isc)
+void model_set_short_circuit_current(unsigned char cell_id, int isc)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_thermal_voltage(_Q16 vt)
+void model_set_thermal_voltage(unsigned char cell_id, int vt)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_relative_solar_irridation(_Q16 g)
+void model_set_relative_solar_irridation(unsigned char cell_id, int g)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-_Q16 model_get_open_circuit_voltage(void)
-{
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-_Q16 model_get_short_circuit_current(void)
+_Q16 model_get_open_circuit_voltage(unsigned char cell_id)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-_Q16 model_get_thermal_voltage(void)
+_Q16 model_get_short_circuit_current(unsigned char cell_id)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-_Q16 model_get_relative_solar_irridation(void)
+_Q16 model_get_thermal_voltage(unsigned char cell_id)
+{
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+_Q16 model_get_relative_solar_irridation(unsigned char cell_id)
 {
     return 0;
 }

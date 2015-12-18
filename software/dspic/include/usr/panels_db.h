@@ -12,11 +12,20 @@
 extern "C" {
 #endif
 
-
-
+/*!
+ * @brief Initialises panel database. Call this before calling any other
+ * db related functions.
+ */
 void panels_db_init(void);
 
+/*!
+ * @brief Adds a new manufacturer.
+ */
 short panels_db_add_new_manufacturer(const char* name);
+
+/*!
+ * @brief Adds a new
+ */
 short panels_db_add_new_panel(short manufacturer_index,
                                  const char* name);
 
