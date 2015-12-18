@@ -8,6 +8,7 @@
 #include "usr/menu.h"
 #include "usr/panels_db.h"
 #include "drv/lcd.h"
+#include "drv/buck.h"
 #include "core/event.h"
 
 #include <stddef.h>
@@ -16,9 +17,9 @@
 
 typedef enum menu_state_e
 {
-    STATE_INIT,
     STATE_NAVIGATE_MANUFACTURERS,
-    STATE_NAVIGATE_PANELS
+    STATE_NAVIGATE_PANELS,
+    STATE_REALTIME
 } menu_state_e;
 
 struct item_t
@@ -43,9 +44,11 @@ struct menu_t
 struct menu_t menu;
 
 static void cat_strings(char* dest, short dest_n, short src_n, ...);
+static void load_menu_manufacturers(void);
 static void handle_menu_switches(unsigned int button);
 static void menu_update(void);
 static void on_button(unsigned int button);
+static void on_update(unsigned int arg);
 
 #ifdef TESTING
 int solar_panels_get_manufacturers_count_test();
@@ -72,9 +75,8 @@ void menu_init(void)
     menu.item.max = 0;
     menu.item.scroll = 0;
     menu.manufacturer.selected = -1;
-    menu.state = STATE_INIT;
 
-    handle_menu_switches(-1);
+    load_menu_manufacturers();
     menu_update();
 
     event_register_listener(EVENT_BUTTON, on_button);
@@ -106,25 +108,27 @@ static void handle_item_selection(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-static void handle_menu_switches(unsigned int button)
-{
 #define reset_selection()                                \
         menu.item.selected = (menu.item.max ? 0 : -1);   \
-        menu.item.scroll = 0;
+        menu.item.scroll = 0
 
+static void load_menu_manufacturers(void)
+{
+    /* set selection */
+    menu.item.max = solar_panels_get_manufacturers_count();
+    reset_selection();
+
+    /* write menu title to LCD */
+    lcd_writeline(0, "[Manufacturers]");
+
+    menu.state = STATE_NAVIGATE_MANUFACTURERS;
+}
+
+/* -------------------------------------------------------------------------- */
+static void handle_menu_switches(unsigned int button)
+{
     switch(menu.state)
     {
-        case STATE_INIT :
-            /* set selection */
-            menu.item.max = solar_panels_get_manufacturers_count();
-            reset_selection();
-
-            /* write menu title to LCD */
-            lcd_writeline(0, "[Manufacturers]");
-
-            menu.state = STATE_NAVIGATE_MANUFACTURERS;
-            break;
-
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
@@ -140,6 +144,7 @@ static void handle_menu_switches(unsigned int button)
                 menu.item.max = panels;
                 reset_selection();
 
+                /* write menu title to LCD */
                 {   char buffer[21];
                     const char* menu_title = solar_panels_get_manufacturer_name(
                             menu.manufacturer.selected);
@@ -154,6 +159,13 @@ static void handle_menu_switches(unsigned int button)
 
         case STATE_NAVIGATE_PANELS :
 
+            /* activate model and switch to real-time */
+            if(button == BUTTON_RELEASED)
+            {
+                event_register_listener(EVENT_UPDATE, on_update);
+                menu.state = STATE_REALTIME;
+            }
+
             /* Switch back to manufacturer selection */
             if(button == BUTTON_PRESSED_LONGER)
             {
@@ -161,6 +173,15 @@ static void handle_menu_switches(unsigned int button)
                 reset_selection();
                 menu.state = STATE_NAVIGATE_MANUFACTURERS;
             }
+
+            break;
+
+        case STATE_REALTIME:
+
+            /* go back to manufacturers menu */
+            if(button == BUTTON_PRESSED_LONGER)
+                load_menu_manufacturers();
+
             break;
 
         default: break;
@@ -210,9 +231,6 @@ static void menu_update(void)
         {
             switch(menu.state)
             {
-                case STATE_INIT :
-                    break;
-
                 case STATE_NAVIGATE_MANUFACTURERS :
                     item = solar_panels_get_manufacturer_name(current_item);
                     break;
@@ -220,6 +238,10 @@ static void menu_update(void)
                 case STATE_NAVIGATE_PANELS :
                     item = solar_panels_get_model_name(
                             menu.manufacturer.selected, current_item);
+                    break;
+
+                case STATE_REALTIME:
+                default:
                     break;
             }
         } else {
@@ -233,11 +255,33 @@ static void menu_update(void)
 }
 
 /* -------------------------------------------------------------------------- */
+static void update_realtime_values(void)
+{
+    _Q16 voltage = buck_get_voltage();
+    _Q16 current = buck_get_current();
+    _Q16 power   = _Q16mpy(voltage, current);
+
+    /* TODO */
+    (void)power;
+}
+
+/* -------------------------------------------------------------------------- */
 static void on_button(unsigned int button)
 {
     handle_item_selection(button);
     handle_menu_switches(button);
     menu_update();
+}
+
+/* -------------------------------------------------------------------------- */
+static void on_update(unsigned int arg)
+{
+    static unsigned char counter = 0;
+    if(counter-- == 0)
+    {
+        counter = 50;
+        update_realtime_values();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
