@@ -24,7 +24,7 @@ struct manufacturer_t
 #define CELL_PARAM(x) ((unsigned int)(x * 65536))
 
 struct manufacturer_t database[] = {
-    { "Generic Manufacturer", {
+    { "Generic", {
         { "Generic Panel 1", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
@@ -48,8 +48,7 @@ struct manufacturer_t database[] = {
         { "Dick Stuck in it", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
-    }},
-    {"Sandals"}
+    }}
 };
 
 /* -------------------------------------------------------------------------- */

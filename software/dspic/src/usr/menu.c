@@ -42,6 +42,7 @@ struct menu_t
 
 struct menu_t menu;
 
+static void cat_strings(char* dest, short dest_n, short src_n, ...);
 static void handle_menu_switches(unsigned int button);
 static void menu_update(void);
 static void on_button(unsigned int button);
@@ -114,8 +115,13 @@ static void handle_menu_switches(unsigned int button)
     switch(menu.state)
     {
         case STATE_INIT :
+            /* set selection */
             menu.item.max = solar_panels_get_manufacturers_count();
             reset_selection();
+
+            /* write menu title to LCD */
+            lcd_writeline(0, "[Manufacturers]");
+
             menu.state = STATE_NAVIGATE_MANUFACTURERS;
             break;
 
@@ -133,6 +139,13 @@ static void handle_menu_switches(unsigned int button)
                 menu.manufacturer.selected = menu.item.selected;
                 menu.item.max = panels;
                 reset_selection();
+
+                {   char buffer[21];
+                    const char* menu_title = solar_panels_get_manufacturer_name(
+                            menu.manufacturer.selected);
+                    cat_strings(buffer, 21, 3, "[", menu_title, "]");
+                    lcd_writeline(0, buffer);
+                }
 
                 menu.state = STATE_NAVIGATE_PANELS;
             }
@@ -155,7 +168,7 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-void cat_strings(char* dest, short dest_n, short src_n, ...)
+static void cat_strings(char* dest, short dest_n, short src_n, ...)
 {
     va_list ap;
     short i;
@@ -180,7 +193,7 @@ static void menu_update(void)
     char buffer[21];
     int i;
 
-    for(i = 0; i != 4; ++i)
+    for(i = 0; i != 3; ++i)
     {
         short current_item = i + menu.item.scroll;
         const char* selection;
@@ -215,7 +228,7 @@ static void menu_update(void)
 
         /* concatenate and write to LCD */
         cat_strings(buffer, 20, 2, selection, item);
-        lcd_writeline(i, buffer);
+        lcd_writeline(i + 1, buffer);
     }
 }
 
@@ -452,7 +465,7 @@ TEST_F(oled_menu, go_into_a_supermenu)
 
 TEST_F(oled_menu, menu_update_is_called_during_init)
 {
-    EXPECT_THAT(writeline, StrEq("0: > Manufacturer 1\n1:   Manufacturer 2\n2:   Manufacturer 3\n3:   Manufacturer 4\n"));
+    EXPECT_THAT(writeline, StrEq("0: [Manufacturers]\n1: > Manufacturer 1\n2:   Manufacturer 2\n3:   Manufacturer 3\n"));
 }
 
 #endif /* TESTING */
