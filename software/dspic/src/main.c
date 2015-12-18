@@ -10,6 +10,7 @@
 #include "core/event.h"
 #include "drv/buck.h"
 #include "usr/menu.h"
+#include "usr/panels_db.h"
 
 /* -------------------------------------------------------------------------- */
 #ifdef TESTING
@@ -20,6 +21,7 @@ int main(void)
 {
     hw_init();
     drivers_init();
+    panels_db_init();
     menu_init();
 
     while(1)

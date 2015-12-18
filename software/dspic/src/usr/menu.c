@@ -51,19 +51,19 @@ static void on_button(unsigned int button);
 static void on_update(unsigned int arg);
 
 #ifdef TESTING
-int solar_panels_get_manufacturers_count_test();
-int solar_panels_get_panel_count_test(int manufacturer);
-const char* solar_panels_get_manufacturer_name_test(int manufacturer);
-const char* solar_panels_get_model_name_test(int manufacturer, int panel);
+int panels_db_get_manufacturers_count_test();
+int panels_db_get_panel_count_test(int manufacturer);
+const char* panels_db_get_manufacturer_name_test(int manufacturer);
+const char* panels_db_get_model_name_test(int manufacturer, int panel);
 void lcd_writeline_test(int line, const char* str);
-#   define solar_panels_get_manufacturers_count \
-            solar_panels_get_manufacturers_count_test
-#   define solar_panels_get_panel_count \
-            solar_panels_get_panel_count_test
-#   define solar_panels_get_manufacturer_name \
-            solar_panels_get_manufacturer_name_test
-#   define solar_panels_get_model_name \
-            solar_panels_get_model_name_test
+#   define panels_db_get_manufacturers_count \
+            panels_db_get_manufacturers_count_test
+#   define panels_db_get_panel_count \
+            panels_db_get_panel_count_test
+#   define panels_db_get_manufacturer_name \
+            panels_db_get_manufacturer_name_test
+#   define panels_db_get_model_name \
+            panels_db_get_model_name_test
 #   define lcd_writeline \
             lcd_writeline_test
 #endif
@@ -115,7 +115,7 @@ static void handle_item_selection(unsigned int button)
 static void load_menu_manufacturers(void)
 {
     /* set selection */
-    menu.item.max = solar_panels_get_manufacturers_count();
+    menu.item.max = panels_db_get_manufacturers_count();
     reset_selection();
 
     /* write menu title to LCD */
@@ -135,7 +135,7 @@ static void handle_menu_switches(unsigned int button)
             if(button == BUTTON_RELEASED && menu.item.selected != -1)
             {
                 /* abort if there are no panels */
-                short panels = solar_panels_get_panel_count(menu.item.selected);
+                short panels = panels_db_get_panel_count(menu.item.selected);
                 if(!panels)
                     break;
 
@@ -146,7 +146,7 @@ static void handle_menu_switches(unsigned int button)
 
                 /* write menu title to LCD */
                 {   char buffer[21];
-                    const char* menu_title = solar_panels_get_manufacturer_name(
+                    const char* menu_title = panels_db_get_manufacturer_name(
                             menu.manufacturer.selected);
                     cat_strings(buffer, 21, 3, "[", menu_title, "]");
                     lcd_writeline(0, buffer);
@@ -169,7 +169,7 @@ static void handle_menu_switches(unsigned int button)
             /* Switch back to manufacturer selection */
             if(button == BUTTON_PRESSED_LONGER)
             {
-                menu.item.max = solar_panels_get_manufacturers_count();
+                menu.item.max = panels_db_get_manufacturers_count();
                 reset_selection();
                 menu.state = STATE_NAVIGATE_MANUFACTURERS;
             }
@@ -232,11 +232,11 @@ static void menu_update(void)
             switch(menu.state)
             {
                 case STATE_NAVIGATE_MANUFACTURERS :
-                    item = solar_panels_get_manufacturer_name(current_item);
+                    item = panels_db_get_manufacturer_name(current_item);
                     break;
 
                 case STATE_NAVIGATE_PANELS :
-                    item = solar_panels_get_model_name(
+                    item = panels_db_get_model_name(
                             menu.manufacturer.selected, current_item);
                     break;
 
@@ -297,16 +297,16 @@ using namespace ::testing;
 std::vector<std::pair<std::string, std::vector<std::string> > > manufacturers;
 std::string writeline;
 
-int solar_panels_get_manufacturers_count_test() {
+int panels_db_get_manufacturers_count_test() {
     return manufacturers.size();
 }
-int solar_panels_get_panel_count_test(int manufacturer) {
+int panels_db_get_panel_count_test(int manufacturer) {
     return manufacturers[manufacturer].second.size();
 }
-const char* solar_panels_get_manufacturer_name_test(int manufacturer) {
+const char* panels_db_get_manufacturer_name_test(int manufacturer) {
     return manufacturers[manufacturer].first.c_str();
 }
-const char* solar_panels_get_model_name_test(int manufacturer, int panel) {
+const char* panels_db_get_model_name_test(int manufacturer, int panel) {
     return manufacturers[manufacturer].second[panel].c_str();
 }
 void lcd_writeline_test(int line, const char* str)
