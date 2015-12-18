@@ -87,15 +87,8 @@ static void handle_item_selection(unsigned int button)
 
     if(button == BUTTON_TWISTED_LEFT)
     {
-        --menu.item.selected;
-
-        if(menu.item.selected == -1)
-        {
-            menu.item.selected = menu.item.max - 1;
-            menu.item.scroll = menu.item.max - 4;
-            if(menu.item.scroll < 0)
-                menu.item.scroll = 0;
-        }
+        if(menu.item.selected != 0)
+            --menu.item.selected;
 
         if(menu.item.selected < menu.item.scroll)
             --menu.item.scroll;
@@ -103,13 +96,8 @@ static void handle_item_selection(unsigned int button)
 
     if(button == BUTTON_TWISTED_RIGHT)
     {
-        ++menu.item.selected;
-
-        if(menu.item.selected == menu.item.max)
-        {
-            menu.item.selected = 0;
-            menu.item.scroll = 0;
-        }
+        if(menu.item.selected != menu.item.max - 1)
+            ++menu.item.selected;
 
         if(menu.item.selected - menu.item.scroll >= 4)
             ++menu.item.scroll;
@@ -130,7 +118,7 @@ static void handle_menu_switches(unsigned int button)
             reset_selection();
             menu.state = STATE_NAVIGATE_MANUFACTURERS;
             break;
-            
+
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
@@ -349,7 +337,7 @@ TEST_F(oled_menu, twisting_left_with_no_items_does_nothing)
     EXPECT_THAT(menu.item.scroll, Eq(0));
 }
 
-TEST_F(oled_menu, item_selection_right_wraps_correctly)
+TEST_F(oled_menu, item_selection_right_clamps_correctly)
 {
     menu.item.selected = 0;
     menu.item.max = 5;
@@ -380,23 +368,17 @@ TEST_F(oled_menu, item_selection_right_wraps_correctly)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(0));
+    EXPECT_THAT(menu.item.selected, Eq(4));
     EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.item.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
-TEST_F(oled_menu, item_selection_left_wraps_correctly)
+TEST_F(oled_menu, item_selection_left_clamps_correctly)
 {
-    menu.item.selected = 0;
+    menu.item.selected = 4;
     menu.item.max = 5;
-    menu.item.scroll = 0;
-
-    twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(4));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
-    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+    menu.item.scroll = 1;
 
     twist_button_left();
     EXPECT_THAT(menu.item.selected, Eq(3));
@@ -414,6 +396,12 @@ TEST_F(oled_menu, item_selection_left_wraps_correctly)
     EXPECT_THAT(menu.item.selected, Eq(1));
     EXPECT_THAT(menu.item.max, Eq(5));
     EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+
+    twist_button_left();
+    EXPECT_THAT(menu.item.selected, Eq(0));
+    EXPECT_THAT(menu.item.max, Eq(5));
+    EXPECT_THAT(menu.item.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
@@ -425,7 +413,7 @@ TEST_F(oled_menu, item_selection_left_wraps_correctly)
 
 TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 {
-    twist_button_left(); // selects last item (which has a submenu with no items)
+    menu.item.selected = menu.item.max - 1; // selects last item (which has a submenu with no items)
     press_button();
 
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));

@@ -248,7 +248,7 @@ TEST_F(button, twist_right_posts_correct_event)
     twist_button_right();
     twist_button_right();
     twist_button_right();
-    
+
     twist_button_right();
     EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
     twist_button_right();
