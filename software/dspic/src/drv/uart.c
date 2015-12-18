@@ -94,7 +94,7 @@ void uart_init(void)
 }
 
 /* -------------------------------------------------------------------------- */
-void uart_send(const unsigned char* bytes, unsigned short len)
+void uart_send(const char* str)
 {
     /*
      * Note: The assumption is that this never gets called from an interrupt,
@@ -113,7 +113,7 @@ void uart_send(const unsigned char* bytes, unsigned short len)
                 send_next_byte();         \
         enable_tx_interrupt(); } while(0)
 
-    while(len --> 0)
+    while(*str)
     {
         /* increment and wrap write position */
         unsigned char write;
@@ -128,7 +128,7 @@ void uart_send(const unsigned char* bytes, unsigned short len)
         }
 
         /* add data to queue and update write position */
-        transmit_queue.data[write] = *bytes++;
+        transmit_queue.data[write] = *str++;
         transmit_queue.write = write;
     }
 
@@ -447,17 +447,17 @@ TEST_F(uart_transmit_queue, inserting_byte_when_tx_buffer_is_idle_sends_byte)
 
     static const unsigned char zero = 0;
     static const unsigned char one  = 1;
-    static const unsigned char data = 'a';
+    static const char* data = "a";
 
     /* some sanity checks */
     EXPECT_THAT(transmit_queue.write, Eq(zero));
     EXPECT_THAT(transmit_queue.read, Eq(zero));
 
-    uart_send(&data, 1);
+    uart_send(data);
 
     EXPECT_THAT(transmit_queue.write, Eq(one));
     EXPECT_THAT(transmit_queue.read, Eq(one));
-    EXPECT_THAT(U1TXREG, Eq(data));
+    EXPECT_THAT(U1TXREG, Eq((unsigned char)*data));
 }
 
 TEST_F(uart_transmit_queue, inserting_byte_when_tx_buffer_is_busy_queues_byte)
@@ -466,27 +466,27 @@ TEST_F(uart_transmit_queue, inserting_byte_when_tx_buffer_is_busy_queues_byte)
 
     static const unsigned char zero = 0;
     static const unsigned char one  = 1;
-    static const unsigned char data = 'c';
+    static const char* data = "c";
 
-    uart_send(&data, 1);
+    uart_send(data);
 
     EXPECT_THAT(transmit_queue.write, Eq(one));
     EXPECT_THAT(transmit_queue.read, Eq(zero));
-    EXPECT_THAT(U1TXREG, Ne(data));
+    EXPECT_THAT(U1TXREG, Ne((unsigned char)*data));
 }
 
 TEST_F(uart_transmit_queue, buffer_wraps_correctly)
 {
-    static const unsigned char data = 'b';
+    static const char* data = "b";
 
     for(int i = 0; i != TRANSMIT_QUEUE_SIZE * 2; ++i)
     {
         U1TXREG = 0; /* reset this so we can test it */
 
-        uart_send(&data, 1);
+        uart_send(data);
         EXPECT_THAT(transmit_queue.write, Ne(TRANSMIT_QUEUE_SIZE));
         EXPECT_THAT(transmit_queue.read, Ne(TRANSMIT_QUEUE_SIZE));
-        EXPECT_THAT(U1TXREG, Eq(data));
+        EXPECT_THAT(U1TXREG, Eq((unsigned char)*data));
     }
 }
 
@@ -496,7 +496,7 @@ TEST_F(uart_transmit_queue, strings_are_correctly_copied_into_queue)
 
     ASSERT_THAT(strlen(str), Le(TRANSMIT_QUEUE_SIZE));
 
-    uart_send((const unsigned char*)str, strlen(str));
+    uart_send(str);
 
     EXPECT_THAT((unsigned char)U1TXREG, Eq(str[0]));
     tx_send_update();
@@ -510,19 +510,20 @@ TEST_F(uart_transmit_queue, strings_are_correctly_copied_into_queue)
 TEST_F(uart_transmit_queue, sending_blocks_until_buffer_has_space)
 {
     /* build ourselves a string (warning: not null-terminated) */
-    unsigned char* data = new unsigned char[TRANSMIT_QUEUE_SIZE + 3];
+    char* data = new char[TRANSMIT_QUEUE_SIZE + 4];
 
     {   int i;
         unsigned char d;
         for(i = 0, d = 'a'; i != TRANSMIT_QUEUE_SIZE + 3; i++, d++)
             data[i] = d;
+        data[TRANSMIT_QUEUE_SIZE + 3] = '\0';
     }
 
     /* tell TX buffer to be busy for 10 cycles after queue has been filled */
     send_after_n_cycles = 10;
     U1STAbits.TRMT = 0;
 
-    uart_send(data, TRANSMIT_QUEUE_SIZE + 3);
+    uart_send(data);
 
     /* If uart_send blocked, it should have called tx_send_update()
      * 10 times before unblocking */
@@ -542,9 +543,9 @@ TEST_F(uart_transmit_queue, sending_blocks_until_buffer_has_space)
 
 TEST_F(uart_transmit_queue, tx_interrupt_does_nothing_if_queue_is_empty)
 {
-    static const unsigned char data = 'a';
+    static const char* data = "a";
 
-    uart_send(&data, 1);
+    uart_send(data);
 
     tx_send_update(); /* this is what's being tested */
 
