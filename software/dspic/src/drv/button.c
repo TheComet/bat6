@@ -156,7 +156,6 @@ class button : public Test
         event_deinit();
         button_init();
         button_action = 0;
-        button_was_pressed_longer = 0;
 
         /* By default, the button isn't pressed, which means BIT6 is high and
          * all other bits are low */
@@ -227,6 +226,11 @@ TEST_F(button, twist_left_posts_correct_event)
     event_register_listener(EVENT_BUTTON, test_callback);
 
     twist_button_left();
+    twist_button_left();
+    twist_button_left();
+    twist_button_left();
+
+    twist_button_left();
     EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
     twist_button_left();
     EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_LEFT));
@@ -240,6 +244,11 @@ TEST_F(button, twist_right_posts_correct_event)
 {
     event_register_listener(EVENT_BUTTON, test_callback);
 
+    twist_button_right();
+    twist_button_right();
+    twist_button_right();
+    twist_button_right();
+    
     twist_button_right();
     EXPECT_THAT(button_action, Eq(BUTTON_TWISTED_RIGHT));
     twist_button_right();
