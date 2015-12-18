@@ -12,7 +12,7 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <stdio.h>
+#include <stdarg.h>
 
 typedef enum menu_state_e
 {
@@ -155,13 +155,22 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-void cat_strings(char* dest, short n, const char* s1, const char* s2)
+void cat_strings(char* dest, short dest_n, short src_n, ...)
 {
-    --n;
-    while(*s1 && n --> 0)
-        *dest++ = *s1++;
-    while(*s2 && n --> 0)
-        *dest++ = *s2++;
+    va_list ap;
+    short i;
+
+    --dest_n; /* reserve space for null terminator */
+
+    va_start(ap, src_n);
+        for(i = 0; i != src_n; ++i)
+        {
+            const char* str = va_arg(ap, char*);
+            while(*str && dest_n --> 0)
+                *dest++ = *str++;
+        }
+    va_end(ap);
+
     *dest = '\0';
 }
 
@@ -205,7 +214,7 @@ static void menu_update(void)
         }
 
         /* concatenate and write to LCD */
-        cat_strings(buffer, 20, selection, item);
+        cat_strings(buffer, 20, 2, selection, item);
         lcd_writeline(i, buffer);
     }
 }
