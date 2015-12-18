@@ -322,6 +322,13 @@ class oled_menu : public Test
 };
 
 /* -------------------------------------------------------------------------- */
+TEST_F(oled_menu, cat_strings)
+{
+    char buffer[10];
+    cat_strings(buffer, 10, 4, "This ", "is ", "a ", "test");
+    EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
+}
+
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
     menu.item.selected = -1;
