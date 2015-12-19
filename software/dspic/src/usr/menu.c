@@ -15,11 +15,15 @@
 
 #include <stddef.h>
 
+/*!
+ *
+ */
 typedef enum menu_state_e
 {
     STATE_NAVIGATE_MANUFACTURERS,
     STATE_NAVIGATE_PANELS,
     STATE_NAVIGATE_GLOBAL_PARAMETERS,
+    STATE_NAVIGATE_PANEL_PARAMETERS,
     STATE_CONTROL_GLOBAL_IRRADIATION,
     STATE_CONTROL_GLOBAL_TEMPERATURE,
     STATE_NAVIGATE_PANEL_CELLS,
@@ -556,6 +560,18 @@ TEST_F(oled_menu, item_selection_left_clamps_correctly)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
+TEST_F(oled_menu, menu_update_is_called_during_init)
+{
+    EXPECT_THAT(writeline, StrEq("0: [Manufacturers]\n1: > Manufacturer 1\n2:   Manufacturer 2\n3:   Manufacturer 3\n"));
+}
+
+TEST_F(oled_menu, go_from_manufacturer_menu_into_panel_menu)
+{
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
+}
+
 TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 {
     menu.navigation.item = menu.navigation.max - 1; // selects last item (which has a submenu with no items)
@@ -564,14 +580,7 @@ TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
-TEST_F(oled_menu, go_into_a_submenu)
-{
-    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
-    press_button();
-    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
-}
-
-TEST_F(oled_menu, go_into_a_supermenu)
+TEST_F(oled_menu, go_back_from_panel_menu_to_manufacturer_menu)
 {
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
@@ -579,9 +588,109 @@ TEST_F(oled_menu, go_into_a_supermenu)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
-TEST_F(oled_menu, menu_update_is_called_during_init)
+TEST_F(oled_menu, go_from_panel_menu_into_controlling_global_irradiation)
 {
-    EXPECT_THAT(writeline, StrEq("0: [Manufacturers]\n1: > Manufacturer 1\n2:   Manufacturer 2\n3:   Manufacturer 3\n"));
+    press_button();
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_IRRADIATION));
+}
+
+TEST_F(oled_menu, go_back_from_controlling_global_irradiation_to_manufacturer_menu)
+{
+    press_button();
+    press_button();
+
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_from_controlling_global_irradiation_to_selecting_global_parameters)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+
+    press_button(); /* should get us to selecting global parameters */
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_back_from_selecting_global_parameters_to_manufacturer_menu)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_irradiation)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+
+    press_button(); /* go back to global irradiation */
+    EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_IRRADIATION));
+}
+
+TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_temperature)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+
+    twist_button_right(); /* select global temperature */
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_TEMPERATURE));
+}
+
+TEST_F(oled_menu, go_back_from_global_temperature_to_manufacturer_menu)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    press_button();
+
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_back_from_global_temperature_to_global_parameters)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    press_button();
+
+    press_button(); /* should go back to global parameters */
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_from_global_parameters_to_cell_selection)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANEL_CELLS));
+}
+
+TEST_F(oled_menu, go_back_from_cell_selection_to_manufacturer_menu)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();       /* go into cell selection */
+
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 #endif /* TESTING */
