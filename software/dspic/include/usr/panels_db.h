@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+struct pv_cell_t;
+
 /*!
  * @brief Initialises panel database. Call this before calling any other
  * db related functions.
@@ -26,17 +28,24 @@ short panels_db_add_new_manufacturer(const char* name);
 /*!
  * @brief Adds a new
  */
-short panels_db_add_new_panel(short manufacturer_index,
-                                 const char* name);
+short panels_db_add_new_panel(short manufacturer_id,
+                              const char* name);
 
 short panels_db_get_manufacturers_count(void);
 
 const char* panels_db_get_manufacturer_name(short index);
 
-short panels_db_get_panel_count(short manufacturer_index);
+short panels_db_get_panel_count(short manufacturer_id);
 
-const char* panels_db_get_model_name(short manufacturer_index,
-                                        short panel_index);
+const char* panels_db_get_model_name(short manufacturer_id,
+                                     short panel_id);
+
+short panels_db_get_cell_count(short manufacturer_id,
+                               short panel_id);
+
+const struct pv_cell_t* panels_db_get_cell(short manufacturer_id,
+                                           short panel_id,
+                                           short cell_id);
 
 #ifdef	__cplusplus
 }

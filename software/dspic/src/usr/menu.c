@@ -7,13 +7,13 @@
 
 #include "usr/menu.h"
 #include "usr/panels_db.h"
+#include "usr/pv_model.h"
 #include "drv/lcd.h"
 #include "drv/buck.h"
 #include "core/event.h"
+#include "core/string.h"
 
 #include <stddef.h>
-#include <string.h>
-#include <stdarg.h>
 
 typedef enum menu_state_e
 {
@@ -48,7 +48,6 @@ struct menu_t menu;
 
 static void load_menu_manufacturers(void);
 static void handle_menu_switches(unsigned int button);
-static void cat_strings(char* dest, short dest_n, short src_n, ...);
 static void menu_update(void);
 static void refresh_measurements(void);
 static void on_button(unsigned int button);
@@ -166,7 +165,7 @@ static void handle_menu_switches(unsigned int button)
                 {   char buffer[21];
                     const char* menu_title = panels_db_get_manufacturer_name(
                             menu.navigation.selected.manufacturer);
-                    cat_strings(buffer, 21, 3, "[", menu_title, "]");
+                    str_nstrcat(buffer, 21, 3, "[", menu_title, "]");
                     lcd_writeline(0, buffer);
                 }
 
@@ -177,11 +176,45 @@ static void handle_menu_switches(unsigned int button)
 
         case STATE_NAVIGATE_PANELS :
 
-            /* activate model and switch to real-time */
+            /* activate model */
             if(button == BUTTON_RELEASED)
             {
+                short i;
+
+                /* disable buck for this process */
+                buck_disable();
+
+                /* clear existing cells */
+                model_cell_remove_all();
+
+                /*
+                 * Copy parameters for each cell in the db and add them to a
+                 * new cell in the active model
+                 */
+                for(i = 0;
+                    i != panels_db_get_cell_count(
+                            menu.navigation.selected.manufacturer,
+                            menu.navigation.item);
+                    ++i)
+                {
+                    const struct pv_cell_t* cell = panels_db_get_cell(
+                            menu.navigation.selected.manufacturer,
+                            menu.navigation.item,
+                            i);
+                    unsigned char cell_id = model_cell_add();
+                    model_set_open_circuit_voltage(cell_id, cell->voc);
+                    model_set_short_circuit_current(cell_id, cell->isc);
+                    model_set_thermal_voltage(cell_id, cell->vt);
+                    model_set_relative_solar_irridation(cell_id, cell->g);
+                }
+
+                /* buck can now be enabled */
+                buck_enable();
+
+                /* set up real time measurements */
                 event_register_listener(EVENT_UPDATE, on_update);
                 refresh_measurements();
+
                 menu.state = STATE_CONTROL_GLOBAL_IRRADIATION;
             }
 
@@ -215,26 +248,6 @@ static void handle_menu_switches(unsigned int button)
 
         default: break;
     }
-}
-
-/* -------------------------------------------------------------------------- */
-static void cat_strings(char* dest, short dest_n, short src_n, ...)
-{
-    va_list ap;
-    short i;
-
-    --dest_n; /* reserve space for null terminator */
-
-    va_start(ap, src_n);
-        for(i = 0; i != src_n; ++i)
-        {
-            const char* str = va_arg(ap, char*);
-            while(*str && dest_n --> 0)
-                *dest++ = *str++;
-        }
-    va_end(ap);
-
-    *dest = '\0';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -277,7 +290,7 @@ static void menu_update(void)
         }
 
         /* concatenate and write to LCD */
-        cat_strings(buffer, 20, 2, selection, item);
+        str_nstrcat(buffer, 20, 2, selection, item);
         lcd_writeline(i + 1, buffer);
     }
 }
@@ -285,11 +298,16 @@ static void menu_update(void)
 /* -------------------------------------------------------------------------- */
 static void refresh_measurements(void)
 {
+    /*char line[21];*/
+    /*char buffer[4];*/
+
     _Q16 voltage = buck_get_voltage();
     _Q16 current = buck_get_current();
     _Q16 power   = _Q16mpy(voltage, current);
 
-    /* TODO */
+    /* create string for LCD */
+
+    /*cat_strings(buffer, 21, x, "V: ", )*/
     (void)power;
 }
 
@@ -407,13 +425,6 @@ class oled_menu : public Test
 };
 
 /* -------------------------------------------------------------------------- */
-TEST_F(oled_menu, cat_strings)
-{
-    char buffer[10];
-    cat_strings(buffer, 10, 4, "This ", "is ", "a ", "test");
-    EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
-}
-
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
     menu.navigation.item = -1;

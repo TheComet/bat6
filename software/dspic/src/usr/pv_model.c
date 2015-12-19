@@ -131,7 +131,7 @@ unsigned char model_select_cell(unsigned char cell_id)
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_open_circuit_voltage(_Q16 voc)
+void model_set_open_circuit_voltage(unsigned char cell_id, _Q16 voc)
 {
 }
 

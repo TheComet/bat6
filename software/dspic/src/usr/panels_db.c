@@ -42,10 +42,10 @@ struct manufacturer_t database[] = {
         { "Trash Stash", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
-        { "Compost", {
+        { "Dick stuck", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
-        { "Dick Stuck in it", {
+        { "in panel", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }}
@@ -64,7 +64,7 @@ short panels_db_add_new_manufacturer(const char* name)
 }
 
 /* -------------------------------------------------------------------------- */
-short panels_db_add_new_panel(short manufacturer_index,
+short panels_db_add_new_panel(short manufacturer_id,
                                  const char* name)
 {
     return -1; /* not implemented in this version */
@@ -83,19 +83,45 @@ const char* panels_db_get_manufacturer_name(short index)
 }
 
 /* -------------------------------------------------------------------------- */
-short panels_db_get_panel_count(short manufacturer_index)
+short panels_db_get_panel_count(short manufacturer_id)
 {
     short i;
     short count = 0;
     for(i = 0; i != sizeof(database->panels) / sizeof(*database->panels); ++i)
-        if(*database[manufacturer_index].panels[i].name)
+        if(*database[manufacturer_id].panels[i].name)
             ++count;
     return count;
 }
 
 /* -------------------------------------------------------------------------- */
-const char* panels_db_get_model_name(short manufacturer_index,
-                                        short panel_index)
+const char* panels_db_get_model_name(short manufacturer_id,
+                                        short panel_id)
 {
-    return database[manufacturer_index].panels[panel_index].name;
+    return database[manufacturer_id].panels[panel_id].name;
+}
+
+/* -------------------------------------------------------------------------- */
+short panels_db_get_cell_count(short manufacturer_id,
+                               short panel_id)
+{
+    short i;
+    short count = 0;
+
+    for(i = 0;
+        i != sizeof(database->panels->cells) / sizeof(*database->panels->cells);
+        ++i)
+    {
+        if(database[manufacturer_id].panels[panel_id].cells[i].voc)
+            ++count;
+    }
+
+    return count;
+}
+
+/* -------------------------------------------------------------------------- */
+const struct pv_cell_t* panels_db_get_cell(short manufacturer_id,
+                                           short panel_id,
+                                           short cell_id)
+{
+    return &database[manufacturer_id].panels[panel_id].cells[cell_id];
 }
