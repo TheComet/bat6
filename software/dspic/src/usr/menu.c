@@ -117,7 +117,7 @@ static void handle_item_selection(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-#define reset_selection()                                                 \
+#define reset_selection()                                        \
         menu.navigation.item = (menu.navigation.max ? 0 : -1);   \
         menu.navigation.scroll = 0
 
@@ -298,17 +298,44 @@ static void menu_update(void)
 /* -------------------------------------------------------------------------- */
 static void refresh_measurements(void)
 {
-    /*char line[21];*/
-    /*char buffer[4];*/
+    char line[21], *lineptr;
+    char buffer[4]; /* enough for 2 digits */
+
+    /* because we're lazy programmers */
+#define append_to_line(lineptr, str) do { \
+    const char* ptr = str;                \
+    while(*ptr)                           \
+        *lineptr++ = *ptr++;    }while(0)
 
     _Q16 voltage = buck_get_voltage();
     _Q16 current = buck_get_current();
     _Q16 power   = _Q16mpy(voltage, current);
 
-    /* create string for LCD */
+    lineptr = line;
 
-    /*cat_strings(buffer, 21, x, "V: ", )*/
-    (void)power;
+    /* Add voltage to line */
+    str_nitoa(buffer, 2, voltage >> 16);
+    append_to_line(lineptr, buffer);            /* 3 */
+    append_to_line(lineptr, ".");               /* 4 */
+    str_nitoa(buffer, 2, voltage & 0xFFFF);
+    append_to_line(lineptr, buffer);            /* 6 */
+    append_to_line(lineptr, "V ");              /* 8 */
+
+    /* Add current to line */
+    str_nitoa(buffer, 1, current >> 16);
+    append_to_line(lineptr, buffer);            /* 10 */
+    append_to_line(lineptr, ".");               /* 11 */
+    str_nitoa(buffer, 2, current & 0xFFFF);
+    append_to_line(lineptr, buffer);            /* 13 */
+    append_to_line(lineptr, "A ");              /* 15 */
+
+    /* Add power to line */
+    str_nitoa(buffer, 2, power >> 16);
+    append_to_line(lineptr, buffer);            /* 18 */
+    append_to_line(lineptr, "W");               /* 19 */
+
+    *lineptr = '\0';
+    lcd_writeline(0, line);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -425,6 +452,12 @@ class oled_menu : public Test
 };
 
 /* -------------------------------------------------------------------------- */
+TEST_F(oled_menu, output)
+{
+    refresh_measurements();
+    std::cout << writeline << std::endl;
+}
+
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
     menu.navigation.item = -1;
