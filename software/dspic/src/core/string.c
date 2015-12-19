@@ -87,8 +87,6 @@ void str_nitoa(char* dest, short digits, short number)
     /* add "-" character if it is negative */
     if(is_negative)
         *dest++ = '-';
-    else
-        *dest++ = ' ';
 
     /* copy buffer into destination */
     while(ptr-- != buffer && digits --> 0)
@@ -132,7 +130,7 @@ TEST(string, nitoa_positive_number)
 {
     char s[32];
     str_nitoa(s, 4, 8372);
-    EXPECT_THAT(s, StrEq(" 8372"));
+    EXPECT_THAT(s, StrEq("8372"));
 }
 
 TEST(string, nitoa_negative_number)
