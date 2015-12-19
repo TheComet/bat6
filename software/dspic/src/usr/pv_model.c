@@ -136,17 +136,17 @@ void model_set_open_circuit_voltage(unsigned char cell_id, _Q16 voc)
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_short_circuit_current(unsigned char cell_id, int isc)
+void model_set_short_circuit_current(unsigned char cell_id, _Q16 isc)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_thermal_voltage(unsigned char cell_id, int vt)
+void model_set_thermal_voltage(unsigned char cell_id, _Q16 vt)
 {
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_relative_solar_irridation(unsigned char cell_id, int g)
+void model_set_relative_solar_irridation(unsigned char cell_id, _Q16 g)
 {
 }
 
