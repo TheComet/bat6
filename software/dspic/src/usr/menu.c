@@ -7,74 +7,81 @@
 
 #include "usr/menu.h"
 #include "usr/panels_db.h"
+#include "usr/pv_model.h"
 #include "drv/lcd.h"
 #include "drv/buck.h"
 #include "core/event.h"
+#include "core/string.h"
 
 #include <stddef.h>
-#include <string.h>
-#include <stdarg.h>
 
 typedef enum menu_state_e
 {
     STATE_NAVIGATE_MANUFACTURERS,
     STATE_NAVIGATE_PANELS,
-    STATE_REALTIME
+    STATE_NAVIGATE_GLOBAL_PARAMETERS,
+    STATE_CONTROL_GLOBAL_IRRADIATION,
+    STATE_CONTROL_GLOBAL_TEMPERATURE,
+    STATE_NAVIGATE_PANEL_CELLS,
+    STATE_CONTROL_CELL_IRRADIATION,
+    STATE_CONTROL_CELL_TEMPERATURE
 } menu_state_e;
 
-struct item_t
+struct menu_navigation_t
 {
-    short selected;
     short max;
     short scroll;
-};
-
-struct manufacturer_t
-{
-    short selected;
+    short item;
+    union
+    {
+        short manufacturer;
+    } selected;
 };
 
 struct menu_t
 {
     menu_state_e state;
-    struct item_t item;
-    struct manufacturer_t manufacturer;
+    struct menu_navigation_t navigation;
 };
 
 struct menu_t menu;
 
-static void cat_strings(char* dest, short dest_n, short src_n, ...);
 static void load_menu_manufacturers(void);
 static void handle_menu_switches(unsigned int button);
 static void menu_update(void);
+static void refresh_measurements(void);
 static void on_button(unsigned int button);
 static void on_update(unsigned int arg);
 
+/*
+ * Override some of the external functions used by the menu for unit testing
+ * purposes
+ */
 #ifdef TESTING
 int panels_db_get_manufacturers_count_test();
 int panels_db_get_panel_count_test(int manufacturer);
 const char* panels_db_get_manufacturer_name_test(int manufacturer);
 const char* panels_db_get_model_name_test(int manufacturer, int panel);
 void lcd_writeline_test(int line, const char* str);
-#   define panels_db_get_manufacturers_count \
-            panels_db_get_manufacturers_count_test
-#   define panels_db_get_panel_count \
-            panels_db_get_panel_count_test
-#   define panels_db_get_manufacturer_name \
-            panels_db_get_manufacturer_name_test
-#   define panels_db_get_model_name \
-            panels_db_get_model_name_test
-#   define lcd_writeline \
-            lcd_writeline_test
+#   define panels_db_get_manufacturers_count       \
+           panels_db_get_manufacturers_count_test
+#   define panels_db_get_panel_count               \
+           panels_db_get_panel_count_test
+#   define panels_db_get_manufacturer_name         \
+           panels_db_get_manufacturer_name_test
+#   define panels_db_get_model_name                \
+           panels_db_get_model_name_test
+#   define lcd_writeline                           \
+           lcd_writeline_test
 #endif
 
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
-    menu.item.selected = -1;
-    menu.item.max = 0;
-    menu.item.scroll = 0;
-    menu.manufacturer.selected = -1;
+    menu.navigation.item = -1;
+    menu.navigation.max = 0;
+    menu.navigation.scroll = 0;
+    menu.navigation.selected.manufacturer = -1;
 
     load_menu_manufacturers();
     menu_update();
@@ -85,37 +92,39 @@ void menu_init(void)
 /* -------------------------------------------------------------------------- */
 static void handle_item_selection(unsigned int button)
 {
-    if(menu.item.selected == -1)
+    if(menu.navigation.item == -1)
         return;
 
     if(button == BUTTON_TWISTED_LEFT)
     {
-        if(menu.item.selected != 0)
-            --menu.item.selected;
+        if(menu.navigation.item != 0)
+            --menu.navigation.item;
 
-        if(menu.item.selected < menu.item.scroll)
-            --menu.item.scroll;
+        if(menu.navigation.item < menu.navigation.scroll)
+            --menu.navigation.scroll;
+
+        return;
     }
 
     if(button == BUTTON_TWISTED_RIGHT)
     {
-        if(menu.item.selected != menu.item.max - 1)
-            ++menu.item.selected;
+        if(menu.navigation.item != menu.navigation.max - 1)
+            ++menu.navigation.item;
 
-        if(menu.item.selected - menu.item.scroll >= 4)
-            ++menu.item.scroll;
+        if(menu.navigation.item - menu.navigation.scroll >= 4)
+            ++menu.navigation.scroll;
     }
 }
 
 /* -------------------------------------------------------------------------- */
-#define reset_selection()                                \
-        menu.item.selected = (menu.item.max ? 0 : -1);   \
-        menu.item.scroll = 0
+#define reset_selection()                                                 \
+        menu.navigation.item = (menu.navigation.max ? 0 : -1);   \
+        menu.navigation.scroll = 0
 
 static void load_menu_manufacturers(void)
 {
     /* set selection */
-    menu.item.max = panels_db_get_manufacturers_count();
+    menu.navigation.max = panels_db_get_manufacturers_count();
     reset_selection();
 
     /* write menu title to LCD */
@@ -127,28 +136,36 @@ static void load_menu_manufacturers(void)
 /* -------------------------------------------------------------------------- */
 static void handle_menu_switches(unsigned int button)
 {
+    /* go back to manufacturers menu at any point */
+    if(button == BUTTON_PRESSED_LONGER)
+    {
+        event_unregister_listener(EVENT_UPDATE, on_update);
+        load_menu_manufacturers();
+        return;
+    }
+
     switch(menu.state)
     {
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
-            if(button == BUTTON_RELEASED && menu.item.selected != -1)
+            if(button == BUTTON_RELEASED && menu.navigation.item != -1)
             {
                 /* abort if there are no panels */
-                short panels = panels_db_get_panel_count(menu.item.selected);
+                short panels = panels_db_get_panel_count(menu.navigation.item);
                 if(!panels)
                     break;
 
                 /* select current item as selected manufacturer */
-                menu.manufacturer.selected = menu.item.selected;
-                menu.item.max = panels;
+                menu.navigation.selected.manufacturer = menu.navigation.item;
+                menu.navigation.max = panels;
                 reset_selection();
 
                 /* write menu title to LCD */
                 {   char buffer[21];
                     const char* menu_title = panels_db_get_manufacturer_name(
-                            menu.manufacturer.selected);
-                    cat_strings(buffer, 21, 3, "[", menu_title, "]");
+                            menu.navigation.selected.manufacturer);
+                    str_nstrcat(buffer, 21, 3, "[", menu_title, "]");
                     lcd_writeline(0, buffer);
                 }
 
@@ -159,53 +176,78 @@ static void handle_menu_switches(unsigned int button)
 
         case STATE_NAVIGATE_PANELS :
 
-            /* activate model and switch to real-time */
+            /* activate model */
             if(button == BUTTON_RELEASED)
             {
+                short i;
+
+                /* disable buck for this process */
+                buck_disable();
+
+                /* clear existing cells */
+                model_cell_remove_all();
+
+                /*
+                 * Copy parameters for each cell in the db and add them to a
+                 * new cell in the active model
+                 */
+                for(i = 0;
+                    i != panels_db_get_cell_count(
+                            menu.navigation.selected.manufacturer,
+                            menu.navigation.item);
+                    ++i)
+                {
+                    const struct pv_cell_t* cell = panels_db_get_cell(
+                            menu.navigation.selected.manufacturer,
+                            menu.navigation.item,
+                            i);
+                    unsigned char cell_id = model_cell_add();
+                    model_set_open_circuit_voltage(cell_id, cell->voc);
+                    model_set_short_circuit_current(cell_id, cell->isc);
+                    model_set_thermal_voltage(cell_id, cell->vt);
+                    model_set_relative_solar_irridation(cell_id, cell->g);
+                }
+
+                /* buck can now be enabled */
+                buck_enable();
+
+                /* set up real time measurements */
                 event_register_listener(EVENT_UPDATE, on_update);
-                menu.state = STATE_REALTIME;
+                refresh_measurements();
+
+                menu.state = STATE_CONTROL_GLOBAL_IRRADIATION;
             }
 
             /* Switch back to manufacturer selection */
             if(button == BUTTON_PRESSED_LONGER)
             {
-                menu.item.max = panels_db_get_manufacturers_count();
+                menu.navigation.max = panels_db_get_manufacturers_count();
                 reset_selection();
                 menu.state = STATE_NAVIGATE_MANUFACTURERS;
             }
 
             break;
 
-        case STATE_REALTIME:
+        case STATE_NAVIGATE_GLOBAL_PARAMETERS:
+            break;
 
-            /* go back to manufacturers menu */
-            if(button == BUTTON_PRESSED_LONGER)
-                load_menu_manufacturers();
+        case STATE_CONTROL_GLOBAL_IRRADIATION:
+            break;
 
+        case STATE_CONTROL_GLOBAL_TEMPERATURE:
+            break;
+
+        case STATE_NAVIGATE_PANEL_CELLS:
+            break;
+
+        case STATE_CONTROL_CELL_IRRADIATION:
+            break;
+
+        case STATE_CONTROL_CELL_TEMPERATURE:
             break;
 
         default: break;
     }
-}
-
-/* -------------------------------------------------------------------------- */
-static void cat_strings(char* dest, short dest_n, short src_n, ...)
-{
-    va_list ap;
-    short i;
-
-    --dest_n; /* reserve space for null terminator */
-
-    va_start(ap, src_n);
-        for(i = 0; i != src_n; ++i)
-        {
-            const char* str = va_arg(ap, char*);
-            while(*str && dest_n --> 0)
-                *dest++ = *str++;
-        }
-    va_end(ap);
-
-    *dest = '\0';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -216,18 +258,18 @@ static void menu_update(void)
 
     for(i = 0; i != 3; ++i)
     {
-        short current_item = i + menu.item.scroll;
+        short current_item = i + menu.navigation.scroll;
         const char* selection;
         const char* item = NULL;
 
         /* set selection string */
-        if(current_item == menu.item.selected)
+        if(current_item == menu.navigation.item)
             selection = "> ";
         else
             selection = "  ";
 
         /* get item to append */
-        if(current_item < menu.item.max)
+        if(current_item < menu.navigation.max)
         {
             switch(menu.state)
             {
@@ -237,10 +279,9 @@ static void menu_update(void)
 
                 case STATE_NAVIGATE_PANELS :
                     item = panels_db_get_model_name(
-                            menu.manufacturer.selected, current_item);
+                            menu.navigation.selected.manufacturer, current_item);
                     break;
 
-                case STATE_REALTIME:
                 default:
                     break;
             }
@@ -249,19 +290,24 @@ static void menu_update(void)
         }
 
         /* concatenate and write to LCD */
-        cat_strings(buffer, 20, 2, selection, item);
+        str_nstrcat(buffer, 20, 2, selection, item);
         lcd_writeline(i + 1, buffer);
     }
 }
 
 /* -------------------------------------------------------------------------- */
-static void update_realtime_values(void)
+static void refresh_measurements(void)
 {
+    /*char line[21];*/
+    /*char buffer[4];*/
+
     _Q16 voltage = buck_get_voltage();
     _Q16 current = buck_get_current();
     _Q16 power   = _Q16mpy(voltage, current);
 
-    /* TODO */
+    /* create string for LCD */
+
+    /*cat_strings(buffer, 21, x, "V: ", )*/
     (void)power;
 }
 
@@ -280,7 +326,7 @@ static void on_update(unsigned int arg)
     if(counter-- == 0)
     {
         counter = 50;
-        update_realtime_values();
+        refresh_measurements();
     }
 }
 
@@ -379,114 +425,107 @@ class oled_menu : public Test
 };
 
 /* -------------------------------------------------------------------------- */
-TEST_F(oled_menu, cat_strings)
-{
-    char buffer[10];
-    cat_strings(buffer, 10, 4, "This ", "is ", "a ", "test");
-    EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
-}
-
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
-    menu.item.selected = -1;
-    menu.item.max = 0;
-    menu.item.scroll = 0;
+    menu.navigation.item = -1;
+    menu.navigation.max = 0;
+    menu.navigation.scroll = 0;
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(-1));
-    EXPECT_THAT(menu.item.max, Eq(0));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(-1));
+    EXPECT_THAT(menu.navigation.max, Eq(0));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, twisting_left_with_no_items_does_nothing)
 {
-    menu.item.selected = -1;
-    menu.item.max = 0;
-    menu.item.scroll = 0;
+    menu.navigation.item = -1;
+    menu.navigation.max = 0;
+    menu.navigation.scroll = 0;
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(-1));
-    EXPECT_THAT(menu.item.max, Eq(0));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(-1));
+    EXPECT_THAT(menu.navigation.max, Eq(0));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, item_selection_right_clamps_correctly)
 {
-    menu.item.selected = 0;
-    menu.item.max = 5;
-    menu.item.scroll = 0;
+    menu.navigation.item = 0;
+    menu.navigation.max = 5;
+    menu.navigation.scroll = 0;
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(1));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(1));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(2));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(2));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(3));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(3));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(4));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.item, Eq(4));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
-    EXPECT_THAT(menu.item.selected, Eq(4));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.item, Eq(4));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, item_selection_left_clamps_correctly)
 {
-    menu.item.selected = 4;
-    menu.item.max = 5;
-    menu.item.scroll = 1;
+    menu.navigation.item = 4;
+    menu.navigation.max = 5;
+    menu.navigation.scroll = 1;
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(3));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.item, Eq(3));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(2));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.item, Eq(2));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(1));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.item, Eq(1));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(0));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(0));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
-    EXPECT_THAT(menu.item.selected, Eq(0));
-    EXPECT_THAT(menu.item.max, Eq(5));
-    EXPECT_THAT(menu.item.scroll, Eq(0));
+    EXPECT_THAT(menu.navigation.item, Eq(0));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 {
-    menu.item.selected = menu.item.max - 1; // selects last item (which has a submenu with no items)
+    menu.navigation.item = menu.navigation.max - 1; // selects last item (which has a submenu with no items)
     press_button();
 
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));

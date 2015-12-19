@@ -10,7 +10,7 @@
 #include "core/event.h"
 #include <stdlib.h>
 
-#define TIME_THRESHOLD_IN_MILLISECONDS 800
+#define TIME_THRESHOLD_IN_MILLISECONDS 600
 
 #define TIME_THRESHOLD \
     TIME_THRESHOLD_IN_MILLISECONDS / 10
