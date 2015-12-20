@@ -784,7 +784,7 @@ TEST_F(oled_menu, go_from_cell_selection_into_cell_parameter_selection)
     twist_button_right(); /* select cell 1 */
 
     press_button();
-    EXPECT_THAT(oled_menu, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
 }
 
 TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_manufacturer_menu)
@@ -799,9 +799,29 @@ TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_manufacturer_menu)
     press_button();       /* go into cell parameters */
 
     press_button_longer();
-    EXPECT_THAT(oled.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
-TEST_F(oled_menu, go_back_from_cell_parameter_selection)
+TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_call_selection)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();       /* go into cell selection */
+    twist_button_right(); /* select cell 1 */
+    press_button();       /* go into cell parameters */
+
+    twist_button_right(); /* select temperature */
+    twist_button_right(); /* select "go back" */
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANEL_CELLS));
+}
+
+TEST_F(oled_menu, )
+{
+
+}
 
 #endif /* TESTING */
