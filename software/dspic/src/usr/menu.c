@@ -3,6 +3,74 @@
  * @author Alex Murray
  *
  * Created on 17 November 2015, 20:29
+ *
+ * Entire menu structure is listed here.
+ * + Manufacturer Menu
+ *   - Manufacturer 1                    STATE_NAVIGATE_MANUFACTURERS
+ *   - Manufacturer 2                    ...
+ *   + Manufacturer 3                    ...
+ *     - Panel 1                         STATE_NAVIGATE_PANELS
+ *     - Panel 2                         ...
+ *     + Panel 3                         ...
+ *       + Irradiation                   STATE_NAVIGATE_GLOBAL_PARAMETERS
+ *         - 100%                        STATE_CONTROL_GLOBAL_IRRADIATION
+ *       + Temperature                   STATE_NAVIGATE_GLOBAL_PARAMETERS
+ *         - 20.0°                       STATE_CONTROL_GLOBAL_TEMPERATURE
+ *       + Individual Cells              STATE_NAVIGATE_GLOBAL_PARAMETERS
+ *         - Go back                     STATE_NAVIGATE_PANEL_CELLS
+ *         - Cell 1                      ...
+ *         - Cell 2                      ...
+ *         + Cell 3                      ...
+ *           + Irradiation               STATE_NAVIGATE_CELL_PARAMETERS
+ *             - 100%                    STATE_CONTROL_CELL_IRRADIATION
+ *           + Temperature               STATE_NAVIGATE_CELL_PARAMETERS
+ *             - 20.0°                   STATE_CONTROL_CELL_TEMPERATURE
+ *           - Global Parameters         STATE_NAVIGATE_CELL_PARAMETERS
+ *
+ * STATE_NAVIGATE_MANUFACTURERS lists all manufacturers. Selecting an item in
+ * this menu brings you to the manufacturer's panel selection menu and
+ * switches state to STATE_NAVIGATE_PANELS.
+ *   [Manufacturers]
+ * > Manufacturer 1
+ *   Manufacturer 2
+ *   Manufacturer 3
+ *
+ * STATE_NAVIGATE_PANELS lists all panels from a selected manufacturer.
+ * Selecting an item in this menu activates the panel's model and switches
+ * state to STATE_CONTROL_GLOBAL_IRRADIATION.
+ *   [Manufacturer Name]
+ * > Panel 1
+ *   Panel 2
+ *   Panel 3
+ *
+ * STATE_NAVIGATE_GLOBAL_PARAMETERS lists the global parameters of the model
+ * that can be changed.
+ *   14.3V 1.0A 14.3W
+ * > Irradiation             Selecting this -> STATE_CONTROL_GLOBAL_IRRADIATION
+ *   Temperature             Selecting this -> STATE_CONTROL_GLOBAL_TEMPERATURE
+ *   Individual Cells        Selecting this -> STATE_NAVIGATE_PANEL_CELLS
+ *
+ * STATE_CONTROL_GLOBAL_IRRADIATION modifies the irradiation of all cells
+ * equally.
+ * STATE_CONTROL_GLOBAL_TEMPERATURE modifies the temperature of all cells
+ * equally.
+ *
+ * STATE_NAVIGATE_PANEL_CELLS lists the model's cells for selection. Selecting
+ * a cell switches state to STATE_NAVIGATE_CELL_PARAMETERS.
+ *   14.3V 1.0A 14.3W
+ * > Go back                 Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
+ *   Cell 1                  Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
+ *   Cell 2
+ *
+ * STATE_NAVIGATE_CELL_PARAMETERS lists the selected cell's parameters that
+ * can be changed.
+ *   14.3V 1.0A 14.3W
+ * > Irradiation             Selecting this -> STATE_CONTROL_CELL_IRRADIATION
+ *   Temperature             Selecting this -> STATE_CONTROL_CELL_TEMPERATURE
+ *   Go back                 Selecting this -> STATE_NAVIGATE_PANEL_CELLS
+ *
+ * STATE_CONTROL_CELL_IRRADIATION
+ * STATE_CONTROL_CELL_TEMPERATURE
  */
 
 #include "usr/menu.h"
@@ -23,10 +91,10 @@ typedef enum menu_state_e
     STATE_NAVIGATE_MANUFACTURERS,
     STATE_NAVIGATE_PANELS,
     STATE_NAVIGATE_GLOBAL_PARAMETERS,
-    STATE_NAVIGATE_PANEL_PARAMETERS,
     STATE_CONTROL_GLOBAL_IRRADIATION,
     STATE_CONTROL_GLOBAL_TEMPERATURE,
     STATE_NAVIGATE_PANEL_CELLS,
+    STATE_NAVIGATE_CELL_PARAMETERS,
     STATE_CONTROL_CELL_IRRADIATION,
     STATE_CONTROL_CELL_TEMPERATURE
 } menu_state_e;
@@ -272,26 +340,25 @@ static void menu_update(void)
         else
             selection = "  ";
 
-        /* get item to append */
-        if(current_item < menu.navigation.max)
+        /* get item string */
+        switch(menu.state)
         {
-            switch(menu.state)
-            {
-                case STATE_NAVIGATE_MANUFACTURERS :
-                    item = panels_db_get_manufacturer_name(current_item);
-                    break;
+            case STATE_NAVIGATE_MANUFACTURERS :
+                item = panels_db_get_manufacturer_name(current_item);
+                break;
 
-                case STATE_NAVIGATE_PANELS :
-                    item = panels_db_get_model_name(
-                            menu.navigation.selected.manufacturer, current_item);
-                    break;
+            case STATE_NAVIGATE_PANELS :
+                item = panels_db_get_model_name(
+                        menu.navigation.selected.manufacturer, current_item);
+                break;
 
-                default:
-                    break;
-            }
-        } else {
-            item = "";
+            default:
+                break;
         }
+
+        /* was item found? */
+        if(item == NULL)
+            continue;
 
         /* concatenate and write to LCD */
         str_nstrcat(buffer, 20, 2, selection, item);
@@ -692,5 +759,49 @@ TEST_F(oled_menu, go_back_from_cell_selection_to_manufacturer_menu)
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
+
+TEST_F(oled_menu, go_back_from_cell_selection_to_global_parameter_selection)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();       /* go into cell selection */
+
+    press_button(); /* top item in menu should be "go back" */
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_from_cell_selection_into_cell_parameter_selection)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();       /* go into cell selection */
+    twist_button_right(); /* select cell 1 */
+
+    press_button();
+    EXPECT_THAT(oled_menu, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_manufacturer_menu)
+{
+    press_button(); /* gets us to panels */
+    press_button(); /* gets us to global irradiation */
+    press_button(); /* gets us to global parameters */
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();       /* go into cell selection */
+    twist_button_right(); /* select cell 1 */
+    press_button();       /* go into cell parameters */
+
+    press_button_longer();
+    EXPECT_THAT(oled.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_back_from_cell_parameter_selection)
 
 #endif /* TESTING */
