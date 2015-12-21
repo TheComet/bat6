@@ -23,7 +23,9 @@ void uart_init(void);
  * @param len The length of the array. If you are sending a string, you do not
  * need to include the null terminator (strlen() returns the correct value).
  */
-void uart_send(const unsigned char* byte, unsigned short len);
+/*void uart_send(const unsigned char* byte, unsigned short len);*/
+void uart_send(const char* str);
+
 
 #ifdef	__cplusplus
 }
