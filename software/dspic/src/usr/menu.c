@@ -432,15 +432,17 @@ static void on_update(unsigned int arg)
 /* Unit Tests */
 /* -------------------------------------------------------------------------- */
 
+#define TESTING
 #ifdef TESTING
+#error fuck you
 
 #include "gmock/gmock.h"
 
 using namespace ::testing;
 
+/* -------------------------------------------------------------------------- */
+/* set up a DB that we can control for testing */
 std::vector<std::pair<std::string, std::vector<std::string> > > manufacturers;
-std::string writeline;
-
 int panels_db_get_manufacturers_count_test() {
     return manufacturers.size();
 }
@@ -453,6 +455,10 @@ const char* panels_db_get_manufacturer_name_test(int manufacturer) {
 const char* panels_db_get_model_name_test(int manufacturer, int panel) {
     return manufacturers[manufacturer].second[panel].c_str();
 }
+
+/* -------------------------------------------------------------------------- */
+/* adds all lines written to the LCD to a string instead */
+std::string writeline;
 void lcd_writeline_test(int line, const char* str)
 {
     char buf[sizeof(int)*8+1];
@@ -460,28 +466,68 @@ void lcd_writeline_test(int line, const char* str)
     writeline.append(std::string(buf) + ": " + str + "\n");
 }
 
-static void twist_button_left()
+/* -------------------------------------------------------------------------- */
+/* easier button control */
+static void twist_button_left() { on_button(BUTTON_TWISTED_LEFT); }
+static void twist_button_right() { on_button(BUTTON_TWISTED_RIGHT); }
+static void press_button() { on_button(BUTTON_PRESSED); on_button(BUTTON_RELEASED); }
+static void press_button_longer() { on_button(BUTTON_PRESSED_LONGER); }
+
+/* -------------------------------------------------------------------------- */
+/* These functions help navigate the menu more easily */
+static void navigate_to_panel_selection()
 {
-    on_button(BUTTON_TWISTED_LEFT);
+    press_button();
 }
 
-static void twist_button_right()
+static void navigate_to_global_irradiation()
 {
-    on_button(BUTTON_TWISTED_RIGHT);
+    navigate_to_panel_selection();
+    press_button();
 }
 
-static void press_button()
+static void navigate_to_global_parameter_selection()
 {
-    on_button(BUTTON_PRESSED);
-    on_button(BUTTON_RELEASED);
+    navigate_to_global_irradiation();
+    press_button();
 }
 
-static void press_button_longer()
+static void navigate_to_global_temperature()
 {
-    on_button(BUTTON_PRESSED_LONGER);
+    navigate_to_global_parameter_selection();
+    twist_button_right();
+    press_button();
+}
+
+static void navigate_to_cell_selection()
+{
+    navigate_to_global_parameter_selection();
+    twist_button_right(); /* select global temperature */
+    twist_button_right(); /* select individual cells */
+    press_button();
+}
+
+static void navigate_to_cell_parameters()
+{
+    navigate_to_cell_selection();
+    press_button();
+}
+
+static void navigate_to_cell_irradiation()
+{
+    navigate_to_cell_parameters();
+    press_button();
+}
+
+static void navigate_to_cell_temperature()
+{
+    navigate_to_cell_parameters();
+    twist_button_right();
+    press_button();
 }
 
 /* -------------------------------------------------------------------------- */
+/* Test fixture */
 class oled_menu : public Test
 {
     virtual void SetUp()
@@ -649,63 +695,49 @@ TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 
 TEST_F(oled_menu, go_back_from_panel_menu_to_manufacturer_menu)
 {
-    press_button();
-    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANELS));
+    navigate_to_panel_selection();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_from_panel_menu_into_controlling_global_irradiation)
 {
-    press_button();
+    navigate_to_panel_selection();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_IRRADIATION));
 }
 
 TEST_F(oled_menu, go_back_from_controlling_global_irradiation_to_manufacturer_menu)
 {
-    press_button();
-    press_button();
-
+    navigate_to_global_irradiation();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_from_controlling_global_irradiation_to_selecting_global_parameters)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-
+    navigate_to_global_irradiation();
     press_button(); /* should get us to selecting global parameters */
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
 }
 
 TEST_F(oled_menu, go_back_from_selecting_global_parameters_to_manufacturer_menu)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-
+    navigate_to_global_parameter_selection();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_irradiation)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-
+    navigate_to_global_parameter_selection();
     press_button(); /* go back to global irradiation */
     EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_IRRADIATION));
 }
 
 TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_temperature)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-
+    navigate_to_global_parameter_selection();
     twist_button_right(); /* select global temperature */
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_TEMPERATURE));
@@ -713,106 +745,56 @@ TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_temperature)
 
 TEST_F(oled_menu, go_back_from_global_temperature_to_manufacturer_menu)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    press_button();
-
+    navigate_to_global_parameter_selection();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_back_from_global_temperature_to_global_parameters)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    press_button();
-
+    navigate_to_global_temperature();
     press_button(); /* should go back to global parameters */
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
 }
 
 TEST_F(oled_menu, go_from_global_parameters_to_cell_selection)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-
+    navigate_to_global_parameter_selection();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANEL_CELLS));
 }
 
 TEST_F(oled_menu, go_back_from_cell_selection_to_manufacturer_menu)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-    press_button();       /* go into cell selection */
-
+    navigate_to_cell_selection();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_back_from_cell_selection_to_global_parameter_selection)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-    press_button();       /* go into cell selection */
-
+    navigate_to_cell_selection();
     press_button(); /* top item in menu should be "go back" */
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
 }
 
 TEST_F(oled_menu, go_from_cell_selection_into_cell_parameter_selection)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-    press_button();       /* go into cell selection */
-    twist_button_right(); /* select cell 1 */
-
+    navigate_to_cell_selection();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
 }
 
 TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_manufacturer_menu)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-    press_button();       /* go into cell selection */
-    twist_button_right(); /* select cell 1 */
-    press_button();       /* go into cell parameters */
-
+    navigate_to_cell_parameters();
     press_button_longer();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_call_selection)
 {
-    press_button(); /* gets us to panels */
-    press_button(); /* gets us to global irradiation */
-    press_button(); /* gets us to global parameters */
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-    press_button();       /* go into cell selection */
-    twist_button_right(); /* select cell 1 */
-    press_button();       /* go into cell parameters */
-
+    navigate_to_cell_parameters();
     twist_button_right(); /* select temperature */
     twist_button_right(); /* select "go back" */
     press_button();
