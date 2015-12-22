@@ -48,7 +48,7 @@ char* str_nstrcat(char* dest, short dest_n, short src_n, ...)
 char* str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
 {
     --n; /* reserve space for null terminator */
-    while(*s1 && n--)
+    while(*s1 && n --> 0)
         *dest++ = *s1++;
     while(*s2 && n --> 0)
         *dest++ = *s2++;
@@ -60,9 +60,9 @@ char* str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
 char* str_append(char* dest, short n, const char* src)
 {
     --n; /* null terminator is always written */
-    while(*dest && n--)
+    while(*dest && n --> 0)
         ++dest;
-    while(*src && n--)
+    while(*src && n --> 0)
         *dest++ = *src++;
     *dest = '\0';
     return dest;
@@ -73,6 +73,8 @@ char* str_nitoa(char* dest, short digits, short number)
 {
     char buffer[5], *ptr; /* enough to hold a short without null terminator */
     unsigned char is_negative = 0;
+
+    --digits; /* always have space for null terminator */
 
     /* handle 0 explicitly */
     if(number == 0)
@@ -100,7 +102,10 @@ char* str_nitoa(char* dest, short digits, short number)
 
     /* add "-" character if it is negative */
     if(is_negative)
+    {
         *dest++ = '-';
+        --digits;
+    }
 
     /* copy buffer into destination */
     while(ptr-- != buffer && digits --> 0)
@@ -124,11 +129,11 @@ char* str_q16itoa(char* dest, short n, _Q16 value)
     n -= ptr - dest;
 
     /* not enough space for decimal point and at least one number? */
-    if(n < 1)
+    if(n < 2)
         return ptr;
 
     *ptr++ = '.'; *ptr = '\0';
-    return str_nitoa(ptr, n, after_decimal);
+    return str_nitoa(ptr, n - 1, after_decimal);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -221,28 +226,28 @@ TEST(string, append_string_with_smaller_target_buffer)
 TEST(string, nitoa_positive_number)
 {
     char s[32];
-    str_nitoa(s, 4, 8372);
+    str_nitoa(s, 5, 8372);
     EXPECT_THAT(s, StrEq("8372"));
 }
 
 TEST(string, nitoa_negative_number)
 {
     char s[32];
-    str_nitoa(s, 4, -4837);
+    str_nitoa(s, 6, -4837);
     EXPECT_THAT(s, StrEq("-4837"));
 }
 
 TEST(string, nitoa_zero)
 {
     char s[32];
-    str_nitoa(s, 5, 0);
+    str_nitoa(s, 2, 0);
     EXPECT_THAT(s, StrEq("0"));
 }
 
 TEST(string, nitoa_smaller_target_buffer)
 {
     char s[32];
-    str_nitoa(s, 2, -18478);
+    str_nitoa(s, 4, -18478);
     EXPECT_THAT(s, StrEq("-18"));
 }
 
@@ -250,7 +255,7 @@ TEST(string, Q16itoa)
 {
     char s[32];
     _Q16 value = (_Q16)(float)(11.5 * 65536);
-    char* ret = str_q16itoa(s, 3, value);
+    char* ret = str_q16itoa(s, 5, value);
     ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(s, StrEq("11.5"));
 }
