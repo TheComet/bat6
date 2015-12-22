@@ -244,7 +244,7 @@ static short convert_unit(_Q16 input)
 {
     return (short)((input >> 16));
 }
- 
+
 /* -------------------------------------------------------------------------- */
 
 static short get_cell_voltage(unsigned char cell_id)
@@ -264,7 +264,7 @@ static short get_cell_exposure(unsigned char cell_id)
 
 static short get_cell_temperature(unsigned char cell_id)
 {
-    return convert_unit(model_get_relative_solar_irradiation(cell_id));   
+    return convert_unit(model_get_relative_solar_irradiation(cell_id));
 }
 
 static void send_cell_config(unsigned char cell_id)
@@ -297,12 +297,12 @@ static void send_measurements(void)
 {
     char buffer_str[7];
     short buffer_num;
-    
+
     buffer_num = convert_milli(buck_get_voltage());
     str_nitoa(buffer_str, VOLTAGE_LENGTH, buffer_num);
     uart_send("U");
     uart_send(buffer_str);
-    
+
     buffer_num = convert_milli(buck_get_current());
     str_nitoa(buffer_str, CURRENT_LENGTH, buffer_num);
     uart_send("I");
@@ -366,7 +366,7 @@ static void process_incoming_data(unsigned int data)
                 case 'I':
                     state_data.config_cell.was_digit = 0;
                     state_data.config_cell.param.current = 0;
-   
+
                     state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
                     break;
 
@@ -449,8 +449,8 @@ static void process_incoming_data(unsigned int data)
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 temperature = state_data.config_cell.param.temperature / 10 
-                    * (((unsigned long)2)<<16) 
+                _Q16 temperature = state_data.config_cell.param.temperature / 10
+                    * (((unsigned long)2)<<16)
                     | state_data.config_cell.param.temperature % 10;
                 model_set_thermal_voltage(
                     state_data.config_cell.selected_cell,
@@ -473,7 +473,7 @@ static void process_incoming_data(unsigned int data)
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 exposure = state_data.config_cell.param.exposure 
+                _Q16 exposure = state_data.config_cell.param.exposure
                     * (((unsigned long)2)<<16);
                 model_set_relative_solar_irradiation(
                     state_data.config_cell.selected_cell,
@@ -485,7 +485,7 @@ static void process_incoming_data(unsigned int data)
                 state = STATE_AWAIT_CELL_CONFIG;
             }
             break;
-            
+
         case STATE_REMOVE_CELL:
             if (is_number(data))
             {
@@ -516,11 +516,11 @@ static void process_incoming_data(unsigned int data)
                 state = STATE_IDLE;
             }
             break;
-            
+
         case STATE_ADD_CELL:
             /* First, create a new cell and get its ID */
             state_data.config_cell.selected_cell = model_cell_add();
-            /* 
+            /*
              * After that, we set default values for all its properties.
              * In case of an additional user-provided config, this is redundant,
              * but it keeps the state machine simpler and ensures that when
@@ -538,13 +538,13 @@ static void process_incoming_data(unsigned int data)
             model_set_relative_solar_irradiation(
                 state_data.config_cell.selected_cell,
                 DEFAULT_EXPOSURE);
-            /* 
+            /*
              * If user has provided a list of config properties, they will be
              * they will be configured from the following state, as usual:
              */
             state = STATE_AWAIT_CELL_CONFIG;
             break;
-            
+
         case STATE_GET_CONFIG_DUMP:
             uart_send("d");
             for (
@@ -557,13 +557,13 @@ static void process_incoming_data(unsigned int data)
             }
             state = STATE_IDLE;
             break;
-            
+
         case STATE_GET_MEASUREMENTS:
             uart_send("m");
             send_measurements();
             state = STATE_IDLE;
             break;
-            
+
         default:
             state = STATE_IDLE;
             break;
@@ -577,27 +577,27 @@ static void send_update_to_frontend(unsigned int arg)
      * When a value for a cell's configuration has been changed on the
      * device itself via the device's menu, that information is sent to
      * the front-end.
-     * 
+     *
      * arg has the following structure:
-     * 
+     *
      * 0000'ETIU xxxx xxxx
      *           |_______|
-     *               n      
+     *               n
      *
      * E: Exposure changed
      * T: Temperature changed
      * I: Short-circuit current changed
      * U: Open-circuit voltage changed
-     * 
+     *
      * n: cell ID for which said value has changed
-     * 
+     *
      */
     unsigned char cell_id = (arg & 0xFF);
     char buffer[UPDATE_BUFFER_LENGTH];
     *buffer='\0';
-    
+
     str_append(buffer, UPDATE_BUFFER_LENGTH, "dc");
-       
+
     char numerical_buffer_str[BUFFER_LENGTH];
 
     if (arg & 0x0100) {
@@ -622,7 +622,7 @@ static void send_update_to_frontend(unsigned int arg)
         str_append(buffer, UPDATE_BUFFER_LENGTH, numerical_buffer_str);
     } else
         return
-    
+
     uart_send(buffer);
 }
 
@@ -747,22 +747,20 @@ static void tx_send_update_send_all()
 }
 
 /* -------------------------------------------------------------------------- */
-TEST_F(uart_rx_fss, selected_cell_and_param_is_reset_correctly_when_switching_to_STATE_SELECT_CELL)
+TEST_F(uart_rx_fss, selected_cell_is_reset_correctly_when_switching_to_STATE_SELECT_CELL)
 {
     /* set some garbage values */
-    state_data.config_cell.param = 88;
     state_data.config_cell.selected_cell = 5;
 
-    sendString("m");
+    sendString("c");
 
     EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
-    EXPECT_THAT(state_data.config_cell.param, Eq((unsigned int)0));
     EXPECT_THAT(state_data.config_cell.selected_cell, Eq((unsigned int)0));
 }
 
 TEST_F(uart_rx_fss, cell_is_correctly_selected)
 {
-    sendString("m2");
+    sendString("c2");
 
     EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
     EXPECT_THAT(state_data.config_cell.selected_cell, Eq(2));
@@ -770,7 +768,7 @@ TEST_F(uart_rx_fss, cell_is_correctly_selected)
 
 TEST_F(uart_rx_fss, cell_with_multiple_digits_is_correctly_selected)
 {
-    sendString("m195");
+    sendString("c195");
 
     EXPECT_THAT(state, Eq(STATE_SELECT_CELL));
     EXPECT_THAT(state_data.config_cell.selected_cell, Eq(195));
@@ -778,7 +776,7 @@ TEST_F(uart_rx_fss, cell_with_multiple_digits_is_correctly_selected)
 
 TEST_F(uart_rx_fss, abort_cell_selection_if_no_number_is_sent)
 {
-    sendString("ma");
+    sendString("ca");
 
     EXPECT_THAT(state, Eq(STATE_IDLE));
 }
