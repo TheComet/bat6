@@ -284,7 +284,7 @@ static void handle_menu_switches(unsigned int button)
                     model_set_open_circuit_voltage(cell_id, cell->voc);
                     model_set_short_circuit_current(cell_id, cell->isc);
                     model_set_thermal_voltage(cell_id, cell->vt);
-                    model_set_relative_solar_irridation(cell_id, cell->g);
+                    model_set_relative_solar_irradiation(cell_id, cell->g);
                 }
 
                 /* buck can now be enabled */
