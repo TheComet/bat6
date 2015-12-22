@@ -133,16 +133,22 @@ static void on_update(unsigned int arg);
 int panels_db_get_manufacturers_count_test();
 int panels_db_get_panel_count_test(int manufacturer);
 const char* panels_db_get_manufacturer_name_test(int manufacturer);
-const char* panels_db_get_model_name_test(int manufacturer, int panel);
+const char* panels_db_get_panel_name_test(int manufacturer, int panel);
 void lcd_writeline_test(int line, const char* str);
+int panels_db_get_cell_count_test(int manufacturer, int panel);
+const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell);
 #   define panels_db_get_manufacturers_count       \
            panels_db_get_manufacturers_count_test
 #   define panels_db_get_panel_count               \
            panels_db_get_panel_count_test
 #   define panels_db_get_manufacturer_name         \
            panels_db_get_manufacturer_name_test
-#   define panels_db_get_model_name                \
-           panels_db_get_model_name_test
+#   define panels_db_get_panel_name                \
+           panels_db_get_panel_name_test
+#   define panels_db_get_cell_count                \
+           panels_db_get_cell_count_test
+#   define panels_db_get_cell                      \
+           panels_db_get_cell_test
 #   define lcd_writeline                           \
            lcd_writeline_test
 #endif
@@ -392,7 +398,7 @@ static void menu_update(void)
 
             case STATE_NAVIGATE_PANELS : {
                 const char* panel;
-                if(!(panel = panels_db_get_model_name(
+                if(!(panel = panels_db_get_panel_name(
                         menu.navigation.selected.manufacturer, current_item)))
                     break;
                 str_append(buffer, 21, panel);
@@ -509,8 +515,18 @@ int panels_db_get_panel_count_test(int manufacturer) {
 const char* panels_db_get_manufacturer_name_test(int manufacturer) {
     return manufacturers[manufacturer].first.c_str();
 }
-const char* panels_db_get_model_name_test(int manufacturer, int panel) {
+const char* panels_db_get_panel_name_test(int manufacturer, int panel) {
     return manufacturers[manufacturer].second[panel].c_str();
+}
+int panels_db_get_cell_count_test(int manufacturer, int panel) {
+    return 3;
+}
+#define CELL_PARAM(x) ((int)(x * 65536))
+const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell) {
+    static struct pv_cell_t default_cell = {
+        CELL_PARAM(-24.5), CELL_PARAM(-5), CELL_PARAM(6), CELL_PARAM(100)
+    };
+    return &default_cell;
 }
 
 /* -------------------------------------------------------------------------- */
