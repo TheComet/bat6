@@ -37,7 +37,7 @@ const char* panels_db_get_manufacturer_name(short index);
 
 short panels_db_get_panel_count(short manufacturer_id);
 
-const char* panels_db_get_model_name(short manufacturer_id,
+const char* panels_db_get_panel_name(short manufacturer_id,
                                      short panel_id);
 
 short panels_db_get_cell_count(short manufacturer_id,

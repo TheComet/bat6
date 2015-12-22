@@ -8,6 +8,8 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include <libq.h>
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -30,8 +32,10 @@ void str_reverse(char* str);
  * @param[in] ... src_n number of character arrays to concatenate.
  * @note If the total length of all input strings exceeds **dest_n**, the
  * function returns. In this case the destination buffer will be truncated.
+ * @return Returns a pointer into the destination buffer pointing to the null
+ * terminator at the end of the string.
  */
-void str_nstrcat(char* dest, short dest_n, short src_n, ...);
+char* str_nstrcat(char* dest, short dest_n, short src_n, ...);
 
 /*!
  * @brief Concatenates two strings and makes sure the target buffer size is not
@@ -42,8 +46,23 @@ void str_nstrcat(char* dest, short dest_n, short src_n, ...);
  * @param[in] s2 The second string to concatenate.
  * @note If the total length of all input strings exceeds **dest_n**, the
  * function returns. In this case the destination buffer will be truncated.
+ * @return Returns a pointer into the destination buffer pointing to the null
+ * terminator at the end of the string.
  */
-void str_2nstrcat(char* dest, short n, const char* s1, const char* s2);
+char* str_2nstrcat(char* dest, short n, const char* s1, const char* s2);
+
+/*!
+ * @brief Appends a string to the end of the specified string and makes sure the
+ * target buffer size is not exceeded.
+ * @param[out] dest The destination buffer to write into.
+ * @param[in] n The destination buffer length, **including** null terminator.
+ * @param[in] src The source string to append to the buffer.
+ *@note If the total length of the buffer is exceeded, the function returns.
+ * This leaves the destination buffer in a truncated state.
+ * @return Returns a pointer into the destination buffer pointing to the null
+ * terminator at the end of the string.
+ */
+char* str_append(char* dest, short n, const char* src);
 
 /*!
  * @brief Converts the first n digits of an integer into a string.
@@ -54,8 +73,17 @@ void str_2nstrcat(char* dest, short n, const char* s1, const char* s2);
  * The destination buffer must also account for two extra characters:
  * The minus character "-" and the null terminator.
  * @param[in] number The integer to convert into a string.
+ * @return Returns a pointer into the destination buffer pointing to the null
+ * terminator at the end of the string.
  */
-void str_nitoa(char* dest, short n, short number);
+char* str_nitoa(char* dest, short n, short number);
+
+/*!
+ * @brief Converts a _Q16 fixed point type into a string.
+ * @param[out] dest The destination buffer to write to. The size of this buffer
+ * must be at least
+ */
+char* str_q16itoa(char* dest, short n, _Q16 value);
 
 #ifdef __cplusplus
 }

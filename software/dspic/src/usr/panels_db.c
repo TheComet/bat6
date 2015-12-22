@@ -94,8 +94,8 @@ short panels_db_get_panel_count(short manufacturer_id)
 }
 
 /* -------------------------------------------------------------------------- */
-const char* panels_db_get_model_name(short manufacturer_id,
-                                        short panel_id)
+const char* panels_db_get_panel_name(short manufacturer_id,
+                                     short panel_id)
 {
     return database[manufacturer_id].panels[panel_id].name;
 }
