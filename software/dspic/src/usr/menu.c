@@ -283,7 +283,7 @@ static void handle_menu_switches(unsigned int button)
                 /* buck can now be enabled */
                 buck_enable();
 
-                /* set up real time measurements */
+                /* set up display of real time measurements */
                 event_register_listener(EVENT_UPDATE, on_update);
                 refresh_measurements();
 
@@ -432,9 +432,7 @@ static void on_update(unsigned int arg)
 /* Unit Tests */
 /* -------------------------------------------------------------------------- */
 
-#define TESTING
 #ifdef TESTING
-#error fuck you
 
 #include "gmock/gmock.h"
 
@@ -475,16 +473,6 @@ static void press_button_longer() { on_button(BUTTON_PRESSED_LONGER); }
 
 /* -------------------------------------------------------------------------- */
 /* These functions help navigate the menu more easily */
- *
- * STATE_NAVIGATE_CELL_PARAMETERS lists the selected cell's parameters that
- * can be changed.
- *   14.3V 1.0A 14.3W
- * > Irradiation             Selecting this -> STATE_CONTROL_CELL_IRRADIATION
- *   Temperature             Selecting this -> STATE_CONTROL_CELL_TEMPERATURE
- *   Go back                 Selecting this -> STATE_NAVIGATE_PANEL_CELLS
- *
- * STATE_CONTROL_CELL_IRRADIATION
- * STATE_CONTROL_CELL_TEMPERATURE
 static void navigate_to_panel_selection()
 {
     /*
@@ -524,31 +512,51 @@ static void navigate_to_global_temperature()
 {
     navigate_to_global_parameter_selection();
     twist_button_right();
+    /*
+     * 14.3V 1.0A 14.3W
+     *   Irradiation
+     * > Temperature
+     *   Individual Cells
+     */
     press_button();
 }
 
 static void navigate_to_cell_selection()
 {
     navigate_to_global_parameter_selection();
-    twist_button_right(); /* select global temperature */
-    twist_button_right(); /* select individual cells */
-     *   14.3V 1.0A 14.3W
- * > Go back                 Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
- *   Cell 1                  Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
- *   Cell 2
+    twist_button_right();
+    twist_button_right();
+    /*
+     * 14.3V 1.0A 14.3W
+     *   Irradiation
+     *   Temperature
+     * > Individual Cells
+     */
     press_button();
 }
 
 static void navigate_to_cell_parameters()
 {
     navigate_to_cell_selection();
-
+    twist_button_right();
+    /*
+     * 14.3V 1.0A 14.3W
+     *   Go back              Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
+     * > Cell 1               Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
+     *   Cell 2
+     */
     press_button();
 }
 
 static void navigate_to_cell_irradiation()
 {
     navigate_to_cell_parameters();
+    /*
+     * 14.3V 1.0A 14.3W
+     * > Irradiation            Selecting this -> STATE_CONTROL_CELL_IRRADIATION
+     *   Temperature            Selecting this -> STATE_CONTROL_CELL_TEMPERATURE
+     *   Go back                Selecting this -> STATE_NAVIGATE_PANEL_CELLS
+     */
     press_button();
 }
 
@@ -556,6 +564,12 @@ static void navigate_to_cell_temperature()
 {
     navigate_to_cell_parameters();
     twist_button_right();
+    /*
+     * 14.3V 1.0A 14.3W
+     *   Irradiation            Selecting this -> STATE_CONTROL_CELL_IRRADIATION
+     * > Temperature            Selecting this -> STATE_CONTROL_CELL_TEMPERATURE
+     *   Go back                Selecting this -> STATE_NAVIGATE_PANEL_CELLS
+     */
     press_button();
 }
 
@@ -834,9 +848,47 @@ TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_cell_selection)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANEL_CELLS));
 }
 
-TEST_F(oled_menu, go_)
+TEST_F(oled_menu, go_from_cell_parameter_selection_to_controlling_cell_irradiation)
 {
+    navigate_to_cell_parameters();
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_CONTROL_CELL_IRRADIATION));
+}
 
+TEST_F(oled_menu, go_back_from_controlling_cell_irradiation_to_cell_parameter_selection)
+{
+    navigate_to_cell_irradiation();
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_back_from_controlling_cell_irradiation_to_manufacturer_menu)
+{
+    navigate_to_cell_irradiation();
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+}
+
+TEST_F(oled_menu, go_from_cell_parameter_selection_to_controlling_cell_temperature)
+{
+    navigate_to_cell_parameters();
+    twist_button_right();
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_CONTROL_CELL_TEMPERATURE));
+}
+
+TEST_F(oled_menu, go_back_from_controlling_cell_temperature_to_cell_parameter_selection)
+{
+    navigate_to_cell_temperature();
+    press_button();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
+}
+
+TEST_F(oled_menu, go_back_from_controlling_cell_temperature_to_manufacturer_menu)
+{
+    navigate_to_cell_temperature();
+    press_button_longer();
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 #endif /* TESTING */
