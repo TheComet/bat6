@@ -170,6 +170,20 @@ TEST(string, nstrcat)
     EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
 }
 
+TEST(string, nstrcat_one_string)
+{
+    char buffer[10];
+    str_nstrcat(buffer, 10, 1, "test");
+    EXPECT_THAT(buffer, StrEq("test"));
+}
+
+TEST(string, nstrcat_empty_strings)
+{
+    char buffer[10];
+    str_nstrcat(buffer, 10, 4, "", "", "", "");
+    EXPECT_THAT(buffer, StrEq(""));
+}
+
 TEST(string, nstrcat_aliasing_buffers)
 {
     char buffer[32];

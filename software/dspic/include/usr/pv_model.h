@@ -36,7 +36,7 @@ unsigned char model_cell_add(void);
  * @note The active cell is reset to 0.
  * @return Returns non-zero if successful, 0 if otherwise.
  */
-unsigned char model_cell_remove(void);
+unsigned char model_cell_remove(unsigned char cell_id);
 
 /*!
  * @brief Destroys all cells.
@@ -81,7 +81,7 @@ void model_set_thermal_voltage(unsigned char cell_id, _Q16 vt);
 /*!
  * @brief Sets the relative solar irradiation of the actively selected cell.
  */
-void model_set_relative_solar_irridation(unsigned char cell_id, _Q16 g);
+void model_set_relative_solar_irradiation(unsigned char cell_id, _Q16 g);
 
 /*!
  * @brief Gets the open circuit voltage of the actively selected cell.
@@ -101,7 +101,7 @@ _Q16 model_get_thermal_voltage(unsigned char cell_id);
 /*!
  * @brief Gets the relative solar irradiation of the actively selected cell.
  */
-_Q16 model_get_relative_solar_irridation(unsigned char cell_id);
+_Q16 model_get_relative_solar_irradiation(unsigned char cell_id);
 
 #ifdef	__cplusplus
 }

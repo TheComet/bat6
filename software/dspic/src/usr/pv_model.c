@@ -98,11 +98,12 @@ _Q16 calc_voltage(const struct pv_cell_t* cell,
 /* -------------------------------------------------------------------------- */
 unsigned char model_cell_add(void)
 {
+    /* stub as return 0, but implementation must return cell ID */
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-unsigned char model_cell_remove(void)
+unsigned char model_cell_remove(unsigned char cell_id)
 {
     return 0;
 }
@@ -124,11 +125,6 @@ unsigned char model_cell_get_next(void)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-unsigned char model_select_cell(unsigned char cell_id)
-{
-    return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 void model_set_open_circuit_voltage(unsigned char cell_id, _Q16 voc)
@@ -146,7 +142,7 @@ void model_set_thermal_voltage(unsigned char cell_id, _Q16 vt)
 }
 
 /* -------------------------------------------------------------------------- */
-void model_set_relative_solar_irridation(unsigned char cell_id, _Q16 g)
+void model_set_relative_solar_irradiation(unsigned char cell_id, _Q16 g)
 {
 }
 
@@ -169,7 +165,7 @@ _Q16 model_get_thermal_voltage(unsigned char cell_id)
 }
 
 /* -------------------------------------------------------------------------- */
-_Q16 model_get_relative_solar_irridation(unsigned char cell_id)
+_Q16 model_get_relative_solar_irradiation(unsigned char cell_id)
 {
     return 0;
 }
