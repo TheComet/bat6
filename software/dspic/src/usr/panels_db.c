@@ -7,21 +7,22 @@
 
 #include "usr/panels_db.h"
 #include "usr/pv_model.h"
+#include "drv/hw.h"
 #include <stddef.h>
 
 struct panel_t
 {
-    const char name[32];
+    const char name[19];
     struct pv_cell_t cells[1];
 };
 
 struct manufacturer_t
 {
-    const char name[32];
-    struct panel_t panels[5];
+    const char name[19];
+    struct panel_t panels[2];
 };
 
-#define CELL_PARAM(x) ((unsigned int)(x * 65536))
+#define CELL_PARAM(x) ((_Q16)(x * 65536))
 
 struct manufacturer_t database[] = {
     { "Generic", {
@@ -29,23 +30,6 @@ struct manufacturer_t database[] = {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
         { "Generic Panel 2", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }}
-    }},
-    { "Actual Trash", {
-        { "Panel of Shit", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Panel of Fuck", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Trash Stash", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "Dick stuck", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
-        }},
-        { "in panel", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }}
     }}
@@ -125,3 +109,30 @@ const struct pv_cell_t* panels_db_get_cell(short manufacturer_id,
 {
     return &database[manufacturer_id].panels[panel_id].cells[cell_id];
 }
+
+/* -------------------------------------------------------------------------- */
+/* UNIT TESTS */
+/* -------------------------------------------------------------------------- */
+
+#ifdef TESTING
+
+#include "gmock/gmock.h"
+
+using namespace ::testing;
+
+TEST(panels_db, get_manufacturers_count)
+{
+    EXPECT_THAT(panels_db_get_manufacturers_count(), Eq(1));
+}
+
+TEST(panels_db, get_panel_count)
+{
+    EXPECT_THAT(panels_db_get_panel_count(0), Eq(2));
+}
+
+TEST(panels_db, get_cell_count)
+{
+    EXPECT_THAT(panels_db_get_cell_count(0, 0), Eq(1));
+}
+
+#endif /* TESTING */

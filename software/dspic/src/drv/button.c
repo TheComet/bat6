@@ -66,6 +66,7 @@ static void process_press_event(void)
     /* Was the button pressed? (falling edge) */
     if(!KNOB_BUTTON)
     {
+        LED0_OFF;
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
     /* was the button released? (rising edge) */
@@ -108,12 +109,10 @@ static void process_twist_event(void)
         ticks = (ticks + 1) & 0x3;
         if(ticks == 0)
             event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
-        LED0_OFF;
     } else {
         ticks = (ticks - 1) & 0x3;
         if(ticks == 2)
             event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
-        LED0_ON;
     }
 
     /* update current AB */

@@ -30,7 +30,7 @@
  * STATE_NAVIGATE_MANUFACTURERS lists all manufacturers. Selecting an item in
  * this menu brings you to the manufacturer's panel selection menu and
  * switches state to STATE_NAVIGATE_PANELS.
- *   [Manufacturers]
+ *   -Manufacturers-
  * > Manufacturer 1
  *   Manufacturer 2
  *   Manufacturer 3
@@ -77,6 +77,7 @@
 #include "usr/panels_db.h"
 #include "usr/pv_model.h"
 #include "drv/lcd.h"
+#include "drv/hw.h"
 #include "drv/buck.h"
 #include "core/event.h"
 #include "core/string.h"
@@ -99,21 +100,31 @@ typedef enum menu_state_e
     STATE_CONTROL_CELL_TEMPERATURE
 } menu_state_e;
 
+typedef enum menu_item_e
+{
+    /* global parameter menu item indices */
+    ITEM_IRRADIATION = 0,
+    ITEM_TEMPERATURE = 1,
+    ITEM_INDIVIDUAL_CELLS = 2,
+    /* cell parameter menu item indices */
+    /* same as above, except for last item */
+    ITEM_GO_BACK = 2
+} menu_item_e;
+
 struct menu_navigation_t
 {
     short max;
     short scroll;
     short item;
-    union
-    {
-        short manufacturer;
-    } selected;
 };
 
 struct menu_t
 {
     menu_state_e state;
     struct menu_navigation_t navigation;
+    short manufacturer;
+    unsigned char cell_id;
+    short cell_count;
 };
 
 struct menu_t menu;
@@ -195,10 +206,10 @@ _Q16 buck_get_current_test();
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
-    menu.navigation.item = -1;
+    menu.navigation.item = 0;
     menu.navigation.max = 0;
     menu.navigation.scroll = 0;
-    menu.navigation.selected.manufacturer = -1;
+    menu.manufacturer = 0;
 
     load_menu_manufacturers();
     menu_update();
@@ -209,7 +220,7 @@ void menu_init(void)
 /* -------------------------------------------------------------------------- */
 static void handle_item_selection(unsigned int button)
 {
-    if(menu.navigation.item == -1)
+    if(menu.navigation.max == 0)
         return;
 
     if(button == BUTTON_TWISTED_LEFT)
@@ -220,6 +231,7 @@ static void handle_item_selection(unsigned int button)
         if(menu.navigation.item < menu.navigation.scroll)
             --menu.navigation.scroll;
 
+        menu_update();
         return;
     }
 
@@ -230,13 +242,15 @@ static void handle_item_selection(unsigned int button)
 
         if(menu.navigation.item - menu.navigation.scroll >= 4)
             ++menu.navigation.scroll;
+
+        menu_update();
     }
 }
 
 /* -------------------------------------------------------------------------- */
-#define reset_selection()                                        \
-        menu.navigation.item = (menu.navigation.max ? 0 : -1);   \
-        menu.navigation.scroll = 0
+#define reset_selection() do {                 \
+        menu.navigation.item = 0;              \
+        menu.navigation.scroll = 0; } while(0)
 
 static void load_menu_manufacturers(void)
 {
@@ -245,9 +259,10 @@ static void load_menu_manufacturers(void)
     reset_selection();
 
     /* write menu title to LCD */
-    lcd_writeline(0, "[Manufacturers]");
+    lcd_writeline(0, "-Manufacturers-");
 
     menu.state = STATE_NAVIGATE_MANUFACTURERS;
+    menu_update();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -266,7 +281,7 @@ static void handle_menu_switches(unsigned int button)
         case STATE_NAVIGATE_MANUFACTURERS :
 
             /* Switch to panel selection of the current manufacturer */
-            if(button == BUTTON_RELEASED && menu.navigation.item != -1)
+            if(button == BUTTON_RELEASED && menu.navigation.max != 0)
             {
                 /* abort if there are no panels */
                 short panels = panels_db_get_panel_count(menu.navigation.item);
@@ -274,15 +289,15 @@ static void handle_menu_switches(unsigned int button)
                     break;
 
                 /* select current item as selected manufacturer */
-                menu.navigation.selected.manufacturer = menu.navigation.item;
+                menu.manufacturer = menu.navigation.item;
                 menu.navigation.max = panels;
                 reset_selection();
 
                 /* write menu title to LCD */
                 {   char buffer[21];
                     const char* menu_title = panels_db_get_manufacturer_name(
-                            menu.navigation.selected.manufacturer);
-                    str_nstrcat(buffer, 21, 3, "[", menu_title, "]");
+                            menu.manufacturer);
+                    str_nstrcat(buffer, 21, 3, "-", menu_title, "-");
                     lcd_writeline(0, buffer);
                 }
 
@@ -305,18 +320,18 @@ static void handle_menu_switches(unsigned int button)
                 /* clear existing cells */
                 model_cell_remove_all();
 
+                menu.cell_count = panels_db_get_cell_count(
+                            menu.manufacturer,
+                            menu.navigation.item);
+
                 /*
                  * Copy parameters for each cell in the db and add them to a
                  * new cell in the active model
                  */
-                for(i = 0;
-                    i != panels_db_get_cell_count(
-                            menu.navigation.selected.manufacturer,
-                            menu.navigation.item);
-                    ++i)
+                for(i = 0; i != menu.cell_count; ++i)
                 {
                     const struct pv_cell_t* cell = panels_db_get_cell(
-                            menu.navigation.selected.manufacturer,
+                            menu.manufacturer,
                             menu.navigation.item,
                             i);
                     unsigned char cell_id = model_cell_add();
@@ -333,6 +348,10 @@ static void handle_menu_switches(unsigned int button)
                 event_register_listener(EVENT_UPDATE, on_update);
                 refresh_measurements();
 
+                /* reset selection */
+                menu.navigation.max = 0;
+                reset_selection();
+
                 menu.state = STATE_CONTROL_GLOBAL_IRRADIATION;
                 menu_update();
             }
@@ -343,24 +362,158 @@ static void handle_menu_switches(unsigned int button)
 
             if(button == BUTTON_RELEASED)
             {
+                if(menu.navigation.item == ITEM_IRRADIATION)
+                {
+                    menu.navigation.max = 0;
+                    menu.navigation.item = 0;
+                    menu.navigation.scroll = 0;
 
+                    menu.state = STATE_CONTROL_GLOBAL_IRRADIATION;
+                    menu_update();
+                    break;
+                }
+
+                if(menu.navigation.item == ITEM_TEMPERATURE)
+                {
+                    menu.navigation.max = 0;
+                    menu.navigation.item = 1;
+                    menu.navigation.scroll = 0;
+
+                    menu.state = STATE_CONTROL_GLOBAL_TEMPERATURE;
+                    menu_update();
+                    break;
+                }
+
+                if(menu.navigation.item == ITEM_INDIVIDUAL_CELLS)
+                {
+                    /* There is an additional "Go Back" option in this menu */
+                    menu.navigation.max = menu.cell_count + 1;
+                    reset_selection();
+
+                    menu.state = STATE_NAVIGATE_PANEL_CELLS;
+                    menu_update();
+                    break;
+                }
             }
 
             break;
 
         case STATE_CONTROL_GLOBAL_IRRADIATION:
+            if(button == BUTTON_RELEASED)
+            {
+                menu.navigation.max = 3;
+                menu.navigation.item = 0;
+                menu.navigation.scroll = 0;
+
+                menu.state = STATE_NAVIGATE_GLOBAL_PARAMETERS;
+                menu_update();
+            }
             break;
 
         case STATE_CONTROL_GLOBAL_TEMPERATURE:
+            if(button == BUTTON_RELEASED)
+            {
+                menu.navigation.max = 3;
+                menu.navigation.item = 1;
+                menu.navigation.scroll = 0;
+
+                menu.state = STATE_NAVIGATE_GLOBAL_PARAMETERS;
+                menu_update();
+            }
             break;
 
         case STATE_NAVIGATE_PANEL_CELLS:
+            if(button == BUTTON_RELEASED)
+            {
+                unsigned char i = 0;
+
+                if(menu.navigation.item == 0)
+                {
+                    menu.navigation.max = 3;
+                    menu.navigation.item = 2;
+                    menu.navigation.scroll = 0;
+
+                    menu.state = STATE_NAVIGATE_GLOBAL_PARAMETERS;
+                    menu_update();
+                    break;
+                }
+
+                for(menu.cell_id = model_cell_begin_iteration();
+                    menu.cell_id != 0;
+                    menu.cell_id = model_cell_get_next(), i++)
+                {
+                    if(i == menu.navigation.item + 1)
+                        break;
+                }
+
+                menu.navigation.max = 3;
+                reset_selection();
+
+                menu.state = STATE_NAVIGATE_CELL_PARAMETERS;
+                menu_update();
+            }
+            break;
+
+        case STATE_NAVIGATE_CELL_PARAMETERS:
+            if(button == BUTTON_RELEASED)
+            {
+                if(menu.navigation.item == ITEM_IRRADIATION)
+                {
+                    menu.navigation.max = 0;
+                    menu.navigation.item = 0;
+                    menu.navigation.scroll = 0;
+
+                    menu.state = STATE_CONTROL_CELL_IRRADIATION;
+                    menu_update();
+                    break;
+                }
+                if(menu.navigation.item == ITEM_TEMPERATURE)
+                {
+                    menu.navigation.max = 0;
+                    menu.navigation.item = 1;
+                    menu.navigation.scroll = 0;
+
+                    menu.state = STATE_CONTROL_CELL_TEMPERATURE;
+                    menu_update();
+                    break;
+                }
+                if(menu.navigation.item == ITEM_GO_BACK)
+                {
+                    /* There is an additional "Go Back" item in this menu */
+                    menu.navigation.max = menu.cell_count + 1;
+                    reset_selection();
+
+                    menu.state = STATE_NAVIGATE_PANEL_CELLS;
+                    menu_update();
+                    break;
+                }
+            }
             break;
 
         case STATE_CONTROL_CELL_IRRADIATION:
+            if(button == BUTTON_RELEASED)
+            {
+                menu.navigation.max = 3;
+                menu.navigation.item = 0;
+                menu.navigation.scroll = 0;
+
+                menu.state = STATE_NAVIGATE_CELL_PARAMETERS;
+                menu_update();
+                break;
+            }
             break;
 
         case STATE_CONTROL_CELL_TEMPERATURE:
+            if(button == BUTTON_RELEASED)
+            {
+                menu.navigation.max = 3;
+                menu.navigation.item = 1;
+                menu.navigation.scroll = 0;
+
+                menu.state = STATE_NAVIGATE_CELL_PARAMETERS;
+                menu_update();
+                break;
+            }
             break;
 
         default: break;
@@ -368,11 +521,10 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-static void append_temperature_of_first_cell(char* buffer)
+static void append_temperature_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    short cell_id = model_cell_begin_iteration();
-    if(cell_id == 0) /* invalid cell */
+    if(menu.cell_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
@@ -382,16 +534,15 @@ static void append_temperature_of_first_cell(char* buffer)
         ++ptr;
 
     /* allow for 4 characters for this number */
-    ptr = str_q16itoa(ptr, 4, model_get_thermal_voltage(cell_id));
+    ptr = str_q16itoa(ptr, 4, model_get_thermal_voltage(menu.cell_id));
     str_append(ptr, 21 + buffer - ptr, "°C");
 }
 
 /* -------------------------------------------------------------------------- */
-static void append_irradiation_of_first_cell(char* buffer)
+static void append_irradiation_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    short cell_id = model_cell_begin_iteration();
-    if(cell_id == 0) /* invalid cell */
+    if(menu.cell_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
@@ -401,7 +552,7 @@ static void append_irradiation_of_first_cell(char* buffer)
         ++ptr;
 
     /* allow for 3 characters for this number */
-    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(cell_id));
+    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.cell_id));
     str_append(ptr, 21 + buffer - ptr, "%");
 }
 
@@ -446,7 +597,7 @@ static void menu_update(void)
             case STATE_NAVIGATE_PANELS : {
                 const char* panel;
                 if(!(panel = panels_db_get_panel_name(
-                        menu.navigation.selected.manufacturer, current_item)))
+                        menu.manufacturer, current_item)))
                     break;
                 str_append(buffer, 21, panel);
                 break;
@@ -458,17 +609,48 @@ static void menu_update(void)
                 if(i == 0)
                 {
                     str_append(buffer, 21, "Exposure ");
-                    append_irradiation_of_first_cell(buffer);
+                    append_irradiation_of_selected_cell(buffer);
                 } else if(i == 1)
                 {
                     str_append(buffer, 21, "Temp ");
-                    append_temperature_of_first_cell(buffer);
-                } else
-                {
+                    append_temperature_of_selected_cell(buffer);
+                } else {
                     str_append(buffer, 21, "Individual Cells");
                 }
 
                 break;
+
+            case STATE_CONTROL_CELL_IRRADIATION:
+            case STATE_CONTROL_CELL_TEMPERATURE:
+            case STATE_NAVIGATE_CELL_PARAMETERS:
+                if(i == 0)
+                {
+                    str_append(buffer, 21, "Exposure ");
+                    append_irradiation_of_selected_cell(buffer);
+                } else if(i == 1)
+                {
+                    str_append(buffer, 21, "Temp ");
+                    append_temperature_of_selected_cell(buffer);
+                } else {
+                    str_append(buffer, 21, "Go Back");
+                }
+
+                break;
+
+            case STATE_NAVIGATE_PANEL_CELLS: {
+                if(current_item > menu.cell_count)
+                    break;
+                if(current_item == 0)
+                {
+                    str_append(buffer, 21, "Go Back");
+                } else
+                {
+                    char* ptr = str_append(buffer, 21, "Cell ");
+                    str_nitoa(ptr, 21 + buffer - ptr, current_item);
+                }
+
+                break;
+            }
 
             default:
                 break;
@@ -590,19 +772,24 @@ void lcd_writeline_test(int line, const char* str)
 }
 
 const char* MANUFACTURER_SELECTION_STRING = "\
-0: [Manufacturers]\n\
+0: -Manufacturers-\n\
 1: > Manufacturer 1\n\
 2:   Manufacturer 2\n\
 3:   Manufacturer 3\n";
 const char* PANEL_SELECTION_STRING = "\
-0: [Manufacturer 1]\n\
+0: -Manufacturer 1-\n\
 1: > Panel 1\n\
 2:   Panel 2\n\
 3:   Panel 3\n";
-const char* GLOBAL_PARAMETER_SELECTION_STRING = "\
+const char* GLOBAL_PARAMETER_SELECTION_STRING1 = "\
 0: -24.5V -5.500A 134.7W\n\
 1: > Exposure 100%\n\
 2:   Temp 99.9°C\n\
+3:   Individual Cells\n";
+const char* GLOBAL_PARAMETER_SELECTION_STRING2 = "\
+0: -24.5V -5.500A 134.7W\n\
+1:   Exposure 100%\n\
+2: > Temp 99.9°C\n\
 3:   Individual Cells\n";
 const char* GLOBAL_IRRADIATION_STRING = "\
 0: -24.5V -5.500A 134.7W\n\
@@ -647,7 +834,7 @@ void press_button_longer() { on_button(BUTTON_PRESSED_LONGER); }
 void navigate_to_panel_selection()
 {
     /*
-     * [Manufacturers]
+     * -Manufacturers-
      * > Manufacturer 1
      *   Manufacturer 2
      *   Manufacturer 3
@@ -798,24 +985,24 @@ TEST_F(oled_menu, output)
 /* -------------------------------------------------------------------------- */
 TEST_F(oled_menu, twisting_right_with_no_items_does_nothing)
 {
-    menu.navigation.item = -1;
+    menu.navigation.item = 0;
     menu.navigation.max = 0;
     menu.navigation.scroll = 0;
 
     twist_button_right();
-    EXPECT_THAT(menu.navigation.item, Eq(-1));
+    EXPECT_THAT(menu.navigation.item, Eq(0));
     EXPECT_THAT(menu.navigation.max, Eq(0));
     EXPECT_THAT(menu.navigation.scroll, Eq(0));
 }
 
 TEST_F(oled_menu, twisting_left_with_no_items_does_nothing)
 {
-    menu.navigation.item = -1;
+    menu.navigation.item = 0;
     menu.navigation.max = 0;
     menu.navigation.scroll = 0;
 
     twist_button_left();
-    EXPECT_THAT(menu.navigation.item, Eq(-1));
+    EXPECT_THAT(menu.navigation.item, Eq(0));
     EXPECT_THAT(menu.navigation.max, Eq(0));
     EXPECT_THAT(menu.navigation.scroll, Eq(0));
 }
@@ -928,15 +1115,17 @@ TEST_F(oled_menu, go_from_controlling_global_irradiation_to_selecting_global_par
 {
     navigate_to_global_irradiation();
     lcd_string.clear();
+    refresh_measurements();
     press_button(); // should get us to selecting global parameters
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING1));
 }
 
 TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_irradiation)
 {
     navigate_to_global_parameter_selection();
     lcd_string.clear();
+    refresh_measurements();
     press_button(); // go back to global irradiation
     EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_IRRADIATION));
     EXPECT_THAT(lcd_string, StrEq(GLOBAL_IRRADIATION_STRING));
@@ -947,6 +1136,7 @@ TEST_F(oled_menu, go_from_selecting_global_parameters_to_global_temperature)
     navigate_to_global_parameter_selection();
     twist_button_right(); // select global temperature
     lcd_string.clear();
+    refresh_measurements();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_CONTROL_GLOBAL_TEMPERATURE));
     EXPECT_THAT(lcd_string, StrEq(GLOBAL_TEMPERATURE_STRING));
@@ -956,9 +1146,10 @@ TEST_F(oled_menu, go_back_from_global_temperature_to_global_parameters)
 {
     navigate_to_global_temperature();
     lcd_string.clear();
+    refresh_measurements();
     press_button(); // should go back to global parameters
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING2));
 }
 
 TEST_F(oled_menu, go_from_global_parameters_to_cell_selection)
@@ -976,7 +1167,7 @@ TEST_F(oled_menu, go_back_from_cell_selection_to_global_parameter_selection)
     lcd_string.clear();
     press_button(); // top item in menu should be "go back"
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_GLOBAL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(GLOBAL_PARAMETER_SELECTION_STRING1));
 }
 
 TEST_F(oled_menu, go_from_cell_selection_into_cell_parameter_selection)

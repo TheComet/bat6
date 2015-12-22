@@ -126,7 +126,7 @@ char* str_q16itoa(char* dest, short n, _Q16 value)
 
     /* convert before decimal, update n */
     ptr = str_nitoa(dest, n, before_decimal);
-    n -= ptr - dest;
+    n -= ptr - dest + 1;
 
     /* not enough space for decimal point and at least one number? */
     if(n < 2)
