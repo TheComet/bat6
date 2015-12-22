@@ -91,10 +91,10 @@ typedef enum menu_state_e
     STATE_NAVIGATE_MANUFACTURERS,
     STATE_NAVIGATE_PANELS,
     STATE_NAVIGATE_GLOBAL_PARAMETERS,
-    STATE_CONTROL_GLOBAL_IRRADIATION,
-    STATE_CONTROL_GLOBAL_TEMPERATURE,
     STATE_NAVIGATE_PANEL_CELLS,
     STATE_NAVIGATE_CELL_PARAMETERS,
+    STATE_CONTROL_GLOBAL_IRRADIATION,
+    STATE_CONTROL_GLOBAL_TEMPERATURE,
     STATE_CONTROL_CELL_IRRADIATION,
     STATE_CONTROL_CELL_TEMPERATURE
 } menu_state_e;
@@ -323,6 +323,36 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
+static void append_temperature_of_first_cell(char* buffer)
+{
+    char str[5]; /* "-999" is the largest string, +1 for null terminator */
+    short value = model_cell_begin_iteration();
+    if(value == 0) /* invalid cell */
+    {
+        str_append(buffer, 21, "---");
+        return;
+    }
+    value = model_get_thermal_voltage(value);
+    str_nitoa(str, 3, value);
+    str_append(buffer, 21, str);
+}
+
+/* -------------------------------------------------------------------------- */
+static void append_irradiation_of_first_cell(char* buffer)
+{
+    char str[5]; /* "100" is the largest string, +1 for null terminator */
+    short value = model_cell_begin_iteration();
+    if(value == 0) /* invalid cell */
+    {
+        str_append(buffer, 21, "---");
+        return;
+    }
+    value = model_get_relative_solar_irridation(value);
+    str_nitoa(str, 3, value);
+    str_append(buffer, 21, str);
+}
+
+/* -------------------------------------------------------------------------- */
 static void menu_update(void)
 {
     char buffer[21];
@@ -331,37 +361,67 @@ static void menu_update(void)
     for(i = 0; i != 3; ++i)
     {
         short current_item = i + menu.navigation.scroll;
-        const char* selection;
-        const char* item = NULL;
 
-        /* set selection string */
+        /* initialise buffer as empty string */
+        buffer[0] = '\0';
+
+        /*
+         * Set selection string.
+         * If the item is not selected we want two spaces.
+         * If the item is selected we want "> ".
+         * If the item is selected and being manipulated, we want "= ".
+         */
         if(current_item == menu.navigation.item)
-            selection = "> ";
+            if(menu.state < STATE_CONTROL_GLOBAL_IRRADIATION)
+                str_append(buffer, 21, "> ");
+            else
+                str_append(buffer, 21, "= ");
         else
-            selection = "  ";
+            str_append(buffer, 21, "  ");
 
         /* get item string */
         switch(menu.state)
         {
-            case STATE_NAVIGATE_MANUFACTURERS :
-                item = panels_db_get_manufacturer_name(current_item);
+            case STATE_NAVIGATE_MANUFACTURERS : {
+                const char* manufacturer;
+                if(!(manufacturer = panels_db_get_manufacturer_name(current_item)))
+                    break;
+                str_append(buffer, 21, manufacturer);
                 break;
+            }
 
-            case STATE_NAVIGATE_PANELS :
-                item = panels_db_get_model_name(
-                        menu.navigation.selected.manufacturer, current_item);
+            case STATE_NAVIGATE_PANELS : {
+                const char* panel;
+                if(!(panel = panels_db_get_model_name(
+                        menu.navigation.selected.manufacturer, current_item)))
+                    break;
+                str_append(buffer, 21, panel);
+                break;
+            }
+
+            case STATE_CONTROL_GLOBAL_IRRADIATION:
+            case STATE_CONTROL_GLOBAL_TEMPERATURE:
+            case STATE_NAVIGATE_GLOBAL_PARAMETERS:
+                if(i == 0)
+                {
+                    str_append(buffer, 21, "Temperature ");
+                    append_temperature_of_first_cell(buffer);
+                } else if(i == 1)
+                {
+                    str_append(buffer, 21, "Irradiation ");
+                    append_irradiation_of_first_cell(buffer);
+                } else
+                {
+                    str_append(buffer, 21, "Go Back");
+                }
+
                 break;
 
             default:
                 break;
         }
 
-        /* was item found? */
-        if(item == NULL)
-            continue;
-
-        /* concatenate and write to LCD */
-        str_nstrcat(buffer, 20, 2, selection, item);
+        /* write to LCD */
         lcd_writeline(i + 1, buffer);
     }
 }
