@@ -19,11 +19,9 @@ void uart_init(void);
 
 /*!
  * @brief Queues a byte for sending.
- * @param bytes An array of bytes to send.
- * @param len The length of the array. If you are sending a string, you do not
- * need to include the null terminator (strlen() returns the correct value).
+ * @param str The string to send.
  */
-void uart_send(const unsigned char* byte, unsigned short len);
+void uart_send(const char* tr);
 
 #ifdef	__cplusplus
 }
