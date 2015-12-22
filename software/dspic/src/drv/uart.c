@@ -26,6 +26,9 @@
 #define disable_tx_interrupt() (IEC0bits.U1TXIE = 0)
 #define enable_tx_interrupt()  (IEC0bits.U1TXIE = 1)
 
+#define is_number(x) \
+        (x >= '0' && x <= '9')
+
 /* When a new cell is created and no config for it is provided, */
 #define DEFAULT_CURRENT 3000     /* 3000 milliamps */
 #define DEFAULT_VOLTAGE 4000     /* 4000 millivolts */
@@ -37,6 +40,7 @@
 #define CURRENT_LENGTH 5
 #define EXPOSURE_LENGTH 3
 #define TEMPERATURE_LENGTH 3
+#define BUFFER_LENGTH 7
 /*
  * In order to test some of the concurrency situations present in the transmit
  * queue, we need to call an "update" function while uart_send() is blocking.
@@ -83,18 +87,14 @@ struct data_t {
     {
         struct {
             unsigned char selected_cell;  /* number representing the cell */
-            unsigned int param;           /* holds numerical value
-                                           * UNITS:
-                                           * I: milli ampere
-                                           * U: milli volt
-                                           * T: 1/10ths degrees celsius
-                                           * E: percent */
+            union {
+                unsigned int voltage;     /* millivolts */
+                unsigned int current;     /* milliamperes */
+                unsigned int temperature; /* 1/10ths Kelvin */
+                unsigned int exposure;    /* percent */
+            } param;
             unsigned char was_digit;      /* flag for indicating whether
                                            * received char was digit or not */
-            unsigned int voltage;         /* millivolts */
-            unsigned int current;         /* milliamperes */
-            unsigned int temperature;     /* 1/10ths Kelvin */
-            unsigned int exposure;        /* percent */
         } config_cell;
         struct {
             unsigned char selected_cell;
@@ -120,6 +120,7 @@ void uart_init(void)
     configure_uart();
 
     event_register_listener(EVENT_DATA_RECEIVED, process_incoming_data);
+    event_register_listener(EVENT_CELL_VALUE_UPDATED, send_update_to_frontend);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -223,12 +224,7 @@ static void configure_uart(void)
 static void init_state_vars_config()
 {
     state_data.config_cell.selected_cell = 0;
-    state_data.config_cell.param = 0;
     state_data.config_cell.was_digit = 0;
-    state_data.config_cell.voltage = 0;
-    state_data.config_cell.current = 0;
-    state_data.config_cell.temperature = 0;
-    state_data.config_cell.exposure = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -252,7 +248,7 @@ static short convert_unit(_Q16 input)
 
 static void send_cell_config(unsigned char cell_id)
 {
-    char buffer_str[7]; /* five digits, sign, '\0' terminator */
+    char buffer_str[BUFFER_LENGTH]; /* five digits, sign, '\0' terminator */
     short buffer_num;
 
     buffer_num = convert_milli(model_get_open_circuit_voltage(cell_id));
@@ -318,7 +314,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_SELECT_CELL:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
                 state_data.config_cell.selected_cell *= 10;
@@ -348,21 +344,26 @@ static void process_incoming_data(unsigned int data)
             {
                 case 'I':
                     state_data.config_cell.was_digit = 0;
+                    state_data.config_cell.param.current = 0;
+   
                     state = STATE_CONFIG_SHORT_CIRCUIT_CURRENT;
                     break;
 
                 case 'U':
                     state_data.config_cell.was_digit = 0;
+                    state_data.config_cell.param.voltage = 0;
                     state = STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE;
                     break;
 
                 case 'T':
                     state_data.config_cell.was_digit = 0;
+                    state_data.config_cell.param.temperature = 0;
                     state = STATE_CONFIG_TEMPERATURE;
                     break;
 
                 case 'E':
                     state_data.config_cell.was_digit = 0;
+                    state_data.config_cell.param.exposure = 0;
                     state = STATE_CONFIG_EXPOSURE;
                     break;
 
@@ -373,17 +374,17 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
-                state_data.config_cell.voltage *= 10;
-                state_data.config_cell.voltage += CHAR_TO_INT(data);
+                state_data.config_cell.param.voltage *= 10;
+                state_data.config_cell.param.voltage += CHAR_TO_INT(data);
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 voltage = state_data.config_cell.voltage / 1000
+                _Q16 voltage = state_data.config_cell.param.voltage / 1000
                     * (((unsigned long)2)<<16)
-                    | state_data.config_cell.voltage % 1000;
+                    | state_data.config_cell.param.voltage % 1000;
                 model_set_open_circuit_voltage(
                     state_data.config_cell.selected_cell,
                     voltage);
@@ -396,17 +397,17 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
-                state_data.config_cell.current *= 10;
-                state_data.config_cell.current += CHAR_TO_INT(data);
+                state_data.config_cell.param.current *= 10;
+                state_data.config_cell.param.current += CHAR_TO_INT(data);
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 current = state_data.config_cell.current / 1000
+                _Q16 current = state_data.config_cell.param.current / 1000
                     * (((unsigned long)2)<<16)
-                    | state_data.config_cell.current % 1000;
+                    | state_data.config_cell.param.current % 1000;
                 model_set_short_circuit_current(
                     state_data.config_cell.selected_cell,
                     current);
@@ -419,17 +420,17 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_TEMPERATURE:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
-                state_data.config_cell.temperature *= 10;
-                state_data.config_cell.temperature += CHAR_TO_INT(data);
+                state_data.config_cell.param.temperature *= 10;
+                state_data.config_cell.param.temperature += CHAR_TO_INT(data);
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 temperature = state_data.config_cell.temperature / 10 
+                _Q16 temperature = state_data.config_cell.param.temperature / 10 
                     * (((unsigned long)2)<<16) 
-                    | state_data.config_cell.temperature % 10;
+                    | state_data.config_cell.param.temperature % 10;
                 model_set_thermal_voltage(
                     state_data.config_cell.selected_cell,
                     temperature);
@@ -443,15 +444,15 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_EXPOSURE:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
-                state_data.config_cell.exposure *= 10;
-                state_data.config_cell.exposure += CHAR_TO_INT(data);
+                state_data.config_cell.param.exposure *= 10;
+                state_data.config_cell.param.exposure += CHAR_TO_INT(data);
 
                 state_data.config_cell.was_digit = 1;
             } else {
-                _Q16 exposure = state_data.config_cell.exposure 
+                _Q16 exposure = state_data.config_cell.param.exposure 
                     * (((unsigned long)2)<<16);
                 model_set_relative_solar_irradiation(
                     state_data.config_cell.selected_cell,
@@ -465,11 +466,11 @@ static void process_incoming_data(unsigned int data)
             break;
             
         case STATE_REMOVE_CELL:
-            if (data >= '0' && data <= '9')
+            if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
-                state_data.config_cell.exposure *= 10;
-                state_data.config_cell.exposure += CHAR_TO_INT(data);
+                state_data.config_cell.param.exposure *= 10;
+                state_data.config_cell.param.exposure += CHAR_TO_INT(data);
 
                 state_data.config_cell.was_digit = 1;
             } else if (data == 'a' && state_data.config_cell.was_digit == 0) {
@@ -487,7 +488,10 @@ static void process_incoming_data(unsigned int data)
                  */
                 state = STATE_IDLE;
             } else {
-                model_cell_remove(state_data.config_cell.selected_cell);
+                if (model_cell_remove(state_data.config_cell.selected_cell))
+                    uart_send("r1");
+                else
+                    uart_send("r0");
                 state = STATE_IDLE;
             }
             break;
@@ -544,7 +548,39 @@ static void process_incoming_data(unsigned int data)
             break;
     }
 }
-
+/* -------------------------------------------------------------------------- */
+static void send_update_to_frontend(unsigned short arg)
+{
+    /*
+     * When a value for a cell's configuration has been changed on the
+     * device itself via the device's menu, that information is sent to
+     * the front-end.
+     * 
+     * arg has the following structure:
+     * 
+     * 0000'ETIU xxxx xxxx
+     *           |_______|
+     *               n      
+     *
+     * E: Exposure changed
+     * T: Temperature changed
+     * I: Short-circuit current changed
+     * U: Open-circuit voltage changed
+     * 
+     * n: cell ID for which said value has changed
+     * 
+     */
+    unsigned char cell_id = (arg & 0xFF);
+    if (arg & 0x0100) {
+        /* voltage */
+    } else if (arg & 0x0200) {
+        /* current */
+    } else if (arg & 0x0400) {
+        /* temperature */
+    } else if (arg & 0x0800) {
+        /* exposure */
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)

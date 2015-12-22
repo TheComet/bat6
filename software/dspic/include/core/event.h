@@ -40,6 +40,7 @@ typedef enum
      *  reaches ~4V */
     EVENT_UVLO,
     EVENT_DATA_RECEIVED,
+    EVENT_CELL_VALUE_UPDATED,
     /* ---------------------------------------------------------------------- */
     /*! The number of event IDs. Used to size the static table.
      *  NOTE: Keep this at the end of the enum! */
