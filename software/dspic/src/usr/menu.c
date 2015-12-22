@@ -475,20 +475,48 @@ static void press_button_longer() { on_button(BUTTON_PRESSED_LONGER); }
 
 /* -------------------------------------------------------------------------- */
 /* These functions help navigate the menu more easily */
+ *
+ * STATE_NAVIGATE_CELL_PARAMETERS lists the selected cell's parameters that
+ * can be changed.
+ *   14.3V 1.0A 14.3W
+ * > Irradiation             Selecting this -> STATE_CONTROL_CELL_IRRADIATION
+ *   Temperature             Selecting this -> STATE_CONTROL_CELL_TEMPERATURE
+ *   Go back                 Selecting this -> STATE_NAVIGATE_PANEL_CELLS
+ *
+ * STATE_CONTROL_CELL_IRRADIATION
+ * STATE_CONTROL_CELL_TEMPERATURE
 static void navigate_to_panel_selection()
 {
+    /*
+     * [Manufacturers]
+     * > Manufacturer 1
+     *   Manufacturer 2
+     *   Manufacturer 3
+     */
     press_button();
 }
 
 static void navigate_to_global_irradiation()
 {
     navigate_to_panel_selection();
+    /*
+     * [Manufacturer Name]
+     * > Panel 1
+     *   Panel 2
+     *   Panel 3
+     */
     press_button();
 }
 
 static void navigate_to_global_parameter_selection()
 {
     navigate_to_global_irradiation();
+    /*
+     * 14.3V 1.0A 14.3W
+     * > Irradiation
+     *   Temperature
+     *   Individual Cells
+     */
     press_button();
 }
 
@@ -504,12 +532,17 @@ static void navigate_to_cell_selection()
     navigate_to_global_parameter_selection();
     twist_button_right(); /* select global temperature */
     twist_button_right(); /* select individual cells */
+     *   14.3V 1.0A 14.3W
+ * > Go back                 Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
+ *   Cell 1                  Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
+ *   Cell 2
     press_button();
 }
 
 static void navigate_to_cell_parameters()
 {
     navigate_to_cell_selection();
+
     press_button();
 }
 
@@ -792,7 +825,7 @@ TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_manufacturer_menu)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
-TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_call_selection)
+TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_cell_selection)
 {
     navigate_to_cell_parameters();
     twist_button_right(); /* select temperature */
@@ -801,7 +834,7 @@ TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_call_selection)
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_PANEL_CELLS));
 }
 
-TEST_F(oled_menu, )
+TEST_F(oled_menu, go_)
 {
 
 }
