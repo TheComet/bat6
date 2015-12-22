@@ -24,7 +24,7 @@ void str_reverse(char* str)
 }
 
 /* -------------------------------------------------------------------------- */
-void str_nstrcat(char* dest, short dest_n, short src_n, ...)
+char* str_nstrcat(char* dest, short dest_n, short src_n, ...)
 {
     va_list ap;
     short i;
@@ -41,10 +41,11 @@ void str_nstrcat(char* dest, short dest_n, short src_n, ...)
     va_end(ap);
 
     *dest = '\0';
+    return dest;
 }
 
 /* -------------------------------------------------------------------------- */
-void str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
+char* str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
 {
     --n; /* reserve space for null terminator */
     while(*s1 && n--)
@@ -52,10 +53,11 @@ void str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
     while(*s2 && n --> 0)
         *dest++ = *s2++;
     *dest = '\0';
+    return dest;
 }
 
 /* -------------------------------------------------------------------------- */
-void str_append(char* dest, short n, const char* src)
+char* str_append(char* dest, short n, const char* src)
 {
     --n; /* null terminator is always written */
     while(*dest && n--)
@@ -63,10 +65,11 @@ void str_append(char* dest, short n, const char* src)
     while(*src && n--)
         *dest++ = *src++;
     *dest = '\0';
+    return dest;
 }
 
 /* -------------------------------------------------------------------------- */
-void str_nitoa(char* dest, short digits, short number)
+char* str_nitoa(char* dest, short digits, short number)
 {
     char buffer[5], *ptr; /* enough to hold a short without null terminator */
     unsigned char is_negative = 0;
@@ -76,7 +79,7 @@ void str_nitoa(char* dest, short digits, short number)
     {
         *dest++ = '0';
         *dest = '\0';
-        return;
+        return dest;
     }
 
     /* handle negative numbers */
@@ -103,6 +106,29 @@ void str_nitoa(char* dest, short digits, short number)
     while(ptr-- != buffer && digits --> 0)
         *dest++ = *ptr;
     *dest = '\0';
+    return dest;
+}
+
+/* -------------------------------------------------------------------------- */
+char* str_q16itoa(char* dest, short n, _Q16 value)
+{
+    char* ptr;
+    short before_decimal = value >> 16;
+    unsigned short after_decimal = (value & 0xFFFF) * 10000 / 65536;
+
+    if(after_decimal && before_decimal < 0)
+        ++before_decimal;
+
+    /* convert before decimal, update n */
+    ptr = str_nitoa(dest, n, before_decimal);
+    n -= ptr - dest;
+
+    /* not enough space for decimal point and at least one number? */
+    if(n < 1)
+        return ptr;
+
+    *ptr++ = '.'; *ptr = '\0';
+    return str_nitoa(ptr, n, after_decimal);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -133,15 +159,22 @@ TEST(string, reverse_empty_string)
 TEST(string, nstrcat)
 {
     char buffer[10];
-    str_nstrcat(buffer, 10, 4, "This ", "is ", "a ", "test");
+    char* ret = str_nstrcat(buffer, 10, 4, "This ", "is ", "a ", "test");
+    EXPECT_THAT(ret, Eq(buffer + 9));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
 }
 
 TEST(string, nstrcat_aliasing_buffers)
 {
     char buffer[32];
-    str_nstrcat(buffer, 32, 3, "this ", "is ", "a ");
-    str_nstrcat(buffer, 32, 2, buffer, "test");
+    char* ret = str_nstrcat(buffer, 32, 3, "this ", "is ", "a ");
+    EXPECT_THAT(ret, Eq(buffer + 10));
+    ASSERT_THAT(*ret, Eq('\0'));
+
+    ret = str_nstrcat(buffer, 32, 2, buffer, "test");
+    EXPECT_THAT(ret, Eq(buffer + 14));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("this is a test"));
 }
 
@@ -149,7 +182,9 @@ TEST(string, append_to_empty_string)
 {
     char buffer[32];
     buffer[0] = '\0';
-    str_append(buffer, 32, "test");
+    char* ret = str_append(buffer, 32, "test");
+    EXPECT_THAT(ret, Eq(buffer + 4));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("test"));
 }
 
@@ -157,7 +192,9 @@ TEST(string, append_empty_string)
 {
     char buffer[32];
     strcpy(buffer, "this is ");
-    str_append(buffer, 32, "");
+    char* ret = str_append(buffer, 32, "");
+    EXPECT_THAT(ret, Eq(buffer + 8));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("this is "));
 }
 
@@ -165,7 +202,9 @@ TEST(string, append_string)
 {
     char buffer[32];
     strcpy(buffer, "this is ");
-    str_append(buffer, 32, "a test");
+    char* ret = str_append(buffer, 32, "a test");
+    EXPECT_THAT(ret, Eq(buffer + 14));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("this is a test"));
 }
 
@@ -173,7 +212,9 @@ TEST(string, append_string_with_smaller_target_buffer)
 {
     char buffer[5];
     strcpy(buffer, "th");
-    str_append(buffer, 5, "is a test");
+    char* ret = str_append(buffer, 5, "is a test");
+    EXPECT_THAT(ret, Eq(buffer + 4));
+    ASSERT_THAT(*ret, Eq('\0'));
     EXPECT_THAT(buffer, StrEq("this"));
 }
 
@@ -203,6 +244,15 @@ TEST(string, nitoa_smaller_target_buffer)
     char s[32];
     str_nitoa(s, 2, -18478);
     EXPECT_THAT(s, StrEq("-18"));
+}
+
+TEST(string, Q16itoa)
+{
+    char s[32];
+    _Q16 value = (_Q16)(float)(11.5 * 65536);
+    char* ret = str_q16itoa(s, 3, value);
+    ASSERT_THAT(*ret, Eq('\0'));
+    EXPECT_THAT(s, StrEq("11.5"));
 }
 
 #endif /* TESTING */
