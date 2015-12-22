@@ -47,10 +47,21 @@ void str_nstrcat(char* dest, short dest_n, short src_n, ...)
 void str_2nstrcat(char* dest, short n, const char* s1, const char* s2)
 {
     --n; /* reserve space for null terminator */
-    while(*s1 && n --> 0)
+    while(*s1 && n--)
         *dest++ = *s1++;
     while(*s2 && n --> 0)
         *dest++ = *s2++;
+    *dest = '\0';
+}
+
+/* -------------------------------------------------------------------------- */
+void str_append(char* dest, short n, const char* src)
+{
+    --n; /* null terminator is always written */
+    while(*dest && n--)
+        ++dest;
+    while(*src && n--)
+        *dest++ = *src++;
     *dest = '\0';
 }
 
@@ -124,6 +135,46 @@ TEST(string, nstrcat)
     char buffer[10];
     str_nstrcat(buffer, 10, 4, "This ", "is ", "a ", "test");
     EXPECT_THAT(buffer, StrEq("This is a")); /* 9 characters */
+}
+
+TEST(string, nstrcat_aliasing_buffers)
+{
+    char buffer[32];
+    str_nstrcat(buffer, 32, 3, "this ", "is ", "a ");
+    str_nstrcat(buffer, 32, 2, buffer, "test");
+    EXPECT_THAT(buffer, StrEq("this is a test"));
+}
+
+TEST(string, append_to_empty_string)
+{
+    char buffer[32];
+    buffer[0] = '\0';
+    str_append(buffer, 32, "test");
+    EXPECT_THAT(buffer, StrEq("test"));
+}
+
+TEST(string, append_empty_string)
+{
+    char buffer[32];
+    strcpy(buffer, "this is ");
+    str_append(buffer, 32, "");
+    EXPECT_THAT(buffer, StrEq("this is "));
+}
+
+TEST(string, append_string)
+{
+    char buffer[32];
+    strcpy(buffer, "this is ");
+    str_append(buffer, 32, "a test");
+    EXPECT_THAT(buffer, StrEq("this is a test"));
+}
+
+TEST(string, append_string_with_smaller_target_buffer)
+{
+    char buffer[5];
+    strcpy(buffer, "th");
+    str_append(buffer, 5, "is a test");
+    EXPECT_THAT(buffer, StrEq("this"));
 }
 
 TEST(string, nitoa_positive_number)

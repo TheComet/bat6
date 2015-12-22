@@ -46,6 +46,17 @@ void str_nstrcat(char* dest, short dest_n, short src_n, ...);
 void str_2nstrcat(char* dest, short n, const char* s1, const char* s2);
 
 /*!
+ * @brief Appends a string to the end of the specified string and makes sure the
+ * target buffer size is not exceeded.
+ * @param[out] dest The destination buffer to write into.
+ * @param[in] n The destination buffer length, **including** null terminator.
+ * @param[in] src The source string to append to the buffer.
+ *@note If the total length of the buffer is exceeded, the function returns.
+ * This leaves the destination buffer in a truncated state.
+ */
+void str_append(char* dest, short n, const char* src);
+
+/*!
  * @brief Converts the first n digits of an integer into a string.
  * @param[out] dest The destination buffer to write into.
  * @param[in] digits The number of digits to write to the destination buffer,
