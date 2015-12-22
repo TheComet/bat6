@@ -57,6 +57,7 @@ static void process_incoming_data(unsigned int data);
 static void configure_pins(void);
 static void configure_uart(void);
 static void send_next_byte(void);
+static void send_update_to_frontend(unsigned int arg);
 
 typedef enum
 {
@@ -246,27 +247,47 @@ static short convert_unit(_Q16 input)
  
 /* -------------------------------------------------------------------------- */
 
+static short get_cell_voltage(unsigned char cell_id)
+{
+    return convert_milli(model_get_open_circuit_voltage(cell_id));
+}
+
+static short get_cell_current(unsigned char cell_id)
+{
+    return convert_milli(model_get_short_circuit_current(cell_id));
+}
+
+static short get_cell_exposure(unsigned char cell_id)
+{
+    return convert_deci(model_get_thermal_voltage(cell_id));
+}
+
+static short get_cell_temperature(unsigned char cell_id)
+{
+    return convert_unit(model_get_relative_solar_irradiation(cell_id));   
+}
+
 static void send_cell_config(unsigned char cell_id)
 {
     char buffer_str[BUFFER_LENGTH]; /* five digits, sign, '\0' terminator */
     short buffer_num;
 
-    buffer_num = convert_milli(model_get_open_circuit_voltage(cell_id));
+    buffer_num = get_cell_voltage(cell_id);
     str_nitoa(buffer_str, VOLTAGE_LENGTH, buffer_num);
     uart_send("U");
     uart_send(buffer_str);
 
-    buffer_num = convert_milli(model_get_short_circuit_current(cell_id));
+    buffer_num = get_cell_current(cell_id);
     str_nitoa(buffer_str, CURRENT_LENGTH, buffer_num);
     uart_send("I");
     uart_send(buffer_str);
 
-    buffer_num = convert_deci(model_get_thermal_voltage(cell_id));
+    buffer_num = get_cell_temperature(cell_id);
     str_nitoa(buffer_str, TEMPERATURE_LENGTH, buffer_num);
     uart_send("T");
     uart_send(buffer_str);
 
-    buffer_num = convert_unit(model_get_relative_solar_irradiation(cell_id));
+    buffer_num = get_cell_exposure(cell_id);
     str_nitoa(buffer_str, EXPOSURE_LENGTH, buffer_num);
     uart_send("E");
     uart_send(buffer_str);
@@ -549,8 +570,9 @@ static void process_incoming_data(unsigned int data)
     }
 }
 /* -------------------------------------------------------------------------- */
-static void send_update_to_frontend(unsigned short arg)
+static void send_update_to_frontend(unsigned int arg)
 {
+#define UPDATE_BUFFER_LENGTH 10
     /*
      * When a value for a cell's configuration has been changed on the
      * device itself via the device's menu, that information is sent to
@@ -571,15 +593,37 @@ static void send_update_to_frontend(unsigned short arg)
      * 
      */
     unsigned char cell_id = (arg & 0xFF);
+    char buffer[UPDATE_BUFFER_LENGTH];
+    *buffer='\0';
+    
+    str_append(buffer, UPDATE_BUFFER_LENGTH, "dc");
+       
+    char numerical_buffer_str[BUFFER_LENGTH];
+
     if (arg & 0x0100) {
         /* voltage */
+        str_append(buffer, UPDATE_BUFFER_LENGTH, "U");
+        str_nitoa(numerical_buffer_str, VOLTAGE_LENGTH, get_cell_voltage(cell_id));
+        str_append(buffer, UPDATE_BUFFER_LENGTH, numerical_buffer_str);
     } else if (arg & 0x0200) {
         /* current */
+        str_append(buffer, UPDATE_BUFFER_LENGTH, "I");
+        str_nitoa(numerical_buffer_str, CURRENT_LENGTH, get_cell_current(cell_id));
+        str_append(buffer, UPDATE_BUFFER_LENGTH, numerical_buffer_str);
     } else if (arg & 0x0400) {
         /* temperature */
+        str_append(buffer, UPDATE_BUFFER_LENGTH, "T");
+        str_nitoa(numerical_buffer_str, CURRENT_LENGTH, get_cell_temperature(cell_id));
+        str_append(buffer, UPDATE_BUFFER_LENGTH, numerical_buffer_str);
     } else if (arg & 0x0800) {
         /* exposure */
-    }
+        str_append(buffer, UPDATE_BUFFER_LENGTH, "E");
+        str_nitoa(numerical_buffer_str, CURRENT_LENGTH, get_cell_exposure(cell_id));
+        str_append(buffer, UPDATE_BUFFER_LENGTH, numerical_buffer_str);
+    } else
+        return
+    
+    uart_send(buffer);
 }
 
 /* -------------------------------------------------------------------------- */

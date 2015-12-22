@@ -353,7 +353,7 @@ static void append_irradiation_of_first_cell(char* buffer)
         str_append(buffer, 21, "---");
         return;
     }
-    value = model_get_relative_solar_irridation(value);
+    value = model_get_relative_solar_irradiation(value);
     str_nitoa(str, 3, value);
     str_append(buffer, 21, str);
 }
