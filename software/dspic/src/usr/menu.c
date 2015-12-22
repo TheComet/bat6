@@ -21,11 +21,11 @@
  *         - Cell 1                      ...
  *         - Cell 2                      ...
  *         + Cell 3                      ...
- *           + Irradiation               STATE_NAVIGATE_CELL_PARAMETERS
+ *           + Irradiation               STATE_NAVIGATE_Q16_PARAMETERS
  *             - 100%                    STATE_CONTROL_CELL_IRRADIATION
- *           + Temperature               STATE_NAVIGATE_CELL_PARAMETERS
+ *           + Temperature               STATE_NAVIGATE_Q16_PARAMETERS
  *             - 20.0°                   STATE_CONTROL_CELL_TEMPERATURE
- *           - Global Parameters         STATE_NAVIGATE_CELL_PARAMETERS
+ *           - Global Parameters         STATE_NAVIGATE_Q16_PARAMETERS
  *
  * STATE_NAVIGATE_MANUFACTURERS lists all manufacturers. Selecting an item in
  * this menu brings you to the manufacturer's panel selection menu and
@@ -56,13 +56,13 @@
  * equally.
  *
  * STATE_NAVIGATE_PANEL_CELLS lists the model's cells for selection. Selecting
- * a cell switches state to STATE_NAVIGATE_CELL_PARAMETERS.
+ * a cell switches state to STATE_NAVIGATE_Q16_PARAMETERS.
  *   14.3V 1.0A 14.3W
  * > Go back                 Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
- *   Cell 1                  Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
+ *   Cell 1                  Selecting this -> STATE_NAVIGATE_Q16_PARAMETERS
  *   Cell 2
  *
- * STATE_NAVIGATE_CELL_PARAMETERS lists the selected cell's parameters that
+ * STATE_NAVIGATE_Q16_PARAMETERS lists the selected cell's parameters that
  * can be changed.
  *   14.3V 1.0A 14.3W
  * > Irradiation             Selecting this -> STATE_CONTROL_CELL_IRRADIATION
@@ -140,10 +140,16 @@ const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int
 unsigned char model_cell_add_test(void);
 unsigned char model_cell_begin_iteration_test();
 unsigned char model_cell_get_next_test();
+void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value);
+void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value);
+void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value);
+void model_set_relative_solar_irradiation_test(unsigned char cell_id, _Q16 value);
 _Q16 model_get_open_circuit_voltage_test(unsigned char cell_id);
 _Q16 model_get_short_circuit_current_test(unsigned char cell_id);
 _Q16 model_get_thermal_voltage_test(unsigned char cell_id);
-_Q16 model_get_relative_solar_irridation_test(unsigned char cell_id);
+_Q16 model_get_relative_solar_irradiation_test(unsigned char cell_id);
+_Q16 buck_get_voltage_test();
+_Q16 buck_get_current_test();
 #   define panels_db_get_manufacturers_count       \
            panels_db_get_manufacturers_count_test
 #   define panels_db_get_panel_count               \
@@ -164,14 +170,26 @@ _Q16 model_get_relative_solar_irridation_test(unsigned char cell_id);
            lcd_writeline_test
 #   define model_cell_add                          \
            model_cell_add_test
+#   define model_set_open_circuit_voltage          \
+           model_set_open_circuit_voltage_test
+#   define model_set_short_circuit_current         \
+           model_set_short_circuit_current_test
+#   define model_set_thermal_voltage               \
+           model_set_thermal_voltage_test
+#   define model_set_relative_solar_irradiation    \
+           model_set_relative_solar_irradiation_test
 #   define model_get_open_circuit_voltage          \
            model_get_open_circuit_voltage_test
 #   define model_get_short_circuit_current         \
            model_get_short_circuit_current_test
 #   define model_get_thermal_voltage               \
            model_get_thermal_voltage_test
-#   define model_get_relative_solar_irridation     \
-           model_get_relative_solar_irridation_test
+#   define model_get_relative_solar_irradiation    \
+           model_get_relative_solar_irradiation_test
+#   define buck_get_voltage                        \
+           buck_get_voltage_test
+#   define buck_get_current                        \
+           buck_get_current_test
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -352,32 +370,39 @@ static void handle_menu_switches(unsigned int button)
 /* -------------------------------------------------------------------------- */
 static void append_temperature_of_first_cell(char* buffer)
 {
-    char str[5]; /* "-999" is the largest string, +1 for null terminator */
-    short value = model_cell_begin_iteration();
-    if(value == 0) /* invalid cell */
+    char* ptr = buffer;
+    short cell_id = model_cell_begin_iteration();
+    if(cell_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
     }
-    value = model_get_thermal_voltage(value);
-    str_nitoa(str, 3, value);
-    str_append(buffer, 21, str);
-    str_append(buffer, 21, "°C");
+    /* find insertion point in buffer */
+    while(*ptr)
+        ++ptr;
+
+    /* allow for 4 characters for this number */
+    ptr = str_q16itoa(ptr, 4, model_get_thermal_voltage(cell_id));
+    str_append(ptr, 21 + buffer - ptr, "°C");
 }
 
 /* -------------------------------------------------------------------------- */
 static void append_irradiation_of_first_cell(char* buffer)
 {
-    char str[5]; /* "100" is the largest string, +1 for null terminator */
-    short value = model_cell_begin_iteration();
-    if(value == 0) /* invalid cell */
+    char* ptr = buffer;
+    short cell_id = model_cell_begin_iteration();
+    if(cell_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
     }
-    value = model_get_relative_solar_irradiation(value);
-    str_nitoa(str, 3, value);
-    str_append(buffer, 21, str);
+    /* find insertion point in buffer */
+    while(*ptr)
+        ++ptr;
+
+    /* allow for 3 characters for this number */
+    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(cell_id));
+    str_append(ptr, 21 + buffer - ptr, "%");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -432,15 +457,15 @@ static void menu_update(void)
             case STATE_NAVIGATE_GLOBAL_PARAMETERS:
                 if(i == 0)
                 {
-                    str_append(buffer, 21, "Temperature ");
-                    append_temperature_of_first_cell(buffer);
+                    str_append(buffer, 21, "Exposure ");
+                    append_irradiation_of_first_cell(buffer);
                 } else if(i == 1)
                 {
-                    str_append(buffer, 21, "Irradiation ");
-                    append_irradiation_of_first_cell(buffer);
+                    str_append(buffer, 21, "Temp ");
+                    append_temperature_of_first_cell(buffer);
                 } else
                 {
-                    str_append(buffer, 21, "Go Back");
+                    str_append(buffer, 21, "Individual Cells");
                 }
 
                 break;
@@ -458,13 +483,6 @@ static void menu_update(void)
 static void refresh_measurements(void)
 {
     char line[21], *lineptr;
-    char buffer[4]; /* enough for 2 digits */
-
-    /* because we're lazy programmers */
-#define append_to_line(lineptr, str) do { \
-    const char* ptr = str;                \
-    while(*ptr)                           \
-        *lineptr++ = *ptr++;    }while(0)
 
     _Q16 voltage = buck_get_voltage();
     _Q16 current = buck_get_current();
@@ -473,27 +491,15 @@ static void refresh_measurements(void)
     lineptr = line;
 
     /* Add voltage to line */
-    str_nitoa(buffer, 2, voltage >> 16);
-    append_to_line(lineptr, buffer);            /* 3 */
-    append_to_line(lineptr, ".");               /* 4 */
-    str_nitoa(buffer, 2, voltage & 0xFFFF);
-    append_to_line(lineptr, buffer);            /* 6 */
-    append_to_line(lineptr, "V ");              /* 8 */
-
+    lineptr = str_q16itoa(lineptr, 5, voltage); /* 4 */
+    lineptr = str_append(lineptr, 3, "V ");     /* 6 */
     /* Add current to line */
-    str_nitoa(buffer, 1, current >> 16);
-    append_to_line(lineptr, buffer);            /* 10 */
-    append_to_line(lineptr, ".");               /* 11 */
-    str_nitoa(buffer, 2, current & 0xFFFF);
-    append_to_line(lineptr, buffer);            /* 13 */
-    append_to_line(lineptr, "A ");              /* 15 */
-
+    lineptr = str_q16itoa(lineptr, 6, current); /* 11 */
+    lineptr = str_append(lineptr, 3, "A ");     /* 13 */
     /* Add power to line */
-    str_nitoa(buffer, 2, power >> 16);
-    append_to_line(lineptr, buffer);            /* 18 */
-    append_to_line(lineptr, "W");               /* 19 */
+    lineptr = str_q16itoa(lineptr, 5, power);   /* 17 */
+    lineptr = str_append(lineptr, 2, "W");      /* 18 */
 
-    *lineptr = '\0';
     lcd_writeline(0, line);
 }
 
@@ -546,9 +552,9 @@ int panels_db_get_cell_count_test(int manufacturer, int panel) {
 
 /* -------------------------------------------------------------------------- */
 /* set up active model API for testing. We use one default cell. */
-#define CELL_PARAM(x) ((_Q16)(x * 65536))
+#define Q16_PARAM(x) ((_Q16)(x * 65536))
 static struct pv_cell_t default_cell = {
-    CELL_PARAM(-24.5), CELL_PARAM(-5), CELL_PARAM(6), CELL_PARAM(100)
+    Q16_PARAM(6), Q16_PARAM(2), Q16_PARAM(99.99), Q16_PARAM(100)
 };
 
 const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell) {
@@ -558,10 +564,20 @@ const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int
 unsigned char model_cell_add() { return 1; }
 unsigned char model_cell_begin_iteration_test() { return 1; }
 unsigned char model_cell_get_next_test() { return 0; }
-_Q16 model_get_open_circuit_voltage(unsigned char cell_id)      { if(cell_id == 1) return default_cell.voc; else return 0; }
-_Q16 model_get_short_circuit_current(unsigned char cell_id)     { if(cell_id == 1) return default_cell.isc; else return 0; }
-_Q16 model_get_thermal_voltage(unsigned char cell_id)           { if(cell_id == 1) return default_cell.vt;  else return 0; }
-_Q16 model_get_relative_solar_irridation(unsigned char cell_id) { if(cell_id == 1) return default_cell.g;   else return 0; }
+void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value)      { if(cell_id == 1) default_cell.voc = value;  }
+void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value)     { if(cell_id == 1) default_cell.isc = value;  }
+void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value)           { if(cell_id == 1) default_cell.vt  = value;  }
+void model_set_relative_solar_irradiation_test(unsigned char cell_id, _Q16 value) { if(cell_id == 1) default_cell.g   = value;  }
+_Q16 model_get_open_circuit_voltage(unsigned char cell_id)                       { if(cell_id == 1) return default_cell.voc; else return 0; }
+_Q16 model_get_short_circuit_current(unsigned char cell_id)                      { if(cell_id == 1) return default_cell.isc; else return 0; }
+_Q16 model_get_thermal_voltage(unsigned char cell_id)                            { if(cell_id == 1) return default_cell.vt;  else return 0; }
+_Q16 model_get_relative_solar_irradiation(unsigned char cell_id)                  { if(cell_id == 1) return default_cell.g;   else return 0; }
+
+
+/* -------------------------------------------------------------------------- */
+/* re-implement buck API to return measurement values we can test */
+_Q16 buck_get_voltage_test(void) { return Q16_PARAM(-24.5); }
+_Q16 buck_get_current_test(void) { return Q16_PARAM(-5.5); }
 
 /* -------------------------------------------------------------------------- */
 /* adds all lines written to the LCD to a string instead */
@@ -584,39 +600,39 @@ const char* PANEL_SELECTION_STRING = "\
 2:   Panel 2\n\
 3:   Panel 3\n";
 const char* GLOBAL_PARAMETER_SELECTION_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1: > Irradiation 100%\n\
-2:   Temperature 99.9°C\n\
+0: -24.5V -5.500A 134.7W\n\
+1: > Exposure 100%\n\
+2:   Temp 99.9°C\n\
 3:   Individual Cells\n";
 const char* GLOBAL_IRRADIATION_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1: = Irradiation 100%\n\
-2:   Temperature 99.9°C\n\
+0: -24.5V -5.500A 134.7W\n\
+1: = Exposure 100%\n\
+2:   Temp 99.9°C\n\
 3:   Individual Cells\n";
 const char* GLOBAL_TEMPERATURE_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1:   Irradiation 100%\n\
-2: = Temperature 99.9°C\n\
+0: -24.5V -5.500A 134.7W\n\
+1:   Exposure 100%\n\
+2: = Temp 99.9°C\n\
 3:   Individual Cells\n";
 const char* CELL_SELECTION_STRING = "\
-0: -24.5V -5.00A 122W\n\
+0: -24.5V -5.500A 134.7W\n\
 1: > Cell 1\n\
 2:   Cell 2\n\
 3:   Cell 3\n";
-const char* CELL_PARAMETER_SELECTION_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1: > Irradiation 100%\n\
-2:   Temperature 99.9°C\n\
+const char* Q16_PARAMETER_SELECTION_STRING = "\
+0: -24.5V -5.500A 134.7W\n\
+1: > Exposure 100%\n\
+2:   Temp 99.9°C\n\
 3:   Go Back\n";
 const char* CELL_IRRADIATION_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1: = Irradiation 100%\n\
-2:   Temperature 99.9°C\n\
+0: -24.5V -5.500A 134.7W\n\
+1: = Exposure 100%\n\
+2:   Temp 99.9°C\n\
 3:   Go Back\n";
 const char* CELL_TEMPERATURE_STRING = "\
-0: -24.5V -5.00A 122W\n\
-1:   Irradiation 100%\n\
-2: = Temperature 99.9°C\n\
+0: -24.5V -5.500A 134.7W\n\
+1:   Exposure 100%\n\
+2: = Temp 99.9°C\n\
 3:   Go Back\n";
 
 /* -------------------------------------------------------------------------- */
@@ -697,7 +713,7 @@ void navigate_to_cell_parameters()
     /*
      * 14.3V 1.0A 14.3W
      *   Go back              Selecting this -> STATE_NAVIGATE_GLOBAL_PARAMETERS
-     * > Cell 1               Selecting this -> STATE_NAVIGATE_CELL_PARAMETERS
+     * > Cell 1               Selecting this -> STATE_NAVIGATE_Q16_PARAMETERS
      *   Cell 2
      */
     press_button();
@@ -969,7 +985,7 @@ TEST_F(oled_menu, go_from_cell_selection_into_cell_parameter_selection)
     lcd_string.clear();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(CELL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(Q16_PARAMETER_SELECTION_STRING));
 }
 
 TEST_F(oled_menu, go_back_from_cell_parameter_selection_to_panel_cell_selection)
@@ -998,7 +1014,7 @@ TEST_F(oled_menu, go_back_from_controlling_cell_irradiation_to_cell_parameter_se
     lcd_string.clear();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(CELL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(Q16_PARAMETER_SELECTION_STRING));
 }
 
 TEST_F(oled_menu, go_from_cell_parameter_selection_to_controlling_cell_temperature)
@@ -1017,7 +1033,7 @@ TEST_F(oled_menu, go_back_from_controlling_cell_temperature_to_cell_parameter_se
     lcd_string.clear();
     press_button();
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_CELL_PARAMETERS));
-    EXPECT_THAT(lcd_string, StrEq(CELL_PARAMETER_SELECTION_STRING));
+    EXPECT_THAT(lcd_string, StrEq(Q16_PARAMETER_SELECTION_STRING));
 }
 
 TEST_F(oled_menu, go_back_from_panel_menu_to_manufacturer_menu)

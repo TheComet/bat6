@@ -133,7 +133,7 @@ char* str_q16itoa(char* dest, short n, _Q16 value)
         return ptr;
 
     *ptr++ = '.'; *ptr = '\0';
-    return str_nitoa(ptr, n - 1, after_decimal);
+    return str_nitoa(ptr, n, after_decimal);
 }
 
 /* -------------------------------------------------------------------------- */
