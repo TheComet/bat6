@@ -51,7 +51,7 @@ void model_cell_remove_all(void);
  * called, the next cell ID can be retrieved.
  * @return Returns the first cell ID if it exists, or 0 if it does not exist.
  */
-short model_cell_begin_iteration(void);
+unsigned char model_cell_begin_iteration(void);
 
 /*!
  * @brief Gets the next cell ID in the chain, relative to the last retrieved
@@ -61,7 +61,7 @@ short model_cell_begin_iteration(void);
  * @return Returns the next cell ID in the chain if it exists, or 0 if it does
  * not exist.
  */
-short model_cell_get_next(void);
+unsigned char model_cell_get_next(void);
 
 /*!
  * @brief Sets the open circuit voltage of the actively selected cell.

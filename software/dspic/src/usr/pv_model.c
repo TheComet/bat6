@@ -113,13 +113,13 @@ void model_cell_remove_all(void)
 }
 
 /* -------------------------------------------------------------------------- */
-short model_cell_begin_iteration(void)
+unsigned char model_cell_begin_iteration(void)
 {
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-short model_cell_get_next(void)
+unsigned char model_cell_get_next(void)
 {
     return 0;
 }

@@ -137,6 +137,13 @@ const char* panels_db_get_panel_name_test(int manufacturer, int panel);
 void lcd_writeline_test(int line, const char* str);
 int panels_db_get_cell_count_test(int manufacturer, int panel);
 const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell);
+unsigned char model_cell_add_test(void);
+unsigned char model_cell_begin_iteration_test();
+unsigned char model_cell_get_next_test();
+_Q16 model_get_open_circuit_voltage_test(unsigned char cell_id);
+_Q16 model_get_short_circuit_current_test(unsigned char cell_id);
+_Q16 model_get_thermal_voltage_test(unsigned char cell_id);
+_Q16 model_get_relative_solar_irridation_test(unsigned char cell_id);
 #   define panels_db_get_manufacturers_count       \
            panels_db_get_manufacturers_count_test
 #   define panels_db_get_panel_count               \
@@ -149,8 +156,22 @@ const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int
            panels_db_get_cell_count_test
 #   define panels_db_get_cell                      \
            panels_db_get_cell_test
+#   define model_cell_begin_iteration              \
+           model_cell_begin_iteration_test
+#   define model_cell_get_next                     \
+           model_cell_get_next_test
 #   define lcd_writeline                           \
            lcd_writeline_test
+#   define model_cell_add                          \
+           model_cell_add_test
+#   define model_get_open_circuit_voltage          \
+           model_get_open_circuit_voltage_test
+#   define model_get_short_circuit_current         \
+           model_get_short_circuit_current_test
+#   define model_get_thermal_voltage               \
+           model_get_thermal_voltage_test
+#   define model_get_relative_solar_irridation     \
+           model_get_relative_solar_irridation_test
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -341,6 +362,7 @@ static void append_temperature_of_first_cell(char* buffer)
     value = model_get_thermal_voltage(value);
     str_nitoa(str, 3, value);
     str_append(buffer, 21, str);
+    str_append(buffer, 21, "°C");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -521,13 +543,25 @@ const char* panels_db_get_panel_name_test(int manufacturer, int panel) {
 int panels_db_get_cell_count_test(int manufacturer, int panel) {
     return 3;
 }
-#define CELL_PARAM(x) ((int)(x * 65536))
+
+/* -------------------------------------------------------------------------- */
+/* set up active model API for testing. We use one default cell. */
+#define CELL_PARAM(x) ((_Q16)(x * 65536))
+static struct pv_cell_t default_cell = {
+    CELL_PARAM(-24.5), CELL_PARAM(-5), CELL_PARAM(6), CELL_PARAM(100)
+};
+
 const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell) {
-    static struct pv_cell_t default_cell = {
-        CELL_PARAM(-24.5), CELL_PARAM(-5), CELL_PARAM(6), CELL_PARAM(100)
-    };
     return &default_cell;
 }
+
+unsigned char model_cell_add() { return 1; }
+unsigned char model_cell_begin_iteration_test() { return 1; }
+unsigned char model_cell_get_next_test() { return 0; }
+_Q16 model_get_open_circuit_voltage(unsigned char cell_id)      { if(cell_id == 1) return default_cell.voc; else return 0; }
+_Q16 model_get_short_circuit_current(unsigned char cell_id)     { if(cell_id == 1) return default_cell.isc; else return 0; }
+_Q16 model_get_thermal_voltage(unsigned char cell_id)           { if(cell_id == 1) return default_cell.vt;  else return 0; }
+_Q16 model_get_relative_solar_irridation(unsigned char cell_id) { if(cell_id == 1) return default_cell.g;   else return 0; }
 
 /* -------------------------------------------------------------------------- */
 /* adds all lines written to the LCD to a string instead */
