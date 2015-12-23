@@ -13,7 +13,7 @@ TARGET = smooth
 TEMPLATE = app
 CONFIG += c++11
 
-unix:!macx: LIBS += -lqwt6 -lqwtplot3d -lGLU
+unix:!macx: LIBS += -lqwt -lqwtplot3d -lGLU
 unix: QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES +=  main.cpp \
