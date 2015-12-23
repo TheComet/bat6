@@ -759,15 +759,14 @@ const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int
 unsigned char model_cell_add() { return 1; }
 unsigned char model_cell_begin_iteration_test() { return 1; }
 unsigned char model_cell_get_next_test() { return 0; }
-void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value)      { if(cell_id == 1) default_cell.voc = value;  }
-void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value)     { if(cell_id == 1) default_cell.isc = value;  }
-void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value)           { if(cell_id == 1) default_cell.vt  = value;  }
+void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value)       { if(cell_id == 1) default_cell.voc = value;  }
+void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value)      { if(cell_id == 1) default_cell.isc = value;  }
+void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value)            { if(cell_id == 1) default_cell.vt  = value;  }
 void model_set_relative_solar_irradiation_test(unsigned char cell_id, _Q16 value) { if(cell_id == 1) default_cell.g   = value;  }
-_Q16 model_get_open_circuit_voltage(unsigned char cell_id)                       { if(cell_id == 1) return default_cell.voc; else return 0; }
-_Q16 model_get_short_circuit_current(unsigned char cell_id)                      { if(cell_id == 1) return default_cell.isc; else return 0; }
-_Q16 model_get_thermal_voltage(unsigned char cell_id)                            { if(cell_id == 1) return default_cell.vt;  else return 0; }
+_Q16 model_get_open_circuit_voltage(unsigned char cell_id)                        { if(cell_id == 1) return default_cell.voc; else return 0; }
+_Q16 model_get_short_circuit_current(unsigned char cell_id)                       { if(cell_id == 1) return default_cell.isc; else return 0; }
+_Q16 model_get_thermal_voltage(unsigned char cell_id)                             { if(cell_id == 1) return default_cell.vt;  else return 0; }
 _Q16 model_get_relative_solar_irradiation(unsigned char cell_id)                  { if(cell_id == 1) return default_cell.g;   else return 0; }
-
 
 /* -------------------------------------------------------------------------- */
 /* re-implement buck API to return measurement values we can test */
