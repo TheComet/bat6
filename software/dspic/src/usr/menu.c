@@ -118,13 +118,20 @@ struct menu_navigation_t
     short item;
 };
 
+struct menu_cell_t
+{
+    unsigned char active_id;
+    unsigned char count;
+};
+
 struct menu_t
 {
     menu_state_e state;
     struct menu_navigation_t navigation;
-    short manufacturer;
-    unsigned char active_cell_id;
-    short cell_count;
+    union {
+        struct menu_cell_t cell;
+        short manufacturer;
+    };
 };
 
 struct menu_t menu;
@@ -296,14 +303,14 @@ static void activate_selected_panel()
     model_cell_remove_all();
 
     /* store cell count in menu state, as it's required by submenus */
-    menu.cell_count = panels_db_get_cell_count(menu.manufacturer,
+    menu.cell.count = panels_db_get_cell_count(menu.manufacturer,
                                                menu.navigation.item);
 
     /*
      * Copy parameters for each cell in the db and add them to a
      * new cell in the active model
      */
-    for(i = 0; i != menu.cell_count; ++i)
+    for(i = 0; i != menu.cell.count; ++i)
     {
         const struct pv_cell_t* cell = panels_db_get_cell(
                 menu.manufacturer,
@@ -323,7 +330,7 @@ static void activate_selected_panel()
 static void load_menu_navigate_global_parameters(void)
 {
     /* this is the cell that is used to display the global parameters */
-    menu.active_cell_id = model_cell_begin_iteration();
+    menu.cell.active_id = model_cell_begin_iteration();
 
     menu.navigation.max = 3;
     menu.navigation.item = 0;
@@ -355,7 +362,7 @@ static void load_menu_control_global_temperature(void)
 static void load_menu_navigate_panel_cells(void)
 {
     /* There is an additional "Go Back" option in this menu */
-    menu.navigation.max = menu.cell_count + 1;
+    menu.navigation.max = menu.cell.count + 1;
     menu.navigation.item = 0;
     menu.navigation.scroll = 0;
 
@@ -367,9 +374,9 @@ static void select_active_cell_from_active_menu(void)
     unsigned char i = 0;
 
     /* Get the cell ID of the selected cell. */
-    for(menu.active_cell_id = model_cell_begin_iteration();
-        menu.active_cell_id != 0;
-        menu.active_cell_id = model_cell_get_next(), i++)
+    for(menu.cell.active_id = model_cell_begin_iteration();
+        menu.cell.active_id != 0;
+        menu.cell.active_id = model_cell_get_next(), i++)
     {
         if(i == menu.navigation.item - 1)
             break;
@@ -530,7 +537,7 @@ static void handle_menu_switches(unsigned int button)
 static void append_temperature_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    if(menu.active_cell_id == 0) /* invalid cell */
+    if(menu.cell.active_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
@@ -540,7 +547,7 @@ static void append_temperature_of_selected_cell(char* buffer)
         ++ptr;
 
     /* allow for 4 characters for this number */
-    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.active_cell_id));
+    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id));
     str_append(ptr, 21 + buffer - ptr, "°C");
 }
 
@@ -548,7 +555,7 @@ static void append_temperature_of_selected_cell(char* buffer)
 static void append_irradiation_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    if(menu.active_cell_id == 0) /* invalid cell */
+    if(menu.cell.active_id == 0) /* invalid cell */
     {
         str_append(buffer, 21, "---");
         return;
@@ -558,7 +565,7 @@ static void append_irradiation_of_selected_cell(char* buffer)
         ++ptr;
 
     /* allow for 3 characters for this number */
-    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.active_cell_id));
+    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.cell.active_id));
     str_append(ptr, 21 + buffer - ptr, "%");
 }
 
@@ -644,7 +651,7 @@ static void menu_update(void)
                 break;
 
             case STATE_NAVIGATE_PANEL_CELLS: {
-                if(current_item > menu.cell_count)
+                if(current_item > menu.cell.count)
                     break;
                 if(current_item == 0)
                 {
