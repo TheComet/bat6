@@ -8,7 +8,6 @@
 #include "drv/hw.h"
 #include "drv/leds.h"
 #include "core/event.h"
-#include "drv/buck.h"
 #include "usr/menu.h"
 #include "usr/panels_db.h"
 
