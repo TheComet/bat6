@@ -32,11 +32,9 @@ void leds_init(void)
      * - Period is set to support
      */
 
-    unlock_registers();
-        /* configure as digital output */
-        TRISC &= ~(BIT3);
-        TRISD &= ~(BIT1 | BIT3 | BIT6);
-    lock_registers();
+    /* configure as digital output */
+    TRISC &= ~(BIT3);
+    TRISD &= ~(BIT1 | BIT3 | BIT6);
 
     /* Disable PWM module for configuration */
     PTCONbits.PTEN = 0;

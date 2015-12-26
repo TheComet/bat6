@@ -15,11 +15,6 @@
 #include "drv/buck.h"
 #include "drv/leds.h"
 
-/* Based on Example 5-1 in UART pdf */
-/* Calculates value to write to register for the specified baud rate */
-#define BAUDRATE 115200
-#define BRGVAL ((FCY/BAUDRATE)/16)-1
-
 /* Sets the size of the send queue */
 #define TRANSMIT_QUEUE_SIZE (unsigned)64
 
@@ -177,28 +172,21 @@ void uart_send(const char* str)
 static void configure_pins(void)
 {
     /* See also Example 10-2 from I/O Ports pdf.*/
+    ANSELCbits.ANSC11 = 0;    /* Set RP59 (RX) to digital */
+    ANSELCbits.ANSC12 = 0;    /* Set RP60 (TX) to digital */
 
-    ANSELCbits.ANSC11 = 0;    /* Set RP59 to digital */
-    ANSELCbits.ANSC12 = 0;    /* set RP60 to digital */
-    
-    unlock_registers();
-
-        RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
-        RPINR18bits.U1CTSR = 58;  /* Assign U1TCS to Pin RP58 */
-
-        RPOR14bits.RP60R = 1;     /* Assign U1Tx to Pin RP60, see p.10-11 I/O
-                                   * ports documentation */
-        RPOR14bits.RP61R = 3;     /* Assign U1RTS to RP61 */
-        CNPUCbits.CNPUC11 = 1;    /* RX requires pull-up */
-
-    lock_registers();
+    RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
+    RPOR14bits.RP60R = 1;     /* Assign U1Tx to Pin RP60, see p.10-11 I/O
+                               * ports documentation */
+    CNPUCbits.CNPUC11 = 1;    /* RX requires pull-up */
 }
 
 /* -------------------------------------------------------------------------- */
 static void configure_uart(void)
 {
-    U1MODEbits.UARTEN = 0;    /* Disable UART module for configuration */
-
+    U1MODEbits.UARTEN = 1;    /* enable UART */
+    U1STAbits.UTXEN = 1;      /* enable UART TX */
+    
     /* Example 5-1 from UART manual pdf */
     U1MODEbits.STSEL = 0;     /* 1 stop bit */
     U1MODEbits.PDSEL = 1;     /* 8-bit data, even parity */
@@ -207,13 +195,9 @@ static void configure_uart(void)
     U1MODEbits.RXINV = 1;     /* Invert RX (due to isolating IC) */
     U1STAbits.TXINV = 1;      /* Invert TX (due to isolating IC) */
 
+#define BAUDRATE 115200
+#define BRGVAL (FCY/(BAUDRATE*16))-1
     U1BRG = BRGVAL;           /* baud rate setting, see #defines at top */
-
-    U1STAbits.UTXISEL0 = 0;   /* interrupt after one Tx char is transmitted */
-    U1STAbits.UTXISEL1 = 0;
-
-    U1MODEbits.UARTEN = 1;    /* enable UART */
-    U1STAbits.UTXEN = 1;      /* enable UART TX */
 
     IFS0bits.U1TXIF = 0;
     IEC0bits.U1TXIE = 1;      /* enable TX interrupt */
@@ -314,7 +298,7 @@ static void process_incoming_data(unsigned int data)
 {
 
 #define CHAR_TO_INT(x) ((unsigned short)(x - '0'))
-
+    
     switch (state)
     {
         case STATE_IDLE:
@@ -337,7 +321,6 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_SELECT_CELL:
-            led_set(0, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -360,7 +343,6 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_AWAIT_CELL_CONFIG:
-            led_set(1, 1);
             /*
              * We can configure current, voltage, temp or exposure. Anything
              * else is an error and results in reverting back to idle state.
@@ -399,7 +381,6 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
-            led_set(2, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -423,7 +404,6 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
-            led_set(3, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -574,6 +554,16 @@ static void process_incoming_data(unsigned int data)
             state = STATE_IDLE;
             break;
     }
+    
+    led_all(0);
+    if(state & 0x1)
+        led_set(0, 1);
+    if(state & 0x02)
+        led_set(1, 1);
+    if(state & 0x04)
+        led_set(2, 1);
+    if(state & 0x08)
+        led_set(3, 1);
 }
 /* -------------------------------------------------------------------------- */
 static void send_update_to_frontend(unsigned int arg)
@@ -636,8 +626,11 @@ static void send_update_to_frontend(unsigned int arg)
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
     /*event_post(EVENT_DATA_RECEIVED, U1RXREG);*/
-    U1TXREG = U1RXREG;
-    led_set(0, 1);
+    
+    char buf[2];
+    *buf = U1RXREG;
+    buf[1] = '\0';
+    uart_send(buf);
 
     /* clear interrupt flag */
     IFS0bits.U1RXIF = 0;

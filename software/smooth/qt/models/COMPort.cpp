@@ -29,8 +29,8 @@ static int open_port(const char* fd_name)
         tcgetattr(fd, &options);
 
         /* baud rate */
-        cfsetispeed(&options, B1152000);
-        cfsetospeed(&options, B1152000);
+        cfsetispeed(&options, B115200);
+        cfsetospeed(&options, B115200);
 
         /* enable receiver and set local mode */
         options.c_cflag |= (CLOCAL | CREAD);
@@ -97,7 +97,7 @@ bool COMPort::open(const QString& comName)
         return false;
 
     this->listenerThread = new ListenerThread(this, this->fd);
-    this->connect(listenerThread, SIGNAL(dataReceived(char)), this, SLOT(onDataReceived(char)));
+    this->connect(listenerThread, SIGNAL(byteReceived(char)), this, SLOT(onByteReceived(char)));
     this->listenerThread->start();
 
     return true;

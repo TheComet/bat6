@@ -15,7 +15,7 @@
  *       + Irradiation                   STATE_NAVIGATE_GLOBAL_PARAMETERS
  *         - 100%                        STATE_CONTROL_GLOBAL_IRRADIATION
  *       + Temperature                   STATE_NAVIGATE_GLOBAL_PARAMETERS
- *         - 20.0째                       STATE_CONTROL_GLOBAL_TEMPERATURE
+ *         - 20.0�                       STATE_CONTROL_GLOBAL_TEMPERATURE
  *       + Individual Cells              STATE_NAVIGATE_GLOBAL_PARAMETERS
  *         - Go back                     STATE_NAVIGATE_PANEL_CELLS
  *         - Cell 1                      ...
@@ -24,7 +24,7 @@
  *           + Irradiation               STATE_NAVIGATE_Q16_PARAMETERS
  *             - 100%                    STATE_CONTROL_CELL_IRRADIATION
  *           + Temperature               STATE_NAVIGATE_Q16_PARAMETERS
- *             - 20.0째                   STATE_CONTROL_CELL_TEMPERATURE
+ *             - 20.0�                   STATE_CONTROL_CELL_TEMPERATURE
  *           - Global Parameters         STATE_NAVIGATE_Q16_PARAMETERS
  *
  * STATE_NAVIGATE_MANUFACTURERS lists all manufacturers. Selecting an item in
@@ -211,19 +211,6 @@ _Q16 buck_get_current_test();
            buck_get_current_test
 #endif
 
-static void fuck(unsigned int arg)
-{
-    static int counter = 100;
-    if(!(--counter))
-    {
-        led_set(0, 1);
-        lcd_reset();
-        lcd_writeline(0, "fuck");
-        led_set(0, 0);
-        counter = 100;
-    }
-}
-
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
@@ -237,7 +224,6 @@ void menu_init(void)
     menu_update();
 
     event_register_listener(EVENT_BUTTON, on_button);
-    event_register_listener(EVENT_UPDATE, fuck);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -571,7 +557,7 @@ static void append_temperature_of_selected_cell(char* buffer)
 
     /* allow for 4 characters for this number */
     ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id));
-    str_append(ptr, 21 + buffer - ptr, "째C");
+    str_append(ptr, 21 + buffer - ptr, "캜");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -821,22 +807,22 @@ const char* PANEL_SELECTION_STRING = "\
 const char* GLOBAL_PARAMETER_SELECTION_STRING1 = "\
 0: -24.5V -5.500A 134W\n\
 1: > Exposure 100%\n\
-2:   Temp 99.9째C\n\
+2:   Temp 99.9캜\n\
 3:   Individual Cells\n";
 const char* GLOBAL_PARAMETER_SELECTION_STRING2 = "\
 0: -24.5V -5.500A 134W\n\
 1:   Exposure 100%\n\
-2: > Temp 99.9째C\n\
+2: > Temp 99.9캜\n\
 3:   Individual Cells\n";
 const char* GLOBAL_IRRADIATION_STRING = "\
 0: -24.5V -5.500A 134W\n\
 1: = Exposure 100%\n\
-2:   Temp 99.9째C\n\
+2:   Temp 99.9캜\n\
 3:   Individual Cells\n";
 const char* GLOBAL_TEMPERATURE_STRING = "\
 0: -24.5V -5.500A 134W\n\
 1:   Exposure 100%\n\
-2: = Temp 99.9째C\n\
+2: = Temp 99.9캜\n\
 3:   Individual Cells\n";
 const char* CELL_SELECTION_STRING = "\
 0: -24.5V -5.500A 134W\n\
@@ -846,22 +832,22 @@ const char* CELL_SELECTION_STRING = "\
 const char* CELL_PARAMETER_SELECTION_STRING1 = "\
 0: -24.5V -5.500A 134W\n\
 1: > Exposure 100%\n\
-2:   Temp 99.9째C\n\
+2:   Temp 99.9캜\n\
 3:   Go Back\n";
 const char* CELL_PARAMETER_SELECTION_STRING2 = "\
 0: -24.5V -5.500A 134W\n\
 1:   Exposure 100%\n\
-2: > Temp 99.9째C\n\
+2: > Temp 99.9캜\n\
 3:   Go Back\n";
 const char* CELL_IRRADIATION_STRING = "\
 0: -24.5V -5.500A 134W\n\
 1: = Exposure 100%\n\
-2:   Temp 99.9째C\n\
+2:   Temp 99.9캜\n\
 3:   Go Back\n";
 const char* CELL_TEMPERATURE_STRING = "\
 0: -24.5V -5.500A 134W\n\
 1:   Exposure 100%\n\
-2: = Temp 99.9째C\n\
+2: = Temp 99.9캜\n\
 3:   Go Back\n";
 
 /* -------------------------------------------------------------------------- */

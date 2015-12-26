@@ -52,24 +52,20 @@ static void buck_timer_init()
 
 static void buck_gpio_init()
 {
-    unlock_registers();
+    /*
+     * UVLO is a digital input signal. Because all pins are configured as
+     * analog inputs by default, clear analog flag.
+     */
+    ANSELC &= ~0x0200;      /* bit 9 */
 
-        /*
-         * UVLO is a digital input signal. Because all pins are configured as
-         * analog inputs by default, clear analog flag.
-         */
-        ANSELC &= ~0x0200;      /* bit 9 */
+    /* buck enable is a digital output */
+    TRISAbits.TRISA2 = 0;   /* output */
 
-        /* buck enable is a digital output */
-        TRISAbits.TRISA2 = 0;   /* output */
-
-        /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
-        RPINR1bits.INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
-        INTCON2bits.INT2EP = 0; /* interrupt on rising edge */
-        IFS1bits.INT2IF = 0;    /* clear interrupt flag */
-        IEC1bits.INT2IE = 1;    /* enable INT2 interrupt */
-
-    lock_registers();
+    /* configure BUCK_UVLO to trigger an interrupt on a rising edge */
+    RPINR1bits.INT2R = 57;  /* assign INT2 to pin RP57 (BUCK_UVLO) */
+    INTCON2bits.INT2EP = 0; /* interrupt on rising edge */
+    IFS1bits.INT2IF = 0;    /* clear interrupt flag */
+    IEC1bits.INT2IE = 1;    /* enable INT2 interrupt */
 }
 
 static void buck_pga_init()

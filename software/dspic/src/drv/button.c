@@ -22,19 +22,15 @@ static void on_update(unsigned int arg);
 /* -------------------------------------------------------------------------- */
 void button_init(void)
 {
-    unlock_registers();
+    /*
+     * Twist/push button (bit 4, 5 and 6) are digital input signals. Because
+     * all pins are configured as analog inputs by default,  clear analog
+     * flags.
+     */
+    ANSELC &= ~0x0070;
 
-        /*
-         * Twist/push button (bit 4, 5 and 6) are digital input signals. Because
-         * all pins are configured as analog inputs by default,  clear analog
-         * flags.
-         */
-        ANSELC &= ~0x0070;
-
-        /* twist/push button has three wires that need pull-ups */
-        CNPUC |= 0x0070;     /* bit 4, 5, 6 */
-
-    lock_registers();
+    /* twist/push button has three wires that need pull-ups */
+    CNPUC |= 0x0070;     /* bit 4, 5, 6 */
 
     /* configure encoder and button to trigger interrupts on change */
     CNENC |= 0x70;       /* enable interrupts for bits 4, 5, and 6 */

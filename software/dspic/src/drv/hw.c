@@ -59,27 +59,23 @@ static void init_sysclk60mips(void)
 }
 
 /* -------------------------------------------------------------------------- */
-static void init_ports(void)
+void init_ports(void)
 {
-    unlock_registers();
+    /*
+     * Set unused pins as output and drive low.
+     * For TRISx: "1" means input, "0" means output. Default is input.
+     */
 
-        /*
-         * Set unused pins as output and drive low.
-         * For TRISx: "1" means input, "0" means output. Default is input.
-         */
-
-        /* drive low */
-        PORTA = 0x00;
-        PORTB = 0x0000;
-        PORTC = 0x0000;
-        PORTD = 0x0000;
-        /*        FEDCBA9876543210 */
-        TRISA =            0b00111;
-        TRISB = 0b1000100100001100;
-        TRISC = 0b0000111001111110; // RP58 on Din, RP61 on Dout
-        TRISD = 0b0010000001001010;
-
-    lock_registers();
+    /* drive low */
+    PORTA = 0x00;
+    PORTB = 0x0000;
+    PORTC = 0x0000;
+    PORTD = 0x0000;
+    /*        FEDCBA9876543210 */
+    TRISA =            0b00111;
+    TRISB = 0b1000100100001100;
+    TRISC = 0b0001101001111110;
+    TRISD = 0b0010000001001010;
 }
 
 static void init_auxiliary_clock(void)
@@ -95,6 +91,7 @@ static void init_auxiliary_clock(void)
 /* -------------------------------------------------------------------------- */
 void hw_init(void)
 {
+    unlock_registers();
     disable_interrupts();
 
     /* system clock and initial port config */
@@ -119,6 +116,7 @@ void drivers_init(void)
     lcd_init();
 
     enable_interrupts();
+    lock_registers();
 }
 
 /* -------------------------------------------------------------------------- */
