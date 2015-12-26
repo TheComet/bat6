@@ -31,7 +31,7 @@ short panels_db_add_new_manufacturer(const char* name);
 short panels_db_add_new_panel(short manufacturer_id,
                               const char* name);
 
-short panels_db_get_manufacturers_count(void);
+short panels_db_get_manufacturer_count(void);
 
 const char* panels_db_get_manufacturer_name(short index);
 

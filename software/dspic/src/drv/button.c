@@ -66,7 +66,6 @@ static void process_press_event(void)
     /* Was the button pressed? (falling edge) */
     if(!KNOB_BUTTON)
     {
-        LED0_OFF;
         event_post(EVENT_BUTTON, BUTTON_PRESSED);
         button_timer = 1; /* start timer - gets incremented on EVENT_UPDATE */
     /* was the button released? (rising edge) */

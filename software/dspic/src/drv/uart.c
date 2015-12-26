@@ -13,11 +13,12 @@
 #include "usr/pv_model.h"
 #include "core/string.h"
 #include "drv/buck.h"
+#include "drv/leds.h"
 
 /* Based on Example 5-1 in UART pdf */
 /* Calculates value to write to register for the specified baud rate */
 #define BAUDRATE 115200
-#define BRGVAL ((FP/BAUDRATE)/16)-1
+#define BRGVAL ((FCY/BAUDRATE)/16)-1
 
 /* Sets the size of the send queue */
 #define TRANSMIT_QUEUE_SIZE (unsigned)64
@@ -177,11 +178,9 @@ static void configure_pins(void)
 {
     /* See also Example 10-2 from I/O Ports pdf.*/
 
-    ANSELCbits.ANSC10 = 0;    /* Set RP58 to digital */
     ANSELCbits.ANSC11 = 0;    /* Set RP59 to digital */
     ANSELCbits.ANSC12 = 0;    /* set RP60 to digital */
-                              /* RP61 seems to already be digital. */
-
+    
     unlock_registers();
 
         RPINR18bits.U1RXR = 59;   /* Assign U1Rx to Pin RP59 */
@@ -198,6 +197,8 @@ static void configure_pins(void)
 /* -------------------------------------------------------------------------- */
 static void configure_uart(void)
 {
+    U1MODEbits.UARTEN = 0;    /* Disable UART module for configuration */
+
     /* Example 5-1 from UART manual pdf */
     U1MODEbits.STSEL = 0;     /* 1 stop bit */
     U1MODEbits.PDSEL = 1;     /* 8-bit data, even parity */
@@ -317,6 +318,7 @@ static void process_incoming_data(unsigned int data)
     switch (state)
     {
         case STATE_IDLE:
+            led_all(0);
             if (data == CASE_SELECT_CELL)
             {
                 init_state_vars_config();
@@ -335,6 +337,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_SELECT_CELL:
+            led_set(0, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -357,6 +360,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_AWAIT_CELL_CONFIG:
+            led_set(1, 1);
             /*
              * We can configure current, voltage, temp or exposure. Anything
              * else is an error and results in reverting back to idle state.
@@ -395,6 +399,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_OPEN_CIRCUIT_VOLTAGE:
+            led_set(2, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -418,6 +423,7 @@ static void process_incoming_data(unsigned int data)
             break;
 
         case STATE_CONFIG_SHORT_CIRCUIT_CURRENT:
+            led_set(3, 1);
             if (is_number(data))
             {
                 /* Process multi-digit cell numbers */
@@ -629,7 +635,9 @@ static void send_update_to_frontend(unsigned int arg)
 /* -------------------------------------------------------------------------- */
 void _ISR_NOPSV _U1RXInterrupt(void)
 {
-    event_post(EVENT_DATA_RECEIVED, U1RXREG);
+    /*event_post(EVENT_DATA_RECEIVED, U1RXREG);*/
+    U1TXREG = U1RXREG;
+    led_set(0, 1);
 
     /* clear interrupt flag */
     IFS0bits.U1RXIF = 0;

@@ -106,8 +106,6 @@ extern "C" {
 #define BUCK_EN             PORTAbits.RA2
 #define KNOB_AB             ((PORTC & 0x30) >> 4)
 #define KNOB_BUTTON         ((PORTC & BIT6) >> 6)
-#define LED0_ON             (PORTCbits.RC3 = 1)
-#define LED0_OFF            (PORTCbits.RC3 = 0)
 
 /* macros */
 #define lcd_enable()        (LCD_RESET = 1)
@@ -123,7 +121,7 @@ extern "C" {
 /* Among other things, required for UART
  * Fosc = 120 MHz, FP = Fosc / 2, according to Fig 1-1 in Oscillator Module
  * Documentation. See also init_sysclk60mips() in hw.c */
-#define FP 60000000
+#define FCY 60000000
 
 /*!
  * @brief Initialises and configures the hardware. Must be the first thing

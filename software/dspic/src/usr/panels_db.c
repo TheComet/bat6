@@ -55,7 +55,7 @@ short panels_db_add_new_panel(short manufacturer_id,
 }
 
 /* -------------------------------------------------------------------------- */
-short panels_db_get_manufacturers_count(void)
+short panels_db_get_manufacturer_count(void)
 {
     return sizeof(database) / sizeof(*database);
 }

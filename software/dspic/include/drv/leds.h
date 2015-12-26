@@ -17,6 +17,19 @@ extern "C" {
  */
 void leds_init(void);
 
+/*!
+ * @brief Turns an LED on or off.
+ * @param[in] led_id A number from 0 to 3.
+ * @param[in] state Either 0 (for off) or 1 (for on).
+ */
+void led_set(unsigned char led_id, unsigned char state);
+
+/*!
+ * @brief Turns all LEDs either on or off.
+ * @param[in] state Either 0 (for off) or 1 (for on).
+ */
+void led_all(unsigned char state);
+
 #ifdef	__cplusplus
 }
 #endif

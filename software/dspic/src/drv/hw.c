@@ -113,10 +113,10 @@ void drivers_init(void)
     /* initialise all drivers here */
     buck_init();
     button_init();
-    lcd_init();
     leds_init();
     timer_init();
     uart_init();
+    lcd_init();
 
     enable_interrupts();
 }

@@ -79,6 +79,7 @@
 #include "drv/lcd.h"
 #include "drv/hw.h"
 #include "drv/buck.h"
+#include "drv/leds.h"
 #include "core/event.h"
 #include "core/string.h"
 
@@ -210,6 +211,19 @@ _Q16 buck_get_current_test();
            buck_get_current_test
 #endif
 
+static void fuck(unsigned int arg)
+{
+    static int counter = 100;
+    if(!(--counter))
+    {
+        led_set(0, 1);
+        lcd_reset();
+        lcd_writeline(0, "fuck");
+        led_set(0, 0);
+        counter = 100;
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 void menu_init(void)
 {
@@ -218,10 +232,12 @@ void menu_init(void)
     menu.navigation.scroll = 0;
     menu.manufacturer = 0;
 
+    lcd_reset();
     load_menu_navigate_manufacturers();
     menu_update();
 
     event_register_listener(EVENT_BUTTON, on_button);
+    event_register_listener(EVENT_UPDATE, fuck);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -258,7 +274,7 @@ static void handle_item_selection(unsigned int button)
 static void load_menu_navigate_manufacturers(void)
 {
     /* set selection */
-    menu.navigation.max = panels_db_get_manufacturers_count();
+    menu.navigation.max = panels_db_get_manufacturer_count();
     menu.navigation.item = 0;
     menu.navigation.scroll = 0;
 
@@ -294,7 +310,7 @@ static void load_menu_navigate_panels(void)
 
 static void activate_selected_panel()
 {
-    short i;
+    unsigned char cell_count, i;
 
     /* disable buck for this process */
     buck_disable();
@@ -303,14 +319,14 @@ static void activate_selected_panel()
     model_cell_remove_all();
 
     /* store cell count in menu state, as it's required by submenus */
-    menu.cell.count = panels_db_get_cell_count(menu.manufacturer,
-                                               menu.navigation.item);
+    cell_count = panels_db_get_cell_count(menu.manufacturer,
+                                          menu.navigation.item);
 
     /*
      * Copy parameters for each cell in the db and add them to a
      * new cell in the active model
      */
-    for(i = 0; i != menu.cell.count; ++i)
+    for(i = 0; i != cell_count; ++i)
     {
         const struct pv_cell_t* cell = panels_db_get_cell(
                 menu.manufacturer,
@@ -325,6 +341,13 @@ static void activate_selected_panel()
 
     /* buck can now be enabled */
     buck_enable();
+    
+    /* 
+     * Set up cell count and active ID. Warning: This overwrites the
+     * "manufacturers" field in the struct.
+     */
+    menu.cell.count = cell_count;
+    menu.cell.active_id = 0;
 }
 
 static void load_menu_navigate_global_parameters(void)
@@ -601,17 +624,19 @@ static void menu_update(void)
         {
             case STATE_NAVIGATE_MANUFACTURERS : {
                 const char* manufacturer;
-                if(!(manufacturer = panels_db_get_manufacturer_name(current_item)))
+                if(current_item >= panels_db_get_manufacturer_count())
                     break;
+                manufacturer = panels_db_get_manufacturer_name(current_item);
                 str_append(buffer, 21, manufacturer);
                 break;
             }
 
             case STATE_NAVIGATE_PANELS : {
                 const char* panel;
-                if(!(panel = panels_db_get_panel_name(
-                        menu.manufacturer, current_item)))
+                if(current_item >= panels_db_get_panel_count(menu.manufacturer))
                     break;
+                panel = panels_db_get_panel_name(menu.manufacturer,
+                                                 current_item);
                 str_append(buffer, 21, panel);
                 break;
             }

@@ -139,11 +139,11 @@ short lcd_send(char is_command, unsigned char data) {
 
 void lcd_reset(){
 
-    volatile unsigned int delay = 0;
+    volatile unsigned short delay = 0;
 
-    PORTBbits.RB11 = 0; /* reset LCD */
+    lcd_disable();
     for(delay = 0; delay < 10000; delay++);
-    PORTBbits.RB11 = 1; /* enable LCD */
+    lcd_enable();
     for(delay = 0; delay < 10000; delay++);
 
     lcd_send_blocking(0, 0x2a);
@@ -180,19 +180,6 @@ void lcd_reset(){
     lcd_send_blocking(0, 0x01);
 }
 
-static void on_update(unsigned int arg) {
-    /*static int timer = 0;
-
-    if(timer++ > 50){
-        timer = 0;
-        lcd_send(1, 0x01);
-        lcd_writeline(0, "Applejack");
-        lcd_writeline(1, "is totally");
-        lcd_writeline(0, "gay");
-    }*/
-
-}
-
 void lcd_init(void) {
 
     unlock_registers();
@@ -225,12 +212,6 @@ void lcd_init(void) {
 
     /* enable I2C2 module, master mode*/
     I2C2CONLbits.I2CEN = 1;
-
-#ifndef TESTING
-    lcd_reset();
-#endif
-
-    event_register_listener(EVENT_UPDATE, on_update);
 }
 
 int lcd_writeline(unsigned char lineN, const char * string){

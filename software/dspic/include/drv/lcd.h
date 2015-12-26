@@ -18,6 +18,7 @@ extern "C" {
  */
 void lcd_init(void);
 
+void lcd_reset(void);
 short lcd_send(char is_command, unsigned char data);
 int lcd_writeline(unsigned char lineN, const char * string);
 
