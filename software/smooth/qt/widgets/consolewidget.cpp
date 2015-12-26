@@ -32,14 +32,14 @@
 **
 ****************************************************************************/
 
-#include "consolewidget.h"
+#include "widgets/consolewidget.h"
 
 #include <QScrollBar>
 #include <QtCore/QDebug>
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
-    : QPlainTextEdit(parent)
-    , localEchoEnabled(false)
+    : QPlainTextEdit(parent),
+      localEchoEnabled(false)
 {
     document()->setMaximumBlockCount(100);
     QPalette p = palette();
@@ -47,14 +47,13 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
     p.setColor(QPalette::Text, Qt::green);
     setPalette(p);
 
+    com.open("/dev/ttyUSB0");
 }
 
 void ConsoleWidget::putData(const QByteArray &data)
 {
-    insertPlainText(QString(data));
-
-    QScrollBar *bar = verticalScrollBar();
-    bar->setValue(bar->maximum());
+    com.send(data.data());
+    this->onDataReceived(data.data());
 }
 
 void ConsoleWidget::setLocalEchoEnabled(bool set)
@@ -74,7 +73,7 @@ void ConsoleWidget::keyPressEvent(QKeyEvent *e)
     default:
         if (localEchoEnabled)
             QPlainTextEdit::keyPressEvent(e);
-        emit getData(e->text().toLocal8Bit());
+        com.send(e->text().toLocal8Bit());
     }
 }
 
@@ -92,4 +91,11 @@ void ConsoleWidget::mouseDoubleClickEvent(QMouseEvent *e)
 void ConsoleWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     Q_UNUSED(e)
+}
+
+void ConsoleWidget::onDataReceived(const char* data)
+{
+    insertPlainText(QString(data));
+    QScrollBar* bar = verticalScrollBar();
+    bar->setValue(bar->maximum());
 }

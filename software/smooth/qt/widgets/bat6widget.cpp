@@ -74,7 +74,6 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     // configure console
     console = new ConsoleWidget;
     console->setEnabled(true);
-    console->setLocalEchoEnabled(true);
     ui->layout_console->addWidget(console);
 }
 

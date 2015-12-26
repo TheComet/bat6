@@ -26,7 +26,7 @@ SOURCES +=  main.cpp \
             models/pvcell.cpp \
             models/pvchain.cpp \
             models/pvarray.cpp \
-            models/COMInterface.cpp
+            models/COMPort.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
@@ -37,12 +37,7 @@ HEADERS  += widgets/mainwindow.h \
             models/pvcell.h \
             models/pvchain.h \
             models/pvarray.h \
-            models/COMInterface.h
-
-unix {
-    SOURCES +=  models/COMUnix.cpp
-    HEADERS +=  models/COMUnix.h
-}
+            models/COMPort.h
 
 FORMS    += mainwindow.ui \
             bat6widget.ui \
