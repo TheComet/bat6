@@ -10,8 +10,8 @@
 #include "models/pvchain.h"
 #include "models/pvcell.h"
 
-#include "qwt6/qwt_plot.h"
-#include "qwt6/qwt_plot_curve.h"
+#include "qwt/qwt_plot.h"
+#include "qwt/qwt_plot_curve.h"
 
 #include <QPushButton>
 #include <QSplitter>
@@ -74,7 +74,6 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     // configure console
     console = new ConsoleWidget;
     console->setEnabled(true);
-    console->setLocalEchoEnabled(true);
     ui->layout_console->addWidget(console);
 }
 
