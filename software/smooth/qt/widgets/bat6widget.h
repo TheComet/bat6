@@ -30,7 +30,7 @@ private:
     void openSerialPort();
 
     QScopedPointer<Ui::BAT6Widget> ui;
-    QGridLayout* layoutCells;
+    QGridLayout* cellLayout;
     ConsoleWidget* console;
     CharacteristicCurve2DWidget* cc2d;
     CharacteristicCurve3DWidget* cc3d;

@@ -11,6 +11,7 @@ namespace Ui {
 class CellWidget : public QWidget
 {
     Q_OBJECT
+
 signals:
     void exposureChanged(CellWidget* cell, double intensity);
     void shortCircuitCurrentChanged(CellWidget* cell, double shortCircuitCurrent);

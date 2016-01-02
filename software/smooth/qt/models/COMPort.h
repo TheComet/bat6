@@ -10,6 +10,7 @@ class ListenerThread : public QThread
 
 signals:
     void byteReceived(char byte);
+    void fileDescriptorInvalidated();
 
 public:
     explicit ListenerThread(QObject* parent, int fd);
@@ -35,15 +36,23 @@ public:
 
     bool open(const QString& comName);
     void close();
-    bool send(const char* data) const;
+    bool send(const char* data);
 
 private slots:
     void onByteReceived(char data);
+    void onFileDescriptorUnexpectedlyClosed();
 
 private:
+    void setPortName(const QString& portName);
+    void startListenerThread();
+    void stopListenerThread();
+    bool openFileDescriptor();
+    void closeFileDescriptor();
+    bool attemptReOpen();
 
     ListenerThread* listenerThread;
     int fd;
+    QString portName;
 };
 
 #endif // COM_UNIX_H

@@ -15,10 +15,7 @@ CellWidget::~CellWidget()
 
 void CellWidget::allowRemovingFromChain(bool allow)
 {
-    if(allow)
-        ui->push_button_remove->show();
-    else
-        ui->push_button_remove->hide();
+    (void)allow;
 }
 
 const QString& CellWidget::getName() const
