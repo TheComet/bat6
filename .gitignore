@@ -4,7 +4,7 @@
 *.xlsx#
 
 # temp files
-*.swp
+*swp
 *.log
 *.aux
 *.toc

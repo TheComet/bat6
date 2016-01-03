@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file uart.h
  * @author Alex Murray
  *
@@ -16,6 +16,12 @@ extern "C" {
  * @brief Initialises the UART driver. Call this for communication to work.
  */
 void uart_init(void);
+
+/*!
+ * @brief Queues a byte for sending.
+ * @param str The string to send.
+ */
+void uart_send(const char* tr);
 
 #ifdef	__cplusplus
 }

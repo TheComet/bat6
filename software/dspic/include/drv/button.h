@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file button.h
  * @author Alex Murray
  *

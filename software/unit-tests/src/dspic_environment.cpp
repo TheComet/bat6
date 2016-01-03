@@ -23,14 +23,19 @@ public:
         ADCAL0Lbits.CAL1RDY = 1;
         ADCAL0Lbits.CAL1RDY = 1;
 
+        /* prevent waiting for I2C2 related stuff */
+        I2C2CONLbits.SEN = 0;
+        I2C2STATbits.TRSTAT = 0;
+
         hw_init();
+        drivers_init();
     }
 
     virtual void TearDown()
     {
+        drivers_deinit();
     }
 };
 
 const testing::Environment* const memoryManagementEnvironment =
         testing::AddGlobalTestEnvironment(new dsPICGlobalEnvironment);
-

@@ -8,15 +8,20 @@
 #include "drv/hw.h"
 #include "drv/leds.h"
 #include "core/event.h"
+#include "usr/menu.h"
+#include "usr/panels_db.h"
 
 /* -------------------------------------------------------------------------- */
 #ifdef TESTING
-int dspic_main(void)
+void dspic_main(void)
 #else
 int main(void)
 #endif
 {
     hw_init();
+    drivers_init();
+    panels_db_init();
+    menu_init();
 
     while(1)
     {

@@ -35,20 +35,19 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
+#include "models/COMPort.h"
+
 #include <QPlainTextEdit>
+
+class COMInterface;
 
 class ConsoleWidget : public QPlainTextEdit
 {
     Q_OBJECT
 
-signals:
-    void getData(const QByteArray &data);
-
 public:
     explicit ConsoleWidget(QWidget *parent = 0);
-
     void putData(const QByteArray &data);
-
     void setLocalEchoEnabled(bool set);
 
 protected:
@@ -57,9 +56,12 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void contextMenuEvent(QContextMenuEvent *e);
 
-private:
-    bool localEchoEnabled;
+private slots:
+    void onDataReceived(const char* data);
 
+private:
+    COMPort com;
+    bool localEchoEnabled;
 };
 
 #endif // CONSOLE_H

@@ -91,7 +91,7 @@ static void destroy_listeners(struct listener_list_t* list)
 /* -------------------------------------------------------------------------- */
 void event_deinit(void)
 {
-	/* clear all lists of listeners */
+    /* clear all lists of listeners */
     unsigned short i = EVENT_COUNT;
     while(i --> 0)
     {
@@ -204,7 +204,7 @@ void event_dispatch_all(void)
     /* process all events up to the write position we acquired */
     while(read != write)
     {
-		/* increment and wrap read position */
+        /* increment and wrap read position */
         ++read;
         read = (read == RING_BUFFER_SIZE ? 0 : read);
 
@@ -247,194 +247,197 @@ static int times_called;
 static int last_argument_received;
 void counting_listener(unsigned int arg)
 {
-	times_called++;
-	last_argument_received = arg;
+    times_called++;
+    last_argument_received = arg;
 }
 
+/* -------------------------------------------------------------------------- */
 class event : public Test
 {
-	virtual void SetUp()
-	{
-		/* Reset counters */
-		times_called = 0;
-		last_argument_received = 0;
-	}
+    virtual void SetUp()
+    {
+        /* clears all listeners and destroys pending events */
+        event_deinit();
 
-	virtual void TearDown()
-	{
-		/* clears all listeners and destroys pending events */
-		event_deinit();
-	}
+        /* Reset counters */
+         times_called = 0;
+        last_argument_received = 0;
+    }
+
+    virtual void TearDown()
+    {
+    }
 };
 
+/* -------------------------------------------------------------------------- */
 TEST_F(event, listeners_are_cleared_on_deinit)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_deinit();
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_deinit();
 
-	EXPECT_THAT(event_table[EVENT_UPDATE].head, IsNull());
+    EXPECT_THAT(event_table[EVENT_UPDATE].head, IsNull());
 }
 
 TEST_F(event, ring_buffer_is_cleared_on_deinit)
 {
-	event_post(EVENT_UPDATE, 0);
-	event_post(EVENT_UPDATE, 0);
+    event_post(EVENT_UPDATE, 0);
+    event_post(EVENT_UPDATE, 0);
 
-	EXPECT_THAT(ring_buffer.write, Eq(2));
+    EXPECT_THAT(ring_buffer.write, Eq(2));
 
-	event_deinit();
+    event_deinit();
 
-	EXPECT_THAT(ring_buffer.read, Eq(0));
-	EXPECT_THAT(ring_buffer.write, Eq(0));
+    EXPECT_THAT(ring_buffer.read, Eq(0));
+    EXPECT_THAT(ring_buffer.write, Eq(0));
 }
 
 TEST_F(event, items_are_correctly_linked_in_linked_list)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_register_listener(EVENT_UPDATE, test_listener2);
-	event_register_listener(EVENT_UPDATE, test_listener3);
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener2);
+    event_register_listener(EVENT_UPDATE, test_listener3);
 
-	struct listener_list_t* list = (event_table + EVENT_UPDATE);
-	ASSERT_THAT(list->head, NotNull());
-	EXPECT_THAT(list->head->callback, Eq(test_listener1));
-	ASSERT_THAT(list->head->next, NotNull());
-	EXPECT_THAT(list->head->next->callback, Eq(test_listener2));
-	ASSERT_THAT(list->head->next->next, NotNull());
-	EXPECT_THAT(list->head->next->next->callback, Eq(test_listener3));
-	EXPECT_THAT(list->head->next->next->next, IsNull());
-	ASSERT_THAT(list->tail, NotNull());
-	EXPECT_THAT(list->tail->callback, Eq(test_listener3));
+    struct listener_list_t* list = (event_table + EVENT_UPDATE);
+    ASSERT_THAT(list->head, NotNull());
+    EXPECT_THAT(list->head->callback, Eq(test_listener1));
+    ASSERT_THAT(list->head->next, NotNull());
+    EXPECT_THAT(list->head->next->callback, Eq(test_listener2));
+    ASSERT_THAT(list->head->next->next, NotNull());
+    EXPECT_THAT(list->head->next->next->callback, Eq(test_listener3));
+    EXPECT_THAT(list->head->next->next->next, IsNull());
+    ASSERT_THAT(list->tail, NotNull());
+    EXPECT_THAT(list->tail->callback, Eq(test_listener3));
 }
 
 TEST_F(event, items_are_correctly_removed_from_middle_of_linked_list)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_register_listener(EVENT_UPDATE, test_listener2);
-	event_register_listener(EVENT_UPDATE, test_listener3);
-	event_unregister_listener(EVENT_UPDATE, test_listener2);
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener2);
+    event_register_listener(EVENT_UPDATE, test_listener3);
+    event_unregister_listener(EVENT_UPDATE, test_listener2);
 
-	struct listener_list_t* list = (event_table + EVENT_UPDATE);
-	ASSERT_THAT(list->head, NotNull());
-	EXPECT_THAT(list->head->callback, Eq(test_listener1));
-	ASSERT_THAT(list->head->next, NotNull());
-	EXPECT_THAT(list->head->next->callback, Eq(test_listener3));
-	ASSERT_THAT(list->tail, NotNull());
-	EXPECT_THAT(list->tail->callback, Eq(test_listener3));
+    struct listener_list_t* list = (event_table + EVENT_UPDATE);
+    ASSERT_THAT(list->head, NotNull());
+    EXPECT_THAT(list->head->callback, Eq(test_listener1));
+    ASSERT_THAT(list->head->next, NotNull());
+    EXPECT_THAT(list->head->next->callback, Eq(test_listener3));
+    ASSERT_THAT(list->tail, NotNull());
+    EXPECT_THAT(list->tail->callback, Eq(test_listener3));
 }
 
 TEST_F(event, items_are_correctly_removed_from_head_of_linked_list)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_register_listener(EVENT_UPDATE, test_listener2);
-	event_register_listener(EVENT_UPDATE, test_listener3);
-	event_unregister_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener2);
+    event_register_listener(EVENT_UPDATE, test_listener3);
+    event_unregister_listener(EVENT_UPDATE, test_listener1);
 
-	struct listener_list_t* list = (event_table + EVENT_UPDATE);
-	ASSERT_THAT(list->head, NotNull());
-	EXPECT_THAT(list->head->callback, Eq(test_listener2));
-	ASSERT_THAT(list->head->next, NotNull());
-	EXPECT_THAT(list->head->next->callback, Eq(test_listener3));
-	ASSERT_THAT(list->tail, NotNull());
-	EXPECT_THAT(list->tail->callback, Eq(test_listener3));
+    struct listener_list_t* list = (event_table + EVENT_UPDATE);
+    ASSERT_THAT(list->head, NotNull());
+    EXPECT_THAT(list->head->callback, Eq(test_listener2));
+    ASSERT_THAT(list->head->next, NotNull());
+    EXPECT_THAT(list->head->next->callback, Eq(test_listener3));
+    ASSERT_THAT(list->tail, NotNull());
+    EXPECT_THAT(list->tail->callback, Eq(test_listener3));
 }
 
 TEST_F(event, items_are_correctly_removed_from_tail_of_linked_list)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_register_listener(EVENT_UPDATE, test_listener2);
-	event_register_listener(EVENT_UPDATE, test_listener3);
-	event_unregister_listener(EVENT_UPDATE, test_listener3);
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener2);
+    event_register_listener(EVENT_UPDATE, test_listener3);
+    event_unregister_listener(EVENT_UPDATE, test_listener3);
 
-	struct listener_list_t* list = (event_table + EVENT_UPDATE);
-	ASSERT_THAT(list->head, NotNull());
-	EXPECT_THAT(list->head->callback, Eq(test_listener1));
-	ASSERT_THAT(list->head->next, NotNull());
-	EXPECT_THAT(list->head->next->callback, Eq(test_listener2));
-	ASSERT_THAT(list->tail, NotNull());
-	EXPECT_THAT(list->tail->callback, Eq(test_listener2));
+    struct listener_list_t* list = (event_table + EVENT_UPDATE);
+    ASSERT_THAT(list->head, NotNull());
+    EXPECT_THAT(list->head->callback, Eq(test_listener1));
+    ASSERT_THAT(list->head->next, NotNull());
+    EXPECT_THAT(list->head->next->callback, Eq(test_listener2));
+    ASSERT_THAT(list->tail, NotNull());
+    EXPECT_THAT(list->tail->callback, Eq(test_listener2));
 }
 
 TEST_F(event, last_item_is_correctly_removed_from_linked_list)
 {
-	event_register_listener(EVENT_UPDATE, test_listener1);
-	event_unregister_listener(EVENT_UPDATE, test_listener1);
+    event_register_listener(EVENT_UPDATE, test_listener1);
+    event_unregister_listener(EVENT_UPDATE, test_listener1);
 
-	struct listener_list_t* list = (event_table + EVENT_UPDATE);
-	EXPECT_THAT(list->head, IsNull());
-	EXPECT_THAT(list->tail, IsNull());
+    struct listener_list_t* list = (event_table + EVENT_UPDATE);
+    EXPECT_THAT(list->head, IsNull());
+    EXPECT_THAT(list->tail, IsNull());
 }
 
 TEST_F(event, listener_gets_called_on_dispatch)
 {
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	event_post(EVENT_UPDATE, 8);
-	event_dispatch_all();
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    event_post(EVENT_UPDATE, 8);
+    event_dispatch_all();
 
-	EXPECT_THAT(times_called, Eq(1));
-	EXPECT_THAT(last_argument_received, Eq(8));
+    EXPECT_THAT(times_called, Eq(1));
+    EXPECT_THAT(last_argument_received, Eq(8));
 }
 
 TEST_F(event, multiple_listeners_get_called_on_dispatch)
 {
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	EXPECT_THAT(times_called, Eq(4));
+    EXPECT_THAT(times_called, Eq(4));
 }
 
 TEST_F(event, ring_buffer_overflow_discards_incoming_events_when_posted)
 {
-	/* post some events and dispatch so the ring buffer wrap is included in
-	 * this test */
-	for(int i = 0; i != RING_BUFFER_SIZE / 4; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    /* post some events and dispatch so the ring buffer wrap is included in
+     * this test */
+    for(int i = 0; i != RING_BUFFER_SIZE / 4; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	/* test begins here */
-	event_register_listener(EVENT_UPDATE, counting_listener);
-	for(int i = 0; i != RING_BUFFER_SIZE + 2; ++i) /* 2 more than what can be stored */
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    /* test begins here */
+    event_register_listener(EVENT_UPDATE, counting_listener);
+    for(int i = 0; i != RING_BUFFER_SIZE + 2; ++i) /* 2 more than what can be stored */
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	/* One slot doesn't get filled due to the way an overflow is detected */
-	EXPECT_THAT(times_called, Eq(RING_BUFFER_SIZE - 1));
+    /* One slot doesn't get filled due to the way an overflow is detected */
+    EXPECT_THAT(times_called, Eq(RING_BUFFER_SIZE - 1));
 }
 
 TEST_F(event, ring_buffer_wraps_correctly)
 {
-	event_register_listener(EVENT_UPDATE, counting_listener);
+    event_register_listener(EVENT_UPDATE, counting_listener);
 
-	for(int i = 0; i != RING_BUFFER_SIZE / 2; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    for(int i = 0; i != RING_BUFFER_SIZE / 2; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	for(int i = 0; i != RING_BUFFER_SIZE / 4; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    for(int i = 0; i != RING_BUFFER_SIZE / 4; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	for(int i = 0; i != RING_BUFFER_SIZE - 1; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    for(int i = 0; i != RING_BUFFER_SIZE - 1; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	for(int i = 0; i != RING_BUFFER_SIZE / 3; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    for(int i = 0; i != RING_BUFFER_SIZE / 3; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	for(int i = 0; i != RING_BUFFER_SIZE * 2 / 3; ++i)
-		event_post(EVENT_UPDATE, 0);
-	event_dispatch_all();
+    for(int i = 0; i != RING_BUFFER_SIZE * 2 / 3; ++i)
+        event_post(EVENT_UPDATE, 0);
+    event_dispatch_all();
 
-	int number_of_posts = 0;
-	number_of_posts += RING_BUFFER_SIZE / 2;
-	number_of_posts += RING_BUFFER_SIZE / 4;
-	number_of_posts += RING_BUFFER_SIZE - 1;
-	number_of_posts += RING_BUFFER_SIZE / 3;
-	number_of_posts += RING_BUFFER_SIZE * 2 / 3;
-	EXPECT_THAT(times_called, Eq(number_of_posts));
+    int number_of_posts = 0;
+    number_of_posts += RING_BUFFER_SIZE / 2;
+    number_of_posts += RING_BUFFER_SIZE / 4;
+    number_of_posts += RING_BUFFER_SIZE - 1;
+    number_of_posts += RING_BUFFER_SIZE / 3;
+    number_of_posts += RING_BUFFER_SIZE * 2 / 3;
+    EXPECT_THAT(times_called, Eq(number_of_posts));
 }
 
 #endif /* TESTING */

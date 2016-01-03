@@ -40,6 +40,7 @@ typedef enum
      *  reaches ~4V */
     EVENT_UVLO,
     EVENT_DATA_RECEIVED,
+    EVENT_CELL_VALUE_UPDATED,
     /* ---------------------------------------------------------------------- */
     /*! The number of event IDs. Used to size the static table.
      *  NOTE: Keep this at the end of the enum! */
@@ -53,7 +54,9 @@ typedef enum
 {
     BUTTON_TWISTED_LEFT = 1,
     BUTTON_TWISTED_RIGHT = 2,
-	BUTTON_PRESSED = 3
+    BUTTON_PRESSED = 3,
+    BUTTON_PRESSED_LONGER = 4,
+    BUTTON_RELEASED = 5
 } event_args_e;
 
 /*!
