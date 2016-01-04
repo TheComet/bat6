@@ -1,82 +1,80 @@
+The  LT3741  is both  voltage  regulated  and current  regulated. The  voltage
+divider  $R_{11} \parallel  R_2$  (see figure  \ref{fig:circuit:buck} on  page
+\pageref{fig:circuit:buck}  and  figure  \ref{fig:circuit:buck:uset}  on  page
+\pageref{fig:circuit:buck:uset})  allows for  the  measurement  of the  output
+voltage, and  a shunt resistor  $R_4$ allows for  the exact monitoring  of the
+current going through  coil $L_1$. The value for resistor $R_4$  was chosen so
+that the maximum outoing current can be \SI{5}{\ampere}.
 
+\begin{figure}[th!]
+    \center
+    \includegraphics[width=.35\textwidth]{images/circuit/buck-uset.pdf}
+    \caption{regulation of output voltage by changing the reference voltage in the feedback loop via an analog reference voltage between \SI{0}{\volt} and \SI{1.21}{\volt}}
+    \label{fig:circuit:buck:uset}
+\end{figure}
 
-Der  LT3741  ist  sowohl   Spannungsgesteuert   wie   auch  Stromgesteuert.  Der
-Spannungsteiler  $R_{11} \parallel R_2$ (siehe Abbildung  \ref{fig:circuit:buck}
-oder    Abbildung    \ref{fig:circuit:buck:uset})   erlaubt   das   Messen   der
-Ausgangsspannung  und  ein  Shunt-Widerstand  $R_4$   erm\"oglicht   die  genaue
-\"Uberwachung des Stromes durch die Spule  $L_1$.  Der Widerstand $R_4$ wurde so
-gew\"ahlt damit der  maximale  Ausgangsstrom  maximal  \SI{5}{\ampere}  betragen
-kann.
+Monitoring  the current  is  extremely  important for  a  setup  in which  the
+outgoing  voltage can  be constantly  changing. It allows  to more  accurately
+predict the behavior of the output voltage, thus enabling the device to better
+suppress spikes in output voltage and spikes in the current going through coil
+$L_1$. % TODO: correct coil?
 
-Strom\"uberwachung   ist  sehr  wichtig  bei  einer  solchen  Aufgabe   wo   die
-Ausgangsspannung  sich  konstant  \"andert.  Sie erlaubt  genauer  vorhersebares
-Verhalten der Spannungs\"anderung am Ausgang -- \"Uberschiessen der Sollspannung
-und  extreme  Stromspitzen  in  der  Spule  k\"onnen  besser  vermieden  werden.
+Furthermore, a controller regulated by current  can also be used as a constant
+current source. This property is mainly of importance when the operating point
+is in  the steeper part  of the PV module's  UI-curve (where small  changes in
+voltage can lead to drastic changes in current and vice versa).
 
-Weiter   kann   ein   Stromgesteuerter   Regler  auch  als   Konstantstromquelle
-funktionieren. Diese Eigenschaft  ist  vorallem  dann  von  Bedeutung  wenn  der
-Arbeitspunkt  sich  im  ``steilen''  bereich  der   UI-Kennlinie  des  PV-Moduls
-befindet.
-
-Die  Feedback-Widerst\"ande   $R_2$   und   $R_{11}$   wurden  nach  der  Formel
-\ref{eq:circuit:buck:feedback_resistors}       dimensioniert      damit      die
-Ausgangsspannung maximal \SI{23}{\volt} betr\"agt.
+The values for the feedback resistors $R_2$ and $R_{11}$ were chosen according
+to formula \ref{eq:circuit:buck:feedback_resistors} so that the output voltage
+does not exceed \SI{23}{\volt}:
 
 \begin{equation}
     U_{out} = \SI{1.21}{\volt} \left( 1 + \frac{R_{11}}{R_2} \right)
     \label{eq:circuit:buck:feedback_resistors}
 \end{equation}
 
-Die Ausgangsspannung kann  danach  durch Anheben der Bezugsspannung $BUCK\_USET$
-nach der  Formel \ref{eq:circuit:buck:uset} ver\"andert werden. 
+By increasing $BUCK\_USET$ in formula \ref{eq:circuit:buck:uset}, the outgoing
+voltage can then be modified as needed:
 
 \begin{equation}
     U_{out} = (\SI{1.21}{\volt} - BUCK\_USET) \cdot \frac{R_{11} + R_2}{R_2}
     \label{eq:circuit:buck:uset}
 \end{equation}
 
-Wobei $BUCK\_USET$ die analoge Spannung vom  ersten  DAC  ist.  In der Abbildung
-\ref{fig:circuit:buck:uset} ist die dazugeh\"orige Schaltung.
+$BUCK\_USET$ is the  analog voltage coming from the  first DAC. The associated
+circuit can be found in figure \ref{fig:circuit:buck:uset}.
 
-\begin{figure}[th!]
-    \center
-    \includegraphics[width=.35\textwidth]{images/circuit/buck-uset.pdf}
-    \caption{Einstellung der Ausgangsspannung durch \"Anderung der Bezugsspannung im Feedback-Loop mittels einer analogen Steuerspannung von 0V bis 1.21V}
-    \label{fig:circuit:buck:uset}
-\end{figure}
-
-Analog zur Ausgangsspannung kann auch der Maximalstrom eingestellt werden. Durch
-anlegen einer  analogen  Spannung  zwischen \SI{0}{\volt} und \SI{1.5}{\volt} am
-Eingang  CTRL1 des LT3741 kann  direkt  der  maximale  \emph{Durchschnittsstrom}
-durch die Spule $L_1$ und  somit  der maximale Ausgangsstrom eingestellt werden.
+In a  manner analogous to  regulating the  output voltage, the  maximum output
+current  can  also be  controlled.   By  applying  an analog  voltage  between
+\SI{0}{\volt}  and  \SI{1.5}{\volt}  at   input  \code{CTRL1}  of  the  LT3741
+controller, the  maximum \emph{average} current  going through coil  $L_1$ and
+therefore the maximum output current can be directly controlled.
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.4\textwidth]{images/circuit/buck-iset.pdf}
-    \caption{Einstellung des Maximalstroms mittels einer analogen Steuerspannung von 0V bis 1.5V}
+    \caption{Setting the maximum output current via reference voltage between \SI{0}{\volt} and \SI{1.5}{\volt}}
     \label{fig:circuit:buck:iset}
 \end{figure}
 
-Die Abbildung \ref{fig:circuit:buck:iset} zeigt  die  dazugeh\"orige  Schaltung.
-Der   maximale  durchschnittliche  Ausgangsstrom  $I_o$  wird  mit  der   Formel
-\ref{eq:circuit:buck:output_current} berechnet
+The corresponding circuit can be  found in figure \ref{fig:circuit:buck:iset}.
+The maximum  average   output  current  $I_o$  is   calculated  using  formula
+\ref{eq:circuit:buck:output_current}.
 
 \begin{equation}
     I_o = \frac{U_{CTRL1}}{30 \cdot R_4}
     \label{eq:circuit:buck:output_current}
 \end{equation}
 
-wobei $U_{CTRL1}$ die  analoge  Steuerspannung vom zweiten DAC ist und $R_4$ der
-\SI{10}{\milli\ohm}    Shunt-Widerstand    ist,   welcher   in   der   Abbildung
-\ref{fig:circuit:buck} zu sehen ist.
+For this, $U_{CTRL1}$  is the analog reference voltage coming  from the second
+DAC and  $R_4$ is the  shunt resistor (\SI{10}{\milli\ohm}, visible  in figure
+\ref{fig:circuit:buck}).
 
-Damit der Mikrocontroller angemessene Steuerspannungen  generieren kann, braucht
-er die Ausgangsspannung und den Ausgangsstrom zu messen.
-
-Die   Ausgangsspannung   wird   mittels   der   Schaltung   in   der   Abbildung
-\ref{fig:circuit:buck:umeas} gemessen. Die Widerst\"ande $R_{12}$  und  $R_{15}$
-wurden  so  dimensioniert  damit  die  Spannung  $BUCK\_UMEAS$  im  Bereich  von
-\SI{0}{\volt} bis \SI{1.5}{\volt} skaliert ist.
+For the microcontroller  to generate appropriate reference  voltages, it needs
+to  measure both  output voltage  and  output current. The  output voltage  is
+measured with  the circuit in figure  \ref{fig:circuit:buck:umeas}. The values
+for resistors  $R_{12}$ and  $R_{15}$ are such  that voltage  $BUCK\_UMEAS$ is
+scaled to the range between \SI{0}{\volt} and \SI{1.5}{\volt}.
 
 \begin{figure}[th!]
     \center
@@ -85,9 +83,8 @@ wurden  so  dimensioniert  damit  die  Spannung  $BUCK\_UMEAS$  im  Bereich  von
     \label{fig:circuit:buck:umeas}
 \end{figure}
 
-Der  Ausgangsstrom  wird  mittels  einem  Shunt-Widerstand  $R_5$  differentiell
-gemessen.  Die  Schaltung dazu ist in der Abbildung \ref{fig:circuit:buck:imeas}
-dargestellt.
+The output  current is measured  differentially via shunt  resistor $R_5$. The
+corresponding circuit can be seeen in figure \ref{fig:circuit:buck:imeas}.
 
 \begin{figure}[th!]
     \center
@@ -96,29 +93,33 @@ dargestellt.
     \label{fig:circuit:buck:imeas}
 \end{figure}
 
-Es  ist  zu  beachten,  dass  die  Widerst\"ande  $R_{10}$  und  $R_{14}$  einen
-Bias-Strom durch den Widerstand $R_5$  verursachen.  Somit  entsteht ein kleiner
-Spannungs-Offset.
+A  particular problem  for this  measurement  is that  resistors $R_{10}$  and
+$R_{14}$ cause a  bias current to flow through the  shunt resistor $R_5$, thus
+leading to an offset $U_{offset}$ of the measured voltage over $R_5$:
+
 \begin{equation}
     U_{offset} = \frac{ \SI{3.3}{\volt} \cdot R_5 }{ R_{14} + R_{10} + R_5 }
     \label{eq:circuit:buck:shunt_offset}
 \end{equation}
 
-Da   der   ADC   eine   12-bit   Aufl\"osung   mit  einer  Referenzspannung  von
-\SI{3.3}{\volt} hat, gilt:
+Since  the  ADC has  a  resolution  of 12  bits  and  a reference  voltage  of
+\SI{3.3}{\volt},  one voltage  increment can  be calcualted  according to  the
+following equation:
+
 \begin{equation}
     U_{step} = \frac{\SI{3.3}{\volt}}{2^{12}} = \SI{806}{\micro\volt}
     \label{eq:circuit:buck:adc_step}
 \end{equation}
 
-Die Widerst\"ande $R_9$, $R_{10}$, $R_{10}$ und  $R_{14}$  sollten  so klein wie
-m\"oglich  dimensioniert  werden damit St\"orungen an  den  Leitungen  minimiert
-werden  k\"onnen,  aber  sollten immer noch gross genug sein, damit  $U_{offset}
-\leq  U_{step}$.  Zu  gross  d\"urfen  sie  auch  nicht  sein,  weil  sonst  die
-Holding-Time  des   ADCs   nicht   mehr   erf\"ullt   ist  (was  bei  ca.  $\geq
-\SI{5}{\kilo\ohm}$      der      Fall     ist).     Aus     den      Gleichungen
-\ref{eq:circuit:buck:shunt_offset} und \ref{eq:circuit:buck:adc_step} kann jetzt
-nach den 4 Widerst\"anden aufgel\"ost werden. Es gilt:
+Resistors  $R_9$, $R_{10}$, $R_{10}$ and  $R_{14}$  should be as small as possible%TODO: 2 times R10
+in order to  reduce disturbances in the  traces, while at the  same time being
+large enough for $U_{offset}$ to be  smaller than $U_{step}$. In order for the
+ADC's  holding  time not  to  be  too long  (which  happens  roughly at  $\geq      %TODO What is smaller or equal than 5kohm?
+\SI{5}{\kilo\ohm}$), they should however also not be too large.
+
+Equations \ref{eq:circuit:buck:shunt_offset} \ref{eq:circuit:buck:adc_step} can now
+be solved for the four resistor values:
+
 \begin{align*}
                           U_{step} &\geq U_{offset} \\
     \frac{\SI{3.3}{\volt}}{2^{12}} &\geq \SI{3.3}{\volt} \cdot \frac{R_5}{R_x + R_5} \\
@@ -126,19 +127,19 @@ nach den 4 Widerst\"anden aufgel\"ost werden. Es gilt:
                                R_x &\geq \left( 2^{12} - 1 \right) \cdot R_5 \\
 \end{align*}
 
-wobei  $\frac{R_x}{2}  =  R_{9}  =  R_{10} = R_{13} = R_{14}$. Berechnet  ergibt
-$\frac{R_x}{2} \approx \SI{22}{\ohm}$.
+where $\frac{R_x}{2} =  R_{9} = R_{10} = R_{13} =  R_{14}$. This yields as its
+result $\frac{R_x}{2} \approx \SI{22}{\ohm}$.
 
-Eine weitere Einschr\"ankung, vorallem bei  kleinen  Widerst\"anden,  ist,  dass
-nicht  unn\"otig  viel  Leistung  verbraten  werden sollte. Deshalb  werden  die
-Widerst\"ande ein wenig h\"oher mit \SI{270}{\ohm} dimensioniert. In diesem Fall
-ist der Leistungsverlust aller 4 Widerst\"ande:
+A further limitation, especially for smaller resistors, is not to dissipate too much
+power. For this reason, the resistors will be dimensioned slightly higher at % TODO: slightly higher: 270 vs 22 ohm?
+\SI{270}{\ohm}  dimensioniert. Thus, the  resulting dissipated  power for  all
+four resistors comes to:
+
 \begin{equation*}
     P_{loss} \approx \frac{\SI{3.3}{\volt}^2}{2\cdot \SI{270}{\ohm}} \approx \SI{20}{\milli\watt}
 \end{equation*}
 
-Die gemessene Spannung  am  Shunt-Widerstand  ist recht klein. Deshalb verwenden
-wir  den  im  Mikrocontroller  eingebauten  vorverst\"arker  (PGA),   was   eine
-Verst\"arkung von bis  zu Faktor 64 erreichen kann. Das verst\"arkte Signal wird
-intern an der eingebauten differentiellen ADC weitergeleitet.
-
+The measured  voltage at the  shunt resistor is comparatively  small. For this reason,
+we use the microcontroller's integrated preamplifier (PGA), %TODO correct term for Vorverstaerker?
+which can  attain a  gain of  up to  factor 64. The  amplified signal  is then
+passed on to the internal differential ADC.
