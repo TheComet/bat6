@@ -21,7 +21,7 @@ $L_1$. % TODO: correct coil?
 
 Furthermore, a controller regulated by current  can also be used as a constant
 current source. This property is mainly of importance when the operating point
-is in  the steeper part  of the PV module's  UI-curve (where small  changes in
+is in  the steeper part  of the PV module's  VI-curve (where small  changes in
 voltage can lead to drastic changes in current and vice versa).
 
 The values for the feedback resistors $R_2$ and $R_{11}$ were chosen according
@@ -29,7 +29,7 @@ to formula \ref{eq:circuit:buck:feedback_resistors} so that the output voltage
 does not exceed \SI{23}{\volt}:
 
 \begin{equation}
-    U_{out} = \SI{1.21}{\volt} \left( 1 + \frac{R_{11}}{R_2} \right)
+    V_{out} = \SI{1.21}{\volt} \left( 1 + \frac{R_{11}}{R_2} \right)
     \label{eq:circuit:buck:feedback_resistors}
 \end{equation}
 
@@ -37,7 +37,7 @@ By increasing $BUCK\_USET$ in formula \ref{eq:circuit:buck:uset}, the outgoing
 voltage can then be modified as needed:
 
 \begin{equation}
-    U_{out} = (\SI{1.21}{\volt} - BUCK\_USET) \cdot \frac{R_{11} + R_2}{R_2}
+    V_{out} = (\SI{1.21}{\volt} - BUCK\_USET) \cdot \frac{R_{11} + R_2}{R_2}
     \label{eq:circuit:buck:uset}
 \end{equation}
 
@@ -62,11 +62,11 @@ The maximum  average   output  current  $I_o$  is   calculated  using  formula
 \ref{eq:circuit:buck:output_current}.
 
 \begin{equation}
-    I_o = \frac{U_{CTRL1}}{30 \cdot R_4}
+    I_o = \frac{V_{CTRL1}}{30 \cdot R_4}
     \label{eq:circuit:buck:output_current}
 \end{equation}
 
-For this, $U_{CTRL1}$  is the analog reference voltage coming  from the second
+For this, $V_{CTRL1}$  is the analog reference voltage coming  from the second
 DAC and  $R_4$ is the  shunt resistor (\SI{10}{\milli\ohm}, visible  in figure
 \ref{fig:circuit:buck}).
 
@@ -95,10 +95,10 @@ corresponding circuit can be seeen in figure \ref{fig:circuit:buck:imeas}.
 
 A  particular problem  for this  measurement  is that  resistors $R_{10}$  and
 $R_{14}$ cause a  bias current to flow through the  shunt resistor $R_5$, thus
-leading to an offset $U_{offset}$ of the measured voltage over $R_5$:
+leading to an offset $V_{offset}$ of the measured voltage over $R_5$:
 
 \begin{equation}
-    U_{offset} = \frac{ \SI{3.3}{\volt} \cdot R_5 }{ R_{14} + R_{10} + R_5 }
+    V_{offset} = \frac{ \SI{3.3}{\volt} \cdot R_5 }{ R_{14} + R_{10} + R_5 }
     \label{eq:circuit:buck:shunt_offset}
 \end{equation}
 
@@ -107,13 +107,13 @@ Since  the  ADC has  a  resolution  of 12  bits  and  a reference  voltage  of
 following equation:
 
 \begin{equation}
-    U_{step} = \frac{\SI{3.3}{\volt}}{2^{12}} = \SI{806}{\micro\volt}
+    V_{step} = \frac{\SI{3.3}{\volt}}{2^{12}} = \SI{806}{\micro\volt}
     \label{eq:circuit:buck:adc_step}
 \end{equation}
 
 Resistors  $R_9$, $R_{10}$, $R_{10}$ and  $R_{14}$  should be as small as possible%TODO: 2 times R10
 in order to  reduce disturbances in the  traces, while at the  same time being
-large enough for $U_{offset}$ to be  smaller than $U_{step}$. In order for the
+large enough for $V_{offset}$ to be  smaller than $V_{step}$. In order for the
 ADC's  holding  time not  to  be  too long  (which  happens  roughly at  $\geq      %TODO What is smaller or equal than 5kohm?
 \SI{5}{\kilo\ohm}$), they should however also not be too large.
 
@@ -121,7 +121,7 @@ Equations \ref{eq:circuit:buck:shunt_offset} \ref{eq:circuit:buck:adc_step} can 
 be solved for the four resistor values:
 
 \begin{align*}
-                          U_{step} &\geq U_{offset} \\
+                          V_{step} &\geq V_{offset} \\
     \frac{\SI{3.3}{\volt}}{2^{12}} &\geq \SI{3.3}{\volt} \cdot \frac{R_5}{R_x + R_5} \\
                   \frac{1}{2^{12}} &\geq \frac{R_5}{R_x + R_5} \\
                                R_x &\geq \left( 2^{12} - 1 \right) \cdot R_5 \\
@@ -132,11 +132,11 @@ result $\frac{R_x}{2} \approx \SI{22}{\ohm}$.
 
 A further limitation, especially for smaller resistors, is not to dissipate too much
 power. For this reason, the resistors will be dimensioned slightly higher at % TODO: slightly higher: 270 vs 22 ohm?
-\SI{270}{\ohm}  dimensioniert. Thus, the  resulting dissipated  power for  all
+\SI{270}{\ohm}. Thus, the  resulting dissipated  power for  all
 four resistors comes to:
 
 \begin{equation*}
-    P_{loss} \approx \frac{\SI{3.3}{\volt}^2}{2\cdot \SI{270}{\ohm}} \approx \SI{20}{\milli\watt}
+    P_{loss} \approx \frac{\left(\SI{3.3}{\volt}\right)^2}{2\cdot \SI{270}{\ohm}} \approx \SI{20}{\milli\watt}
 \end{equation*}
 
 The measured  voltage at the  shunt resistor is comparatively  small. For this reason,

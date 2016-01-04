@@ -1,11 +1,11 @@
 The size of the inductor $L_1$, as illustrated in figure \ref{fig:circuit:buck},
 was calculated using formula \ref{eq:circuit:buck:inductor}
 \begin{equation}
-    L_1 = \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot U_{in}} \right) = \SI{6}{\micro\henry}
+    L_1 = \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot V_{in}} \right) = \SI{6}{\micro\henry}
     \label{eq:circuit:buck:inductor}
 \end{equation}
-where $U_{in}$ is the  input  voltage  \SI{28}{\volt},  $U_{out}$  is the output
-voltage at peak power (which exists at $U_{out} = \SI{14}{\volt}$), $f_S$ is the
+where $V_{in}$ is the  input  voltage  \SI{28}{\volt},  $V_{out}$  is the output
+voltage at peak power (which exists at $V_{out} = \SI{14}{\volt}$), $f_S$ is the
 switching frequency \SI{1}{\mega\hertz} and $I_O$ is the maximum output current,
 assumed   to   be   $I_O  =  \SI{5}{\ampere}$  for   some   additional   leeway.
 
@@ -17,7 +17,7 @@ saturation  current are also important factors to consider. The maximum  current
 of the inductor is calculated using formula 
 \ref{eq:circuit:buck:inductor_peak}
 \begin{equation}
-    I_{L_{1_{peak}}} = I_O + \left( \frac{U_{in} \cdot U_{out} - U_{out}^2}{2 \cdot f_S \cdot L_1 \cdot U_{in}} \right) = \SI{5.2}{\ampere}
+    I_{L_{1_{peak}}} = I_O + \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{2 \cdot f_S \cdot L_1 \cdot V_{in}} \right) = \SI{5.2}{\ampere}
     \label{eq:circuit:buck:inductor_peak}
 \end{equation}
 Where $L_1$  is  the  value  of  the selected inductor, \SI{22}{\micro\henry}. The
