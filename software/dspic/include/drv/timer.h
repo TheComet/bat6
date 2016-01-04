@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file timer.h
  * @author Alex Murray
  *

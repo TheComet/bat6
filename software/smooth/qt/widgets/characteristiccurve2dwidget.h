@@ -2,8 +2,8 @@
 #define CHARACTERISTICCURVE2DWIDGET_H
 
 #include <QScopedPointer>
-#include <qwt5/qwt_plot.h>
-#include <qwt5/qwt_plot_curve.h>
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_curve.h>
 
 class QwtPlotCurve;
 

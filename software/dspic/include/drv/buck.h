@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @file buck.h
  * @author Alex Murray
  *
@@ -19,11 +19,11 @@ extern "C" {
  */
 void buck_init(void);
 
-void buck_enable();       
-void buck_disable();     
+void buck_enable(void);
+void buck_disable(void);
 
-_Q16 buck_get_voltage();
-_Q16 buck_get_current();
+_Q16 buck_get_voltage(void);
+_Q16 buck_get_current(void);
 void buck_set_voltage(_Q16 voltage);
 void buck_set_current(_Q16 current);
 
