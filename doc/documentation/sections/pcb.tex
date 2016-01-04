@@ -15,9 +15,8 @@
 
 When designing a PCB --  especially  when  a  switch-mode  power  converter is a
 central  component  to  the  design  --  the  location  of  components and their
-\emph{routing} (electrical  connections)  can be critical for correct operation.
-Some of the more important  items  considered  for  partitioning and placing the
-components are listed here.
+\emph{routing} (electrical connections) can be  critical  for correct operation.
+Some  of  the  more  important  items  that  were  considered  are  listed here.
 \begin{itemize}
     \item
         High frequency, high power loops are routed as tightly as possible.
@@ -53,14 +52,15 @@ header and other digital components.
 Partition \emph{B} contains the components  responsible for generating the three
 voltage rails discussed earlier. It was placed at  the bottom of the board where
 the  power input is located, to minimize the trace lengths  required  for  power
-distribution on the board.
+distribution on  the  board,  and  it  was  also  placed far away from partition
+\emph{B}  such  that  interference  with  the  digital  circuitry  is minimized.
 
 Partition \emph{D} is  electrically  isolated  from  the rest of the circuit and
 contains  the  components responsible for USB  communication.  It  was  isolated
 because the  voltage  potential  of a connected USB device may be different than
 the potential our device is running on.
 
-\begin{figure}{th!}
+\begin{figure}[th!]
     \centering
     \includegraphics[width=.45\linewidth]{images/pcb/partitioning.png}
     \caption{Partitioning scheme of component groups.
@@ -72,4 +72,17 @@ the potential our device is running on.
     \label{fig:pcb:partitioning}
 \end{figure}
 
+\begin{figure}[th!]
+    \centering
+    \begin{minipage}{.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/circuit/schematic_high_current.png}
+        \caption{Critical high current, high frequency loops in the schematic}
+    \end{minipage}
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.6\textwidth]{images/pcb/buck2.png}
+        \caption{High current, high frequency loops are routed as tightly as possible}
+    \end{minipage}
+\end{figure}
 
