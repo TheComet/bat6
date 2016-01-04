@@ -37,8 +37,19 @@ HEADERS  += widgets/mainwindow.h \
             models/pvcell.h \
             models/pvchain.h \
             models/pvarray.h \
-            models/COMPort.h
+            models/COMPort.h \
+            tools/Lambda.h
+
+SOURCES +=  qaccordion/qaccordion.cpp \
+            qaccordion/clickableframe.cpp \
+            qaccordion/contentpane.cpp
+
+HEADERS +=  qaccordion/qaccordion.h \
+            qaccordion/clickableframe.h \
+            qaccordion/contentpane.h
 
 FORMS    += mainwindow.ui \
             bat6widget.ui \
             cellwidget.ui
+
+RESOURCES += qaccordion/icons/qaccordionicons.qrc

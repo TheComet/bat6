@@ -74,7 +74,8 @@ void ConsoleWidget::keyPressEvent(QKeyEvent *e)
     default:
         if (localEchoEnabled)
             QPlainTextEdit::keyPressEvent(e);
-        com.send(e->text().toLocal8Bit());
+        if(!com.send(e->text().toLocal8Bit()))
+            insertPlainText(QString("<No connection>\n"));
     }
 }
 
