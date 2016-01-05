@@ -1,32 +1,49 @@
-Mit der  zunehmenden Verbreitung von  erneuerbaren Energiequellen hat  sich in
-den letzten Jahren die Solartechnologie zunehmender Popularit\"at erfreut, und
-wird  mit  grosser Wahrscheinlichkeit  in  Zukunft  noch weiter  an  Bedeutung
-gewinnen.
+% Structured according to Gertiser's feedback:
+% 1) Worum geht es?
+% 2) Ziel und Anforderungen
+% 3) Umsetzung -> Grobkonzept
+% 4) Resultate
+% 5) Aufbau der Arbeit
 
-Doch wie  mit vielen anderen  Technologien w\"achst mit  steigender Verwendung
-auch bei der  Solartechnik das Bestreben, die Technologie  besser zu verstehen
-und  schlussendlich besser  zu kontrollieren,  um ihr  Potenzial bestm\"oglich
-aussch\"opfen zu k\"onnen.
+The objective  of our next project  (\emph{Project 4}) will be  to construct a
+device  capable  of  monitoring  photovoltaic  modules  used  in  solar  power
+arrays. In order to  be able to test that device  in a laboratory environment,
+the  aim of  this project  is to  construct a  device capable  of emulating  a
+photovoltaic module.
 
-Im  Rahmen  des  Projekts  4  soll im  Fr\"uhlingssemester  2016  deshalb  ein
-\"Uberwachungsg\"at  f\"ur   Photovoltaik-Zellen  entwickelt   werden. Um  die
-korrekte Funktionsweise  dieses \"Uberwachungsger\"ates im  Labor verifizieren
-zu k\"onnen,  soll in  diesem Projekt ein  Netzger\"at entwickelt  werden, das
-eine Photovoltaik-Zelle unter verschiedenen Bedingungen simulieren kann.
+The primary characteristics  of our device should be compactness  (usable in a
+standard  laboratory environment),  the  capability to  emulate varying  solar
+irradiation levels,  being able  to be  used in  series with  other emulators,
+effiency with  regards to  power consumption  and losses,  and to  emulate the
+voltage-current  line  of  an  actual  PV  module. A  more  detailed  list  of
+the  required specifications  can  be  found in  appendix  \code{XXX (link  to
+Lastenheft)}. %TODO
 
-Als  Zusatzanforderung   soll  nicht  nur  eine   einzelnes  Element,  sondern
-auch  die Serie-  und  Parallelschaltung mehrerer  PV-Zellen simuliert  werden
-k\"onnen. Dazu werden mehrere Simulatoren entsprechend gekoppelt.
+At  the core  of  our device  lie a  microcontroller  and a  constant-current,
+constant-voltage step-down converter.  The  microcontroller is responsible for
+programming and  controlling the  device, whereas  the step-down  converter is
+used  to  generate the  output  voltage  and  output  current of  the  desired
+operating point  from a DC power  supply. The entire design is  based around a
+custom  PCB. This enables  us to  get very  close in  behavior to  a porential
+mass-produced  product since  trace lenghts,  routing and  component placement
+are  crucial  (see  also  section \ref{sec:verification},  beginning  on  page
+\pageref{sec:verification}).
 
-Der Simulator ist grunds\"atzlich  ein Labornetzger\"at  mit der Besonderheit,
-dass  verschiedene   Strom-Spannungs-Kurven  vom  Benutzer   definiert  werden
-k\"onnen. Diese   unterschiedlichen  Kurvenverl\"aufe   orientieren  sich   am
-Verhalten  von   PV-Modulen  unter   verschiedenen  Umst\"anden   (z.B.  volle
-Sonneneinstrahlung, teilweise abgeschattet/verdreckt, etc.).
+Unfortunately,  at this  point,  the  device is  not  fully operational  since
+the  step-down  converter  keeps  being   damaged. We  have  been  working  on
+diagnosing  the  cause  of  this  issue, but  fixing  it  would  require  more
+time  than   we  have   at  our  disposal. For   more  information   on  this,
+see  sections  \ref{sec:verification}  on  pages  \pageref{sec:verification}ff
+and   our  concluding   remarks  in   section  \ref{sec:conclusion}   on  page
+\pageref{sec:conclusion}.
 
-Das   Ger\"at    ist   mikrocontroller-basiert    und   hat    ein   einfaches
-Benutzer-Interface  sowie  die  M\"oglichkeit,   mit  einem  PC  via  serielle
-Schnittstelle zu kommunizieren.
-
-
-%TODO: Schaltregler
+Sections  \ref{sec:task}   (p.  \pageref{sec:task}ff)   and  \ref{sec:concept}
+(p.   \pageref{sec:concept}ff)   of   this   report   deal   with   the   task
+itself  and  the  basic   concept  behind  our  solution. Component  selection
+and   PCB  design   are  documented   in  sections   \ref{sec:components}  (p.
+\pageref{sec:components}ff)   and   \ref{sec:pcb}   (p.   \pageref{sec:pcb}ff)
+respectively, while section \ref{sec:software}  is concerned with the software
+(p.  \pageref{sec:software}ff).   Lastly, section  \ref{sec:verification}  (p.
+\pageref{sec:verification}ff) deals  with testing  the device  including error
+analysis, and the  conclusion can be found in  section \ref{sec:conclusion} on
+page \pageref{sec:conclusion}.
