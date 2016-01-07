@@ -57,17 +57,34 @@ the potential our device is running on.
     \label{fig:pcb:partitioning}
 \end{figure}
 
+Figure \ref{fig:pcb:loops1} shows the two critical loops  where  short intervals
+of high amounts of current flow in this design. The first (green) loop is active
+when the switching  MOSFET  $V_2$ is conducting and transferring charge from the
+input bypass capacitors $C_3$, $C_4$, $C_{12}$ and  $C_1$  through  the resistor
+$R4$  into  the  inductor  $L_1$.  The  second  (blue) loop is active  when  the
+switching mosfet $V_3$ is conducting and transferring  charge  from the inductor
+$L_1$ through the resistor $R_4$  into  the  output  bypass capacitors $C_{15}$,
+$C_{11}$, $C_7$ and $C_8$.
+
+It is critical for the total physical length of these loops to be minimized. The
+solution  of  which  can  be  seen  in  the  physical   PCB   layout  in  figure
+\ref{fig:pcb:loops2}.
+
 \begin{figure}[th!]
     \centering
+    \caption{High power, high frequency loop lenths are minimized}
     \begin{minipage}{.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{images/circuit/schematic_high_current.png}
         \caption{Critical high current, high frequency loops in the schematic}
+        \label{fig:pcb:loops1}
     \end{minipage}
     \begin{minipage}{.5\textwidth}
         \centering
         \includegraphics[width=.6\textwidth]{images/pcb/buck2.png}
         \caption{High current, high frequency loops are routed as tightly as possible}
+        \label{fig:pcb:loops2}
     \end{minipage}
 \end{figure}
+
 
