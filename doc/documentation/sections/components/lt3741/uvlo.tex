@@ -1,19 +1,18 @@
-Der \emph{Enable}-Eingang des LT3741 wird einerseits vom Mikrocontroller mit dem
-$BUCK\_EN$  Signal ein- und ausgeschalten, anderseits  wird  der  Enable-Eingang
-auch mit vorrang in Hardware ausgeschalten, falls  die  \SI{36}{\volt}  Spannung
-unter $\approx  \SI{25}{\volt}$  sinken w\"urde. Dies erlaubt ein kontrolliertes
-und vorhersehbares Verhalten  des LT3741 w\"ahrend Ein- und Ausschaltvorg\"angen
-des Endproduktes. Die Schaltung dazu ist in der Abbildung \ref{fig:circuit:uvlo}
-ersichtlich.
+The   LT3741's   \emph{Enable}   input   is   enabled   and   disabled   by  the
+microcontroller's  $BUCK\_EN$ signal on one hand, on the other hand it is can be
+forcibly  disabled  in  hardware  when  the  \SI{28}{\volt}  rail   drops  below
+\SI{25}{\volt}. This  allows  for  a  controlled and predictable behavior of the
+LT3741 during power-on  and power-off. The corresponding circuit can be found in
+figure \ref{fig:circuit:uvlo}.
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.6\textwidth]{images/circuit/uvlo.pdf}
-    \caption{Under-Voltage Lock-Out (UVLO) erm\"oglicht ein kontrolliertes Ein- und Ausschalten des Reglers}
+    \caption{Under-Voltage Lock-Out (UVLO) allows for controlled power-on and power-off of the controller}
     \label{fig:circuit:uvlo}
 \end{figure}
 
-Im Falle einer Unterspannung  wechselt  $N_6$  in den sperrenden Zustand \"uber,
-der  Transistor $V_6$ beginnt zu leiten, und der  Enable-Eingang  wird  auf  Low
-gezogen.  Die  Spannung  an  $BUCK\_UVLO$  triggert  beim  Mikrocontroller   ein
-Interrupt.
+In case of under-voltage, $N_6$ switches  on  and the transistor $V_6$ starts to
+conduct,  thus  pulling  the  \emph{Enable}   input   to   \emph{Low}.   Voltage
+$BUCK\_UVLO$ triggers an interrupt in the microcontroller.
+

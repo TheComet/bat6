@@ -1,7 +1,7 @@
-This  design  requires   three   different  voltage  levels  (known  as  voltage
-\emph{rails}),  which  are  \SI{28}{\volt},  \SI{5}{\volt}  and  \SI{3.3}{\volt}
-respecitvely. Each rail has  different  requirements  as far as noise, power and
-efficiency goes.
+In order to power the components used  in  this  design,  hree different voltage
+levels (known as voltage \emph{rails}), which are  \SI{28}{\volt}, \SI{5}{\volt}
+and   \SI{3.3}{\volt}   respecitvely.  Each  rail  has  different   requirements
+concerning noise, power and efficiency.
 
 First  and  foremost,  the  maximum  current  of  each   voltage  rail  must  be
 approximately determined. This information is crucial for  selecting appropriate
@@ -61,7 +61,7 @@ conversions derive their  reference  voltage  from the \SI{3.3}{\volt} rail. Any
 noise on  this  rail  could  impact  the accuracy of these conversions and could
 result in lower accuracy of the final,  regulated  output  voltage of the device
 itself.  For  this  reason  we  opted  for  a  linear  regulator  to  power  the
-\SI{3.3}{\volt} off of the \SI{5}{\volt} rail.  the  circuit  is  illustrated in
+\SI{3.3}{\volt} off of the \SI{5}{\volt} rail.  The  circuit  is  illustrated in
 figure  \ref{fig:circuit:rails}.  This regulator was also chosen  based  on  the
 current requirement $I_{\SI{3.3}{\volt}}$ and is capable of  supplying a maximum
 current of \SI{1}{\ampere}.

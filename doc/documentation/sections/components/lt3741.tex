@@ -16,13 +16,13 @@ of this device. The most important reasons are listed here.
         Most switch-mode  regulators  are  only  able  to  \emph{supply}  power, but are
         incapable  of  \emph{absorbing} power. Because our device may  be  connected  in
         series (or parallel) with other power  supplies,  it  must  have  the ability to
-        absorb  power  to  (which is the case if, say, it were connected  to  a  voltage
+        absorb  power  too (which is the case if, say, it were connected  to  a  voltage
         source   outputting   a   higher  voltage  level  than  our  own).  A  so-called
         \emph{synchronous  converter} possesses this property and the LT3741 is  one  of
         them.
     \item \textbf{Control inputs.}
         The LT3741 was chosen  because  it has dedicated input control pins for directly
-        changing  the  regulated  output  current.  This makes the design a lot simpler,
+        manipulating the regulated output current.  This makes the design a lot simpler,
         because no complicated additional circuitry is required.
 \end{itemize}
 
