@@ -4,25 +4,72 @@ expected results based on simulations.
 
 \subsection{Test Fixtures}
 
-\subsubsection{Simple VI Curve}
+\subsubsection{Trivial VI Curve}
 
 
-\subsubsection{Non-Simple VI Curve}
+\subsubsection{Non-trivial VI Curve}
 
 
 \subsubsection{Ripple Voltage and Ripple Current vs Resistive Load}
+
+Using  LTSpice,  the circuit of our regulator was modeled and  the  peak-to-peak
+ripple current and voltage was simulated using different resistive loads ranging
+from  \SI{100}{\milli\ohm}   to   \SI{1}{\kilo\ohm}  at  an  output  voltage  of
+\SI{12}{\volt}. Figure \ref{fig:verification:ripple_sim} is a plot of the ripple
+current and voltage versus the resistive load.
 
 \begin{figure}[th!]
     \centering
     \includegraphics[width=.7\textwidth]{images/sim/ripple-vs-load.pdf}
     \caption{Simulation of the amplitude of the ripple voltage and ripple current vs different resistive loads, obtained using LTSpiceIV's model of the LT3741}
+    \label{fig:verification:ripple_sim}
 \end{figure}
+
+In  order  to  test this on the  real  device,  a  constant  output  voltage  of
+\SI{12}{\volt} is programmed and a potentiometer  is  attached  to  the device's
+output connectors, as illustrated in figure \ref{fig:verification:ripple_fix}
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=.6\textwidth]{images/sim/ripple-fixture.png}
+    \caption{Test fixture for measuring ripple voltage \& ripple current of the device}
+    \label{fig:verification:ripple_fix}
+\end{figure}
+
+The ripple current  is measured over a small sense resistor $R_{sense}$ using an
+oscilloscope. The ripple voltage  is  measured  using  a  second  channel of the
+oscilloscope by measuring the output voltage.
 
 
 \subsubsection{Power Absorbtion}
 
+As stated in the specifications,  the  device  must  have  the  ability  to sink
+current  as  well  as  source  current.  In  order to test this, the  device  is
+programmed  to  output  \SI{12}{\volt} and is connected in series with a current
+limiting resistor  and  a  second  power  source  set  to  a  higher voltage, as
+illustrated      in      figure     \ref{fig:verification:power_absorbtion_fix}.
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=.6\textwidth]{images/sim/power-absorbtion-fixture.png}
+    \caption{Test fixture for measuring power absorbtion of the device.}
+    \label{fig:verification:power_absorbtion_fix}
+\end{figure}
+
+The second voltage source is slowly increased until \SI{3}{\ampere} are  flowing
+through  the  current  limiting  resistor  $R_1$  (which  can  be determined  by
+measuring the voltage over said resistor), all while the device's output voltage
+is closely monitored. The output voltage is expected to remain constant.
+
 
 \subsubsection{Transient Response}
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=.6\textwidth]{images/sim/transient-fixture.png}
+    \caption{Test fixture for measuring the transient response of the device}
+    \label{fig:verification:transient_fix}
+\end{figure}
 
 
 \subsubsection{Inductive Load}
