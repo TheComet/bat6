@@ -8,3 +8,12 @@
     \item
         Wie soll unser Ger\"at bedient werden k\"onnen?
 \end{itemize}
+
+\subsection{Goals of the model}
+Our aim is to have a simple model, as usability is more important than accuracy. In other words, our model should have a small set of parameters, which can be easily determined by the user. Further it must respect solar irradiation, as we want to model how clouded skies or a partially covered module affects its output.
+   
+\subsection{Model for one solar cell}
+As Basis for our model serves the single diode model of the ideal PV cell \todo{comprehensive appr}. The I-V characteristic of this circuit is
+\begin{equation}
+ I = I_{pv,cell} - I_{o,cell} \left[ \exp \left( \frac{qV}{akT} \right) - 1 \right]
+ \end{equation} 
