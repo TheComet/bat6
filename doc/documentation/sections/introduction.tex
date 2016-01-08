@@ -5,6 +5,8 @@
 % 4) Resultate
 % 5) Aufbau der Arbeit
 
+% TODO: source for expensive shit
+
 Verifying the correct operation of equipment  used for testing solar arrays is
 currently difficult in  a controlled laboratory environment,  as no affordable
 solutions for this exist on the open market. To address this issue, the aim of
@@ -17,29 +19,28 @@ The primary characteristics  of our device should be compactness  (usable in a
 standard  laboratory environment),  the  capability to  emulate varying  solar
 irradiation levels,  being able  to be  used in  series with  other emulators,
 effiency with  regards to  power consumption  and losses,  and to  emulate the
-voltage-current  line  of  an  actual  PV  module. A  more  detailed  list  of
-the  required specifications  can  be  found in  appendix  \code{XXX (link  to
-Lastenheft)}. %TODO
+characteristic  curve of  an actual  PV module. A  more detailed  list of  the
+technical  requirements  can be  found  in  the specifications  (see  appendix
+\code{XXX (link to Lastenheft)}). %TODO
 
-At  the core  of  our device  lie a  microcontroller  and a  constant-current,
-constant-voltage step-down converter.  The  microcontroller is responsible for
-programming and  controlling the  device, whereas  the step-down  converter is
-used  to  generate the  output  voltage  and  output  current of  the  desired
-operating point  from a DC power  supply. The entire design is  based around a
-custom  PCB. This enables  us to  get very  close in  behavior to  a porential
-mass-produced  product since  trace lenghts,  routing and  component placement
-are  crucial  (see  also  section \ref{sec:verification},  beginning  on  page
-\pageref{sec:verification}).
+A microcontroller and a constant-current, constant-voltage step-down converter
+constitute the core of our device.  The microcontroller performs IO operations
+and implements  the regulation loop  used to control the  step-down converter,
+whereas  the  step-down converter  generates  the  output voltage  and  output
+current  corresponding  to  the  desired  operating  point  from  a  DC  power
+supply. The  entire design  is  based  around a  custom  PCB,  enabling us  to
+optimise impedances of  connections between critical components. Additionally,
+we can get very close in behavior to a potentially mass-produced product since
+trace lenghts, routing  and component placement are crucial  (see also section
+\ref{sec:verification}, beginning on page \pageref{sec:verification}).
 
-Aside from a professionally printed PCB,  the device has a simple yet powerful
-user interface  which can be  controlled by a  push-twist button and  a modern
-OLED display. In addition to direct  physical interaction, the device can also
-be remotely monitored and controlled from a  PC via USB interface and a custom
-software. Said  software is  built  on  the Qt  application  framework and  is
-compatible with all major operating systems~\cite{ref:qt}. With regards to its
-capability  to  emulate  PV  arrays,  our device  can  emulate  quite  complex
-configurations of  cells thanks to  an efficient use of  computation resources
-and its powerful microprocessor.
+The device has a simple yet powerful user interface which can be controlled by
+a push-twist button and a modern OLED display. The device can also be remotely
+monitored and controlled from a PC via USB interface and custom software built
+on the  Qt application framework  and is  compatible with all  major operating
+systems~\cite{ref:qt}.  Our  device can emulate fairly  complex configurations
+of cells thanks to an efficient  use of computation resources and its powerful
+microprocessor.
 
 Sections  \ref{sec:task}   (p.  \pageref{sec:task}ff)   and  \ref{sec:concept}
 (p.   \pageref{sec:concept}ff)   of   this   report   deal   with   the   task
