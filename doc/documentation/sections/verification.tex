@@ -156,20 +156,48 @@ length,    and    thickness    is    known   to    be    \SI{0.4}{\milli\metre},
 \SI{2}{\centi\metre}  and \SI{35}{\micro\metre} respectively) and added  to  the
 simulation   model  seen  in  figure   \ref{fig:verification:long_traces_model}.
 
-
 \begin{figure}[th!]
     \centering
     \begin{minipage}{.6\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{images/pcb/long_traces.png}
+        \includegraphics[width=.9\textwidth]{images/pcb/long-traces.png}
         \caption{}
         \label{fig:verification:long_traces_pcb}
     \end{minipage}
     \begin{minipage}{.38\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{images/sim/lt3741_transients_circuit_real.png}
+        \includegraphics[width=.9\textwidth]{images/sim/lt3741-transients-circuit-real.png}
         \caption{}
         \label{fig:verification:long_traces_model}
     \end{minipage}
 \end{figure}
+
+The voltage on the SW pin of the regulator  is  simulated  and  plotted.  Figure
+\ref{fig:verification:long_traces_simulation}  compares  the   more   accurately
+modelled curve (in blue, labelled \emph{sw\_real})  with  the ideal model of the
+voltage on the SW pin (in yellow, labelled \emph{sw\_ideal}). The  two red lines
+represent  the  expected  maximum  voltage  (\SI{28}{\volt})  and  the  device's
+absolute maximum rating on the SW pin (\SI{40}{\volt}).
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=.7\textwidth]{images/sim/lt3741-transients-sim.png}
+    \caption{}
+    \label{fig:verification:long_traces_simulation}
+\end{figure}
+
+It is clear that these small parasitic  inductances have a huge impact. The real
+curve  (blue) exhibits ringing  with  an  amplitude  overshooting  the  expected
+maximum voltage by  almost  \SI{12}{\volt}! It is therefore very likely that the
+high driver was destroyed due to an over-voltage event.
+
+The immediate solution to this problem  is to add three resistors in series with
+these  critical   connections  to  dampen  the  ringing.  The  effect  of  three
+\SI{3.3}{\ohm}     resistors     in     series    is    plotted    in     figure
+\ref{fig:verification:long_traces_simulation}     (green     curve,     labelled
+\emph{sw\_fix}).  When  compared  to  the ideal and real curves, we see that the
+peak voltage has been reduced to a much less dangerous level.
+
+The more optimal  solution is of course to modify the PCB layout such that these
+traces have a much shorter distance.
 
