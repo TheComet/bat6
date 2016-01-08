@@ -191,11 +191,11 @@ curve  (blue) exhibits ringing  with  an  amplitude  overshooting  the  expected
 maximum voltage by  almost  \SI{12}{\volt}! It is therefore very likely that the
 high driver was destroyed due to an over-voltage event.
 
-The immediate solution to this problem  is to add three resistors in series with
-these  critical   connections  to  dampen  the  ringing.  The  effect  of  three
-\SI{3.3}{\ohm}     resistors     in     series    is    plotted    in     figure
+The immediate solution to this problem  is  to add resistors in series with each
+of  the  critical  connections  to  dampen  the  ringing.  The   effect   of   a
+\SI{3.3}{\ohm} resistor in series  with  each  connection  is  plotted in figure
 \ref{fig:verification:long_traces_simulation}     (green     curve,     labelled
-\emph{sw\_fix}).  When  compared  to  the ideal and real curves, we see that the
+\emph{sw\_fix}). When compared  to  the  ideal  and real curves, we see that the
 peak voltage has been reduced to a much less dangerous level.
 
 The more optimal  solution is of course to modify the PCB layout such that these
