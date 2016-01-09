@@ -229,31 +229,33 @@ void menu_init(void)
 /* -------------------------------------------------------------------------- */
 static void handle_item_selection(unsigned int button)
 {
+    /* no items to select? */
     if(menu.navigation.max == 0)
         return;
 
     if(button == BUTTON_TWISTED_LEFT)
     {
+        /* clamp selection at item 0 */
         if(menu.navigation.item != 0)
             --menu.navigation.item;
 
+        /* scroll menu if we selected an item less than the scroll value */
         if(menu.navigation.item < menu.navigation.scroll)
             --menu.navigation.scroll;
-
-        menu_update();
-        return;
     }
 
     if(button == BUTTON_TWISTED_RIGHT)
     {
+        /* clamp selection at max item - 1*/
         if(menu.navigation.item != menu.navigation.max - 1)
             ++menu.navigation.item;
 
-        if(menu.navigation.item - menu.navigation.scroll >= 4)
+        /* scroll menu if we selected the third item relative to the scroll value */
+        if(menu.navigation.item - menu.navigation.scroll >= 3)
             ++menu.navigation.scroll;
-
-        menu_update();
     }
+    
+    menu_update();
 }
 
 /* -------------------------------------------------------------------------- */

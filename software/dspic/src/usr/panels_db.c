@@ -13,7 +13,7 @@
 struct panel_t
 {
     const char name[19];
-    struct pv_cell_t cells[1];
+    struct pv_cell_t cells[3];
 };
 
 struct manufacturer_t
@@ -27,7 +27,9 @@ struct manufacturer_t
 struct manufacturer_t database[] = {
     { "Generic", {
         { "Generic Panel 1", {
-            {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)},
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)},
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
         }},
         { "Generic Panel 2", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}
