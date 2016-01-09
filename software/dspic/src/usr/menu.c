@@ -242,6 +242,9 @@ static void handle_item_selection(unsigned int button)
         /* scroll menu if we selected an item less than the scroll value */
         if(menu.navigation.item < menu.navigation.scroll)
             --menu.navigation.scroll;
+        
+        menu_update();
+        return;
     }
 
     if(button == BUTTON_TWISTED_RIGHT)
@@ -253,9 +256,9 @@ static void handle_item_selection(unsigned int button)
         /* scroll menu if we selected the third item relative to the scroll value */
         if(menu.navigation.item - menu.navigation.scroll >= 3)
             ++menu.navigation.scroll;
+        
+        menu_update();
     }
-    
-    menu_update();
 }
 
 /* -------------------------------------------------------------------------- */
