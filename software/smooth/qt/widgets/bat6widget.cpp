@@ -45,7 +45,7 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     scrollAreaTop->setWidget(accordionTop);
     scrollAreaTop->setWidgetResizable(true);
 
-    for(int i = 1; i != 5; ++i)
+    for(int i = 1; i != 3; ++i)
     {
         QString name = "Cell " + QString::number(i);
         int paneIndex = accordionTop->addContentPane(name);

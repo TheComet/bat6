@@ -34,6 +34,7 @@ HEADERS  += widgets/mainwindow.h \
             widgets/bat6widget.h \
             widgets/characteristiccurve2dwidget.h \
             widgets/characteristiccurve3dwidget.h \
+            widgets/PVArrayPlot.h \
             models/pvcell.h \
             models/pvchain.h \
             models/pvarray.h \
