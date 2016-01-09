@@ -27,9 +27,9 @@ struct manufacturer_t
 struct manufacturer_t database[] = {
     { "Generic", {
         { "Generic Panel 1", {
-            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(2), CELL_PARAM(1)},
-            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(2), CELL_PARAM(1)},
-            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(2), CELL_PARAM(1)}
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
+            {CELL_PARAM(8), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)}
         }},
         { "Generic Panel 2", {
             {CELL_PARAM(24), CELL_PARAM(3), CELL_PARAM(1.5), CELL_PARAM(1)}

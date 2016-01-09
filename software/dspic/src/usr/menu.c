@@ -548,6 +548,48 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
+static void handle_parameter_editing(unsigned int button)
+{
+    _Q16 param;
+    
+    switch(menu.state)
+    {
+        case STATE_CONTROL_GLOBAL_IRRADIATION:
+        case STATE_CONTROL_CELL_IRRADIATION:
+            param = model_get_relative_solar_irradiation(menu.cell.active_id);
+            
+            if(button == BUTTON_TWISTED_LEFT)
+                param += (_Q16)(65536);
+            else if(button == BUTTON_TWISTED_RIGHT)
+                param -= (_Q16)(65536);
+            
+            if(param > (_Q16)(100 * 65536))
+                param = (_Q16)(100 * 65536);
+            if(param < 0)
+                param = 0;
+            
+            model_set_relative_solar_irradiation(menu.cell.active_id, param);
+            menu_update();
+            break;
+
+        case STATE_CONTROL_GLOBAL_TEMPERATURE:
+        case STATE_CONTROL_CELL_TEMPERATURE:
+            param = model_get_thermal_voltage(menu.cell.active_id);
+            
+            if(button == BUTTON_TWISTED_LEFT)
+                param += (_Q16)(32768);
+            else if(button == BUTTON_TWISTED_RIGHT)
+                param -= (_Q16)(32768);
+            
+            model_set_thermal_voltage(menu.cell.active_id, param);
+            menu_update();
+            break;
+
+        default: break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 static void append_temperature_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
@@ -561,7 +603,8 @@ static void append_temperature_of_selected_cell(char* buffer)
         ++ptr;
 
     /* allow for 4 characters for this number */
-    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id));
+    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id) - 
+            (_Q16)(273 * 65536));
     str_append(ptr, 21 + buffer - ptr, "C");
 }
 
@@ -719,6 +762,7 @@ static void on_button(unsigned int button)
 {
     handle_item_selection(button);
     handle_menu_switches(button);
+    handle_parameter_editing(button);
 }
 
 /* -------------------------------------------------------------------------- */
