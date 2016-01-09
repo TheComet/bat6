@@ -45,19 +45,14 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     scrollAreaTop->setWidget(accordionTop);
     scrollAreaTop->setWidgetResizable(true);
 
-    for(int i = 0; i < 100; ++i)
+    for(int i = 1; i != 5; ++i)
     {
-        accordionTop->addContentPane("Cell " + QString::number(i));
+        QString name = "Cell " + QString::number(i);
+        int paneIndex = accordionTop->addContentPane(name);
+        QFrame* contentFrame = accordionTop->getContentPane(paneIndex)->getContentFrame();
+        contentFrame->setLayout(new QGridLayout);
+        contentFrame->layout()->addWidget(new CellWidget(name));
     }
-
-    int paneIndex = accordionTop->addContentPane("Cell 1");
-    /*QFrame* contentFrame = accordionTop->getContentPane(paneIndex)->getContentFrame();
-    contentFrame->setLayout(new QGridLayout);
-    contentFrame->layout()->addWidget(new CellWidget("Cell 1"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 2"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 3"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 4"));*/
-
 
     // on the right side of the splitter is the plot
     QWidget* plotContainer = new QFrame;
