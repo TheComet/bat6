@@ -389,7 +389,6 @@ static void load_menu_navigate_panel_cells(void)
 
 static unsigned char convert_index_to_cell_id(unsigned char index)
 {
-    
     /* Traverse the list of cells and return the ID of the nth cell */
     unsigned char id;
     for(id = model_cell_begin_iteration();
@@ -508,7 +507,8 @@ static void handle_menu_switches(unsigned int button)
                 load_menu_navigate_global_parameters();
             /* Every other item is a cell */
             else {
-                menu.cell.active_id = convert_index_to_cell_id(menu.navigation.item - 1);
+                menu.cell.active_id = convert_index_to_cell_id(
+                        menu.navigation.item - 1);
                 load_menu_navigate_cell_parameters();
             }
             menu_update();
@@ -664,7 +664,11 @@ static void menu_update(void)
 {
     char buffer[21];
     int i;
+    
+    /* First cell ID depends on how far we've scrolled */
     unsigned char current_cell_id = model_cell_begin_iteration();
+    for(i = 0; i != menu.navigation.scroll; ++i)
+        current_cell_id = model_cell_get_next();
 
     for(i = 0; i != 3; ++i)
     {
@@ -753,6 +757,10 @@ static void menu_update(void)
                 {
                     char* ptr = str_append(buffer, 21, "Cell ");
                     ptr = str_nitoa(ptr, 21 + buffer - ptr, current_item);
+                    
+                    current_cell_id = convert_index_to_cell_id(current_item - 1);
+                    
+                    /* add cell information */
                     ptr = str_append(ptr, 21 + buffer - ptr, " (");
                     append_irradiation_of_cell(ptr, current_cell_id);
                     ptr = str_append(ptr, 21 + buffer - ptr, ",");
