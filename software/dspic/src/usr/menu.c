@@ -559,7 +559,7 @@ static void append_temperature_of_selected_cell(char* buffer)
 
     /* allow for 4 characters for this number */
     ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id));
-    str_append(ptr, 21 + buffer - ptr, "°C");
+    str_append(ptr, 21 + buffer - ptr, "C");
 }
 
 /* -------------------------------------------------------------------------- */

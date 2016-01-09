@@ -103,11 +103,11 @@ static void process_twist_event(void)
     {
         ticks = (ticks + 1) & 0x3;
         if(ticks == 0)
-            event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
+            event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
     } else {
         ticks = (ticks - 1) & 0x3;
         if(ticks == 2)
-            event_post(EVENT_BUTTON, BUTTON_TWISTED_RIGHT);
+            event_post(EVENT_BUTTON, BUTTON_TWISTED_LEFT);
     }
 
     /* update current AB */
