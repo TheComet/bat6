@@ -312,6 +312,10 @@ static void activate_selected_panel()
     /* store cell count in menu state, as it's required by submenus */
     cell_count = panels_db_get_cell_count(menu.manufacturer,
                                           menu.navigation.item);
+    
+    /* reset global parameters */
+    model_set_global_thermal_voltage((_Q16)(293 * 65536));
+    model_set_global_relative_solar_irradiation((_Q16)(100 * 65536));
 
     /*
      * Copy parameters for each cell in the db and add them to a
@@ -343,8 +347,8 @@ static void activate_selected_panel()
 
 static void load_menu_navigate_global_parameters(void)
 {
-    /* this is the cell that is used to display the global parameters */
-    menu.cell.active_id = model_cell_begin_iteration();
+    /* when navigating the global parameters, select an invalid cell ID */
+    menu.cell.active_id = 0;
 
     menu.navigation.max = 3;
     menu.navigation.item = 0;
@@ -548,40 +552,62 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
+static _Q16 modify_relative_solar_irradiation(unsigned int button, _Q16 param)
+{
+    if(button == BUTTON_TWISTED_LEFT)
+        param += (_Q16)(65536);
+    else if(button == BUTTON_TWISTED_RIGHT)
+        param -= (_Q16)(65536);
+
+    if(param > (_Q16)(100 * 65536))
+        param = (_Q16)(100 * 65536);
+    if(param < 0)
+        param = 0;
+    
+    return param;
+}
+
+/* -------------------------------------------------------------------------- */
+static _Q16 modify_thermal_voltage(unsigned int button, _Q16 param)
+{
+    if(button == BUTTON_TWISTED_LEFT)
+        param += (_Q16)(32768);
+    else if(button == BUTTON_TWISTED_RIGHT)
+        param -= (_Q16)(32768);
+    
+    return param;
+}
+
+/* -------------------------------------------------------------------------- */
 static void handle_parameter_editing(unsigned int button)
 {
-    _Q16 param;
-    
     switch(menu.state)
     {
         case STATE_CONTROL_GLOBAL_IRRADIATION:
+            model_set_global_relative_solar_irradiation(
+                modify_relative_solar_irradiation(button,
+                    model_get_global_relative_solar_irradiation()));
+            menu_update();
+            break;
+
         case STATE_CONTROL_CELL_IRRADIATION:
-            param = model_get_relative_solar_irradiation(menu.cell.active_id);
-            
-            if(button == BUTTON_TWISTED_LEFT)
-                param += (_Q16)(65536);
-            else if(button == BUTTON_TWISTED_RIGHT)
-                param -= (_Q16)(65536);
-            
-            if(param > (_Q16)(100 * 65536))
-                param = (_Q16)(100 * 65536);
-            if(param < 0)
-                param = 0;
-            
-            model_set_relative_solar_irradiation(menu.cell.active_id, param);
+            model_set_relative_solar_irradiation(menu.cell.active_id,
+                modify_relative_solar_irradiation(button,
+                    model_get_relative_solar_irradiation(menu.cell.active_id)));
             menu_update();
             break;
 
         case STATE_CONTROL_GLOBAL_TEMPERATURE:
+            model_set_global_thermal_voltage(
+                modify_thermal_voltage(button,
+                    model_get_global_thermal_voltage()));
+            menu_update();
+            break;
+
         case STATE_CONTROL_CELL_TEMPERATURE:
-            param = model_get_thermal_voltage(menu.cell.active_id);
-            
-            if(button == BUTTON_TWISTED_LEFT)
-                param += (_Q16)(32768);
-            else if(button == BUTTON_TWISTED_RIGHT)
-                param -= (_Q16)(32768);
-            
-            model_set_thermal_voltage(menu.cell.active_id, param);
+            model_set_thermal_voltage(menu.cell.active_id,
+                modify_thermal_voltage(button,
+                    model_get_thermal_voltage(menu.cell.active_id)));
             menu_update();
             break;
 
@@ -593,18 +619,22 @@ static void handle_parameter_editing(unsigned int button)
 static void append_temperature_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    if(menu.cell.active_id == 0) /* invalid cell */
-    {
-        str_append(buffer, 21, "---");
-        return;
-    }
+    
     /* find insertion point in buffer */
     while(*ptr)
         ++ptr;
-
-    /* allow for 4 characters for this number */
-    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id) - 
+    
+    /* global parameter */
+    if(menu.cell.active_id == 0)
+    {
+        ptr = str_q16itoa(ptr, 5, model_get_global_thermal_voltage() -
+                (_Q16)(273 * 65536));
+    } else
+    {
+        ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id) - 
             (_Q16)(273 * 65536));
+    }
+
     str_append(ptr, 21 + buffer - ptr, "C");
 }
 
@@ -612,17 +642,20 @@ static void append_temperature_of_selected_cell(char* buffer)
 static void append_irradiation_of_selected_cell(char* buffer)
 {
     char* ptr = buffer;
-    if(menu.cell.active_id == 0) /* invalid cell */
-    {
-        str_append(buffer, 21, "---");
-        return;
-    }
+
     /* find insertion point in buffer */
     while(*ptr)
         ++ptr;
+    
+    /* Global parameter */
+    if(menu.cell.active_id == 0)
+    {
+        ptr = str_q16itoa(ptr, 4, model_get_global_relative_solar_irradiation());
+    } else
+    {
+        ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.cell.active_id));
+    }
 
-    /* allow for 3 characters for this number */
-    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.cell.active_id));
     str_append(ptr, 21 + buffer - ptr, "%");
 }
 

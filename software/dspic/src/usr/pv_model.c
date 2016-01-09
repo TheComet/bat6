@@ -21,6 +21,9 @@ struct cell_t
 
 static struct cell_t* active_panel = NULL;
 
+static _Q16 global_vt = (_Q16)(293 * 65536);
+static _Q16 global_g  = (_Q16)(100 * 65536);
+
 /* -------------------------------------------------------------------------- */
 static unsigned char uid_counter = 0;
 static unsigned char generate_unique_identifier(void)
@@ -204,6 +207,29 @@ unsigned char model_cell_get_next(void)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+void model_set_global_thermal_voltage(_Q16 vt)
+{
+    global_vt = vt;
+}
+
+/* -------------------------------------------------------------------------- */
+void model_set_global_relative_solar_irradiation(_Q16 g)
+{
+    global_g = g;
+}
+
+/* -------------------------------------------------------------------------- */
+_Q16 model_get_global_thermal_voltage(void)
+{
+    return global_vt;
+}
+
+/* -------------------------------------------------------------------------- */
+_Q16 model_get_global_relative_solar_irradiation(void)
+{
+    return global_g;
+}
 
 /* -------------------------------------------------------------------------- */
 void model_set_open_circuit_voltage(unsigned char cell_id, _Q16 voc)

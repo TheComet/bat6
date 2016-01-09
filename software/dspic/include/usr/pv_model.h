@@ -64,6 +64,28 @@ unsigned char model_cell_begin_iteration(void);
 unsigned char model_cell_get_next(void);
 
 /*!
+ * @brief Sets the global thermal voltage. This is weighted together with each
+ * individual cell's parameter.
+ */
+void model_set_global_thermal_voltage(_Q16 vt);
+
+/*!
+ * @brief Sets the global thermal voltage. This is weighted together with each
+ * individual cell's parameter.
+ */
+void model_set_global_relative_solar_irradiation(_Q16 g);
+
+/*!
+ * @brief Gets the global thermal voltage.
+ */
+_Q16 model_get_global_thermal_voltage(void);
+
+/*!
+ * @brief Gets the global relative solar irradiation.
+ */
+_Q16 model_get_global_relative_solar_irradiation(void);
+
+/*!
  * @brief Sets the open circuit voltage of the actively selected cell.
  */
 void model_set_open_circuit_voltage(unsigned char cell_id, _Q16 voc);
