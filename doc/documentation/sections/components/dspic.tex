@@ -1,0 +1,22 @@
+The choice for our miroprocessor was comparatively straight-forward. Microchip
+was  chosen as  manufacturer  because  one of  our  team  members was  already
+familiar with their  products. This enabled us to more  quickly start becoming
+productive instead of  the entire team needing to familiarise  itself with the
+tools and architecture of the microcontroller from scratch.
+
+Additionally, Microchip provides good developer tools for free. For selecting
+a specific model, the following criteria eventually lead us to the \code{dsPIC33EP16GS506}:
+
+\begin{itemize}
+    \item
+        \SI{120}{\mega\hertz} clock (60 MIPS): Comparatively fast. Allows for a
+        fast control loop.
+    \item
+        2 ADCs  and 2  DACs with external  voltage reference: Required  by the
+        control model we use (see section \code{TODO}.
+    \item
+        Programmable Gain Amplifier (64 $\times$ analog pre-amplifier): Allows
+        measuring the small differential voltages which occur in our device.
+    \item
+        Low cost of 4 CHF
+\end{itemize}
