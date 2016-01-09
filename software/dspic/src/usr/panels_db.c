@@ -126,7 +126,7 @@ using namespace ::testing;
 
 TEST(panels_db, get_manufacturers_count)
 {
-    EXPECT_THAT(panels_db_get_manufacturers_count(), Eq(1));
+    EXPECT_THAT(panels_db_get_manufacturer_count(), Eq(1));
 }
 
 TEST(panels_db, get_panel_count)
@@ -136,7 +136,8 @@ TEST(panels_db, get_panel_count)
 
 TEST(panels_db, get_cell_count)
 {
-    EXPECT_THAT(panels_db_get_cell_count(0, 0), Eq(1));
+    EXPECT_THAT(panels_db_get_cell_count(0, 0), Eq(4));
+    EXPECT_THAT(panels_db_get_cell_count(0, 1), Eq(2));
 }
 
 #endif /* TESTING */

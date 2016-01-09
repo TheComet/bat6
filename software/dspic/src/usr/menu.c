@@ -15,7 +15,7 @@
  *       + Irradiation                   STATE_NAVIGATE_GLOBAL_PARAMETERS
  *         - 100%                        STATE_CONTROL_GLOBAL_IRRADIATION
  *       + Temperature                   STATE_NAVIGATE_GLOBAL_PARAMETERS
- *         - 20.0°                       STATE_CONTROL_GLOBAL_TEMPERATURE
+ *         - 20.0Â°                       STATE_CONTROL_GLOBAL_TEMPERATURE
  *       + Individual Cells              STATE_NAVIGATE_GLOBAL_PARAMETERS
  *         - Go back                     STATE_NAVIGATE_PANEL_CELLS
  *         - Cell 1                      ...
@@ -24,7 +24,7 @@
  *           + Irradiation               STATE_NAVIGATE_Q16_PARAMETERS
  *             - 100%                    STATE_CONTROL_CELL_IRRADIATION
  *           + Temperature               STATE_NAVIGATE_Q16_PARAMETERS
- *             - 20.0°                   STATE_CONTROL_CELL_TEMPERATURE
+ *             - 20.0Â°                   STATE_CONTROL_CELL_TEMPERATURE
  *           - Global Parameters         STATE_NAVIGATE_Q16_PARAMETERS
  *
  * STATE_NAVIGATE_MANUFACTURERS lists all manufacturers. Selecting an item in
@@ -149,66 +149,85 @@ static void on_update(unsigned int arg);
  * purposes
  */
 #ifdef TESTING
-int panels_db_get_manufacturers_count_test();
-int panels_db_get_panel_count_test(int manufacturer);
-const char* panels_db_get_manufacturer_name_test(int manufacturer);
-const char* panels_db_get_panel_name_test(int manufacturer, int panel);
-void lcd_writeline_test(int line, const char* str);
-int panels_db_get_cell_count_test(int manufacturer, int panel);
-const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell);
-unsigned char model_cell_add_test(void);
-unsigned char model_cell_begin_iteration_test();
-unsigned char model_cell_get_next_test();
-void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value);
-void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value);
-void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value);
-void model_set_relative_solar_irradiation_test(unsigned char cell_id, _Q16 value);
-_Q16 model_get_open_circuit_voltage_test(unsigned char cell_id);
-_Q16 model_get_short_circuit_current_test(unsigned char cell_id);
-_Q16 model_get_thermal_voltage_test(unsigned char cell_id);
-_Q16 model_get_relative_solar_irradiation_test(unsigned char cell_id);
-_Q16 buck_get_voltage_test();
-_Q16 buck_get_current_test();
-#   define panels_db_get_manufacturers_count       \
-           panels_db_get_manufacturers_count_test
+
+/* panels_db overrides */
+#   define panels_db_get_manufacturer_count        \
+           panels_db_get_manufacturer_count_test
+int panels_db_get_manufacturer_count_test();
 #   define panels_db_get_panel_count               \
            panels_db_get_panel_count_test
+int panels_db_get_panel_count_test(int manufacturer);
 #   define panels_db_get_manufacturer_name         \
            panels_db_get_manufacturer_name_test
+const char* panels_db_get_manufacturer_name_test(int manufacturer);
 #   define panels_db_get_panel_name                \
            panels_db_get_panel_name_test
+const char* panels_db_get_panel_name_test(int manufacturer, int panel);
 #   define panels_db_get_cell_count                \
            panels_db_get_cell_count_test
+int panels_db_get_cell_count_test(int manufacturer, int panel);
 #   define panels_db_get_cell                      \
            panels_db_get_cell_test
-#   define model_cell_begin_iteration              \
-           model_cell_begin_iteration_test
-#   define model_cell_get_next                     \
-           model_cell_get_next_test
+const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell);
+
+/* lcd overrides */
 #   define lcd_writeline                           \
            lcd_writeline_test
+void lcd_writeline_test(int line, const char* str);
+#   define lcd_reset                               \
+           lcd_reset_test
+void lcd_reset_test(void);
+
+/* pv_model overrides */
+#   define model_cell_begin_iteration              \
+           model_cell_begin_iteration_test
+unsigned char model_cell_begin_iteration_test();
+#   define model_cell_get_next                     \
+           model_cell_get_next_test
+unsigned char model_cell_get_next_test();
 #   define model_cell_add                          \
            model_cell_add_test
+unsigned char model_cell_add_test(void);
+#   define model_get_global_thermal_voltage        \
+           model_get_global_thermal_voltage_test
+_Q16 model_get_global_thermal_voltage_test();
+#   define model_get_global_relative_solar_irradiation \
+           model_get_global_relative_solar_irradiation_test
+_Q16 model_get_global_relative_solar_irradiation_test();
 #   define model_set_open_circuit_voltage          \
            model_set_open_circuit_voltage_test
+void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value);
 #   define model_set_short_circuit_current         \
            model_set_short_circuit_current_test
+void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value);
 #   define model_set_thermal_voltage               \
            model_set_thermal_voltage_test
+void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value);
 #   define model_set_relative_solar_irradiation    \
            model_set_relative_solar_irradiation_test
+void model_set_relative_solar_irradiation_test(unsigned char cell_id, _Q16 value);
 #   define model_get_open_circuit_voltage          \
            model_get_open_circuit_voltage_test
+_Q16 model_get_open_circuit_voltage_test(unsigned char cell_id);
 #   define model_get_short_circuit_current         \
            model_get_short_circuit_current_test
+_Q16 model_get_short_circuit_current_test(unsigned char cell_id);
 #   define model_get_thermal_voltage               \
            model_get_thermal_voltage_test
+_Q16 model_get_thermal_voltage_test(unsigned char cell_id);
 #   define model_get_relative_solar_irradiation    \
            model_get_relative_solar_irradiation_test
+_Q16 model_get_relative_solar_irradiation_test(unsigned char cell_id);
+
+/* buck regulator overrides */
 #   define buck_get_voltage                        \
            buck_get_voltage_test
+_Q16 buck_get_voltage_test();
 #   define buck_get_current                        \
            buck_get_current_test
+_Q16 buck_get_current_test();
+
+
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -242,7 +261,7 @@ static void handle_item_selection(unsigned int button)
         /* scroll menu if we selected an item less than the scroll value */
         if(menu.navigation.item < menu.navigation.scroll)
             --menu.navigation.scroll;
-        
+
         menu_update();
         return;
     }
@@ -256,7 +275,7 @@ static void handle_item_selection(unsigned int button)
         /* scroll menu if we selected the third item relative to the scroll value */
         if(menu.navigation.item - menu.navigation.scroll >= 3)
             ++menu.navigation.scroll;
-        
+
         menu_update();
     }
 }
@@ -312,7 +331,7 @@ static void activate_selected_panel()
     /* store cell count in menu state, as it's required by submenus */
     cell_count = panels_db_get_cell_count(menu.manufacturer,
                                           menu.navigation.item);
-    
+
     /* reset global parameters */
     model_set_global_thermal_voltage((_Q16)(293 * 65536));
     model_set_global_relative_solar_irradiation((_Q16)(100 * 65536));
@@ -336,8 +355,8 @@ static void activate_selected_panel()
 
     /* buck can now be enabled */
     buck_enable();
-    
-    /* 
+
+    /*
      * Set up cell count and active ID. Warning: This overwrites the
      * "manufacturers" field in the struct.
      */
@@ -396,7 +415,7 @@ static unsigned char convert_index_to_cell_id(unsigned char index)
         id = model_cell_get_next(), index--)
     {
     }
-    
+
     return id;
 }
 
@@ -563,7 +582,7 @@ static _Q16 modify_relative_solar_irradiation(unsigned int button, _Q16 param)
         param = (_Q16)(100 * 65536);
     if(param < 0)
         param = 0;
-    
+
     return param;
 }
 
@@ -574,7 +593,7 @@ static _Q16 modify_thermal_voltage(unsigned int button, _Q16 param)
         param += (_Q16)(32768);
     else if(button == BUTTON_TWISTED_RIGHT)
         param -= (_Q16)(32768);
-    
+
     return param;
 }
 
@@ -619,11 +638,11 @@ static void handle_parameter_editing(unsigned int button)
 static void append_temperature_of_cell(char* buffer, unsigned char cell_id)
 {
     char* ptr = buffer;
-    
+
     /* find insertion point in buffer */
     while(*ptr)
         ++ptr;
-    
+
     /* global parameter */
     if(cell_id == 0)
     {
@@ -631,7 +650,7 @@ static void append_temperature_of_cell(char* buffer, unsigned char cell_id)
                 (_Q16)(273 * 65536));
     } else
     {
-        ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(cell_id) - 
+        ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(cell_id) -
             (_Q16)(273 * 65536));
     }
 
@@ -646,7 +665,7 @@ static void append_irradiation_of_cell(char* buffer, unsigned char cell_id)
     /* find insertion point in buffer */
     while(*ptr)
         ++ptr;
-    
+
     /* Global parameter */
     if(cell_id == 0)
     {
@@ -664,7 +683,7 @@ static void menu_update(void)
 {
     char buffer[21];
     int i;
-    
+
     /* First cell ID depends on how far we've scrolled */
     unsigned char current_cell_id = model_cell_begin_iteration();
     for(i = 0; i != menu.navigation.scroll; ++i)
@@ -757,9 +776,9 @@ static void menu_update(void)
                 {
                     char* ptr = str_append(buffer, 21, "Cell ");
                     ptr = str_nitoa(ptr, 21 + buffer - ptr, current_item);
-                    
+
                     current_cell_id = convert_index_to_cell_id(current_item - 1);
-                    
+
                     /* add cell information */
                     ptr = str_append(ptr, 21 + buffer - ptr, " (");
                     append_irradiation_of_cell(ptr, current_cell_id);
@@ -837,7 +856,7 @@ using namespace ::testing;
 /* -------------------------------------------------------------------------- */
 /* set up a DB that we can control for testing */
 std::vector<std::pair<std::string, std::vector<std::string> > > manufacturers;
-int panels_db_get_manufacturers_count_test() {
+int panels_db_get_manufacturer_count_test() {
     return manufacturers.size();
 }
 int panels_db_get_panel_count_test(int manufacturer) {
@@ -857,7 +876,7 @@ int panels_db_get_cell_count_test(int manufacturer, int panel) {
 /* set up active model API for testing. We use one default cell. */
 #define Q16_PARAM(x) ((_Q16)(x * 65536))
 static struct pv_cell_t default_cell = {
-    Q16_PARAM(6), Q16_PARAM(2), Q16_PARAM(99.99), Q16_PARAM(100)
+    Q16_PARAM(6), Q16_PARAM(2), Q16_PARAM(99.99 + 273.0), Q16_PARAM(100)
 };
 
 const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int cell) {
@@ -867,6 +886,8 @@ const struct pv_cell_t* panels_db_get_cell_test(int manufacturer, int panel, int
 unsigned char model_cell_add() { return 1; }
 unsigned char model_cell_begin_iteration_test() { return 1; }
 unsigned char model_cell_get_next_test() { return 0; }
+_Q16 model_get_global_thermal_voltage_test()                                      { return Q16_PARAM(273 + 20.0); }
+_Q16 model_get_global_relative_solar_irradiation_test()                           { return Q16_PARAM(99.9); }
 void model_set_open_circuit_voltage_test(unsigned char cell_id, _Q16 value)       { if(cell_id == 1) default_cell.voc = value;  }
 void model_set_short_circuit_current_test(unsigned char cell_id, _Q16 value)      { if(cell_id == 1) default_cell.isc = value;  }
 void model_set_thermal_voltage_test(unsigned char cell_id, _Q16 value)            { if(cell_id == 1) default_cell.vt  = value;  }
@@ -891,61 +912,63 @@ void lcd_writeline_test(int line, const char* str)
     lcd_string.append(std::string(buf) + ": " + str + "\n");
 }
 
+void lcd_reset_test(void) {} /* do nothing */
+
 const char* MANUFACTURER_SELECTION_STRING = "\
 0: -Manufacturers-\n\
-1: > Manufacturer 1\n\
-2:   Manufacturer 2\n\
-3:   Manufacturer 3\n";
+1: >Manufacturer 1\n\
+2:  Manufacturer 2\n\
+3:  Manufacturer 3\n";
 const char* PANEL_SELECTION_STRING = "\
 0: -Manufacturer 1-\n\
-1: > Panel 1\n\
-2:   Panel 2\n\
-3:   Panel 3\n";
+1: >Panel 1\n\
+2:  Panel 2\n\
+3:  Panel 3\n";
 const char* GLOBAL_PARAMETER_SELECTION_STRING1 = "\
 0: -24.5V -5.500A 134W\n\
-1: > Exposure 100%\n\
-2:   Temp 99.9°C\n\
-3:   Individual Cells\n";
+1: >Exposure 100%\n\
+2:  Temp 20.0C\n\
+3:  Individual Cells\n";
 const char* GLOBAL_PARAMETER_SELECTION_STRING2 = "\
 0: -24.5V -5.500A 134W\n\
-1:   Exposure 100%\n\
-2: > Temp 99.9°C\n\
-3:   Individual Cells\n";
+1:  Exposure 100%\n\
+2: >Temp 20.0C\n\
+3:  Individual Cells\n";
 const char* GLOBAL_IRRADIATION_STRING = "\
 0: -24.5V -5.500A 134W\n\
-1: = Exposure 100%\n\
-2:   Temp 99.9°C\n\
-3:   Individual Cells\n";
+1: =Exposure 100%\n\
+2:  Temp 20.0C\n\
+3:  Individual Cells\n";
 const char* GLOBAL_TEMPERATURE_STRING = "\
 0: -24.5V -5.500A 134W\n\
-1:   Exposure 100%\n\
-2: = Temp 99.9°C\n\
-3:   Individual Cells\n";
+1:  Exposure 100%\n\
+2: =Temp 20.0C\n\
+3:  Individual Cells\n";
 const char* CELL_SELECTION_STRING = "\
 0: -24.5V -5.500A 134W\n\
-1: > Go Back\n\
-2:   Cell 1\n\
-3:   Cell 2\n";
+1: >Go Back\n\
+2:  Cell 1 (100% 99.9C)\n\
+3:  Cell 2 (100% 99.9C)\n";
 const char* CELL_PARAMETER_SELECTION_STRING1 = "\
 0: -24.5V -5.500A 134W\n\
-1: > Exposure 100%\n\
-2:   Temp 99.9°C\n\
-3:   Go Back\n";
+1: >Exposure 100%\n\
+2:  Temp 99.9C\n\
+3:  Go Back\n";
 const char* CELL_PARAMETER_SELECTION_STRING2 = "\
 0: -24.5V -5.500A 134W\n\
-1:   Exposure 100%\n\
-2: > Temp 99.9°C\n\
-3:   Go Back\n";
+1:  Exposure 100%\n\
+2: >Temp 99.9C\n\
+3:  Go Back\n";
 const char* CELL_IRRADIATION_STRING = "\
 0: -24.5V -5.500A 134W\n\
-1: = Exposure 100%\n\
-2:   Temp 99.9°C\n\
-3:   Go Back\n";
+1: =Exposure 100%\n\
+2:  Temp 99.9C\n\
+3:  Go Back\n";
 const char* CELL_TEMPERATURE_STRING = "\
 0: -24.5V -5.500A 134W\n\
-1:   Exposure 100%\n\
-2: = Temp 99.9°C\n\
-3:   Go Back\n";
+1:  Exposure 100%\n\
+2: =Temp 99.9C\n\
+3:  Go Back\n";
 
 /* -------------------------------------------------------------------------- */
 /* easier button control */
@@ -1142,6 +1165,7 @@ TEST_F(oled_menu, dont_go_into_submenu_with_no_items)
 
 TEST_F(oled_menu, item_selection_right_clamps_correctly)
 {
+    /* define a menu containing 5 items */
     menu.navigation.item = 0;
     menu.navigation.max = 5;
     menu.navigation.scroll = 0;
@@ -1158,43 +1182,48 @@ TEST_F(oled_menu, item_selection_right_clamps_correctly)
     EXPECT_THAT(menu.navigation.scroll, Eq(0));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
+    /* Scrolling should begin here, because only three items fit on the screen
+     * at any one time (first row is reserved for title and data) */
     twist_button_right();
     EXPECT_THAT(menu.navigation.item, Eq(3));
     EXPECT_THAT(menu.navigation.max, Eq(5));
-    EXPECT_THAT(menu.navigation.scroll, Eq(0));
-    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
-
-    twist_button_right();
-    EXPECT_THAT(menu.navigation.item, Eq(4));
-    EXPECT_THAT(menu.navigation.max, Eq(5));
     EXPECT_THAT(menu.navigation.scroll, Eq(1));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_right();
     EXPECT_THAT(menu.navigation.item, Eq(4));
     EXPECT_THAT(menu.navigation.max, Eq(5));
-    EXPECT_THAT(menu.navigation.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.scroll, Eq(2));
+    EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
+
+    twist_button_right();
+    EXPECT_THAT(menu.navigation.item, Eq(4));
+    EXPECT_THAT(menu.navigation.max, Eq(5));
+    EXPECT_THAT(menu.navigation.scroll, Eq(2));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 }
 
 TEST_F(oled_menu, item_selection_left_clamps_correctly)
 {
+    /* define a menu containing 5 items, last item is selected */
     menu.navigation.item = 4;
     menu.navigation.max = 5;
-    menu.navigation.scroll = 1;
+    menu.navigation.scroll = 2;
 
     twist_button_left();
     EXPECT_THAT(menu.navigation.item, Eq(3));
     EXPECT_THAT(menu.navigation.max, Eq(5));
-    EXPECT_THAT(menu.navigation.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.scroll, Eq(2));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
     twist_button_left();
     EXPECT_THAT(menu.navigation.item, Eq(2));
     EXPECT_THAT(menu.navigation.max, Eq(5));
-    EXPECT_THAT(menu.navigation.scroll, Eq(1));
+    EXPECT_THAT(menu.navigation.scroll, Eq(2));
     EXPECT_THAT(menu.state, Eq(STATE_NAVIGATE_MANUFACTURERS));
 
+    /* Scrolling should begin here, because only three items fit on the screen
+     * at any one time (first row is reserved for title and data) */
     twist_button_left();
     EXPECT_THAT(menu.navigation.item, Eq(1));
     EXPECT_THAT(menu.navigation.max, Eq(5));
