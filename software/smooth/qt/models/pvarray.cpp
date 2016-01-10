@@ -4,11 +4,13 @@
 
 #include <QString>
 
+// ----------------------------------------------------------------------------
 PVArray::PVArray() :
     exposure(1.0)
 {
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateCurrent(double voltage) const
 {
     // Current just adds up because the cells are in parallel
@@ -18,6 +20,7 @@ double PVArray::calculateCurrent(double voltage) const
     return current;
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateVoltage(double targetCurrent) const
 {
     /*
@@ -57,18 +60,14 @@ double PVArray::calculateVoltage(double targetCurrent) const
     return voltage;
 }
 
+// ----------------------------------------------------------------------------
 void PVArray::setExposure(double exposure)
 {
     exposure = (exposure < 0.0 ? 0.0 : exposure);
     this->exposure = (exposure > 1.0 ? 1.0 : exposure);
 }
 
-void PVArray::setTemperature(double temperature)
-{
-    for(auto& chain : cellArray)
-        chain.setTemperature(temperature);
-}
-
+// ----------------------------------------------------------------------------
 void PVArray::addChain(const QString& chainName, const PVChain& chain)
 {
     if(cellArray.contains(chainName))
@@ -76,17 +75,20 @@ void PVArray::addChain(const QString& chainName, const PVChain& chain)
     cellArray.insert(chainName, chain);
 }
 
+// ----------------------------------------------------------------------------
 void PVArray::removeChain(const QString& chainName)
 {
     cellArray.remove(chainName);
 }
 
+// ----------------------------------------------------------------------------
 PVChain* PVArray::getChain(const QString& chainName)
 {
     auto chain = cellArray.find(chainName);
     return chain.operator->();
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateAverageParallelVoltage(double totalCurrent) const
 {
     double currentPerCell = totalCurrent / cellArray.size();

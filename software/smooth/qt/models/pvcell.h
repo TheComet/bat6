@@ -10,7 +10,7 @@ public:
     PVCell();
     PVCell(double openCircuitVoltage,
            double shortCircuitCurrent,
-           double temperature=273.13+25.0,
+           double darkVoltage,
            double exposure=1.0);
 
     /*!
@@ -44,10 +44,6 @@ public:
      */
     double getExposure() const;
 
-    void setTemperature(double temperature);
-
-    double getTemperature() const;
-
     /*!
      * \brief Returns the short circuit current of this cell.
      * \return The short circuit current in amps.
@@ -63,7 +59,7 @@ public:
 private:
     double shortCircuitCurrent;
     double openCircuitVoltage;
-    double temperature;
+    double darkVoltage;
     double exposure;
 };
 

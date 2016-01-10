@@ -41,8 +41,6 @@ public:
      */
     void setExposure(double exposure);
 
-    void setTemperature(double temperature);
-
     /*!
      * \brief Adds a new cell to the chain of cells.
      * \param cellName A unique name for this cell.

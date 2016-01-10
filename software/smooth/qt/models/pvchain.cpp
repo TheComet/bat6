@@ -3,11 +3,13 @@
 
 #include <QString>
 
+// ----------------------------------------------------------------------------
 PVChain::PVChain() :
     exposure(1.0)
 {
 }
 
+// ----------------------------------------------------------------------------
 double PVChain::getMaximumSeriesCurrent(double totalVoltage, double exposure) const
 {
     exposure = (exposure < 0.0 ? 0.0 : exposure);
@@ -24,18 +26,14 @@ double PVChain::getMaximumSeriesCurrent(double totalVoltage, double exposure) co
     return current;
 }
 
+// ----------------------------------------------------------------------------
 void PVChain::setExposure(double exposure)
 {
     exposure = (exposure <= 0.0 ? 0.0 : exposure);
     this->exposure = (exposure >= 1.0 ? 1.0 : exposure);
 }
 
-void PVChain::setTemperature(double temperature)
-{
-    for(auto& cell : cellChain)
-        cell.setTemperature(temperature);
-}
-
+// ----------------------------------------------------------------------------
 double PVChain::calculateCurrent(double targetVoltage, double exposure) const
 {
     /*
@@ -82,6 +80,7 @@ double PVChain::calculateCurrent(double targetVoltage, double exposure) const
     return current;
 }
 
+// ----------------------------------------------------------------------------
 double PVChain::calculateVoltage(double current, double exposure) const
 {
     exposure = (exposure < 0.0 ? 0.0 : exposure);
@@ -95,6 +94,7 @@ double PVChain::calculateVoltage(double current, double exposure) const
     return voltage;
 }
 
+// ----------------------------------------------------------------------------
 void PVChain::addCell(const QString& cellName, const PVCell& cell)
 {
     if(cellChain.contains(cellName))
@@ -102,17 +102,20 @@ void PVChain::addCell(const QString& cellName, const PVCell& cell)
     cellChain.insert(cellName, cell);
 }
 
+// ----------------------------------------------------------------------------
 void PVChain::removeCell(const QString& cellName)
 {
     cellChain.remove(cellName);
 }
 
+// ----------------------------------------------------------------------------
 PVCell* PVChain::getCell(const QString& cellName)
 {
     auto cell = cellChain.find(cellName);
     return cell.operator->();
 }
 
+// ----------------------------------------------------------------------------
 double PVChain::getOpenCircuitVoltage() const
 {
     double voltage = 0.0;
