@@ -27,6 +27,25 @@ device itself,  which is comprised  of a display  and a push-twist  button, as
 well as  on a PC  connected by USB  using our software  \emph{Smooth} (section
 \ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
 
+
+% **************************************************************************** %
+\subsection{Concept of Regulation Circuit}
+% **************************************************************************** %
+
+\begin{minipage}{0.5\textwidth}
+    \center
+    \includegraphics[width=\textwidth,trim=140 140 120 100,clip]{images/block-diag-control.pdf}
+    \captionof{figure}{Block diagram of control circuit}
+    \label{fig:diag:block}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \center
+    \includegraphics[width=\textwidth]{images/vi-curve.png}
+    \captionof{figure}{VI-Curve with \SI{-45}{\degree} slope indicated}
+    \label{fig:circuit:buck:uset}
+\end{minipage}
+
+
 \subsection{Goals of the model}
 Our aim is to have a simple model, as usability is more important than accuracy. In other words, our model should have a small set of parameters, which can be easily determined by the user. Further it must respect solar irradiation, as we want to model how clouded skies or a partially covered module affects its output.
 
