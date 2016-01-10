@@ -9,18 +9,17 @@
 %        Wie soll unser Ger\"at bedient werden k\"onnen?
 %\end{itemize}
 
-Underpinning  our  device  is  a  microcontroller which  has  as  its  primary
-responsibilities the  handling of IO tasks  (such as user interaction  and the
-display) and  controlling the step-down converter. Power  delivery is realised
-with a prebuilt DC power supply unit as per the requirements.
+Underpinning our device  is a microcontroller which is primarily responsible for
+handling I/O tasks (such  as  user  interaction and the display) and controlling
+the step-down converter. Power  delivery  is  realised  with a prebuilt DC power
+supply unit.
 
-With  an  eye  towards  potential  serial production,  we  developed  our  own
-PCB.  This  allows tight  control over impedances  in the  connections between
-critical  components and  brings the  behavior  of the  prototype device  much
-closer  to  a mass  produced  version  than  a breadboard  solution  could. It
-should  also  be  pointed  out  that  trace  routing,  lengths  and  component
-placement are crucial,  as is discussed in  section \ref{sec:verification} (p.
-\pageref{sec:verification}ff), \emph{Verification}.
+With an eye towards  potential serial production, we developed our own PCB. This
+allows  tight  control  over impedances  in  the  connections  between  critical
+components and brings the behavior of the prototype device much closer to a mass
+produced version than a breadboard solution could. This is because trace routing
+lengths and component placement are  crucial factors, as is discussed in section
+\ref{sec:verification}  (p.  \pageref{sec:verification}ff), \emph{Verification}.
 
 Users can  interact with our device  either through a push-twist  button and a
 display on the device itself or from  a PC connected by USB using our software
@@ -44,16 +43,15 @@ display on the device itself or from  a PC connected by USB using our software
     \label{fig:controlcircuit:vicurve}
 \end{minipage}
 
-Regulating  current and  voltage  is  done by  measuring  both output  current
-and  output  voltage. When  the  device  is operating  in  section  A  of  the
-VI-curve as  depicted in  figure \ref{fig:controlcircuit:vicurve},  the output
-current  is  measured  and  used  to   set  the  output  voltage,  whereas  in
-section  B,   output  voltage  is   measured  and  used  to   regulate  output
-current. The dividing  point between  the lines is  the contact  point between
-the  VI-curve  and   the  \SI{-45}{\degree}  slope  as   indicated  in  figure
-\ref{fig:controlcircuit:vicurve}.
-
-TODO: Why is this done thusly?
+Emulation of the IV characteristic  curve  is  achieved  accurately by measuring
+both output voltage and output current. If  the  operating  point  is  above the
+\SI{-45}{\degree} slope (``A'' in  figure \ref{fig:controlcircuit:vicurve}) then
+it is more accurate  to  operate  the  regulator  in  constant  current mode. In
+contrast, if the operating point is below  the \SI{-45}{\degree} slope (``B'' in
+figure \ref{fig:controlcircuit:vicurve}) then it is more accurate to operate the
+regulator in constant voltage mode. A more detailed explanation can  be found in
+section         \ref{subsec:finding-the-operating-point}         on         page
+\pageref{subsec:finding-the-operating-point}.
 
 
 \subsection{Goals of the model}
