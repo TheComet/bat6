@@ -43,13 +43,38 @@
     title           = {Module Design Circuit},
     url             = {http://www.pveducation.org/pvcdrom/modules/module-circuit-design},
 }.
-@article{ref:villa:pvmodel,
-    author          = {Marcello Gradella Villalva, Jonas Rafael Gazoli, Ernesto Ruppert Filho}
-    title           = {Comprehensive Approach to Modeling and Simulation of Photovoltaic Arrays}
-    journal         = {IEEE transactions on power electroniccs}
-    volume          = {24}
-    pages           = {1198-1208}
-    year            = {2009}
+@article{ref:villa:pvmodel, 
+    author          = {Villalva, M.G. and Gazoli, J.R. and Filho, E.R.}, 
+    journal         = {Power Electronics, IEEE Transactions on}, 
+    title           = {Comprehensive Approach to Modeling and Simulation of Photovoltaic Arrays}, 
+    year            = {2009}, 
+    volume          = {24}, 
+    number          = {5}, 
+    pages           = {1198-1208}, 
+    abstract        = {This  paper  proposes  a  method  of  modeling and  simulation  of
+                        photovoltaic  arrays.  The main objective is  to  find  the  parameters  of  the
+                        nonlinear I-V  equation  by  adjusting  the curve at three points: open circuit,
+                        maximum  power, and short circuit. Given these three points, which are  provided
+                        by all commercial array data sheets,  the method finds the best I-V equation for
+                        the single-diode  photovoltaic (PV) model including the effect of the series and
+                        parallel resistances, and warranties that the maximum power of the model matches
+                        with the maximum power of the real  array.  With  the parameters of the adjusted
+                        I-V equation, one can build a PV circuit model with  any  circuit  simulator  by
+                        using basic math blocks. The modeling method  and the proposed circuit model are
+                        useful for power electronics designers who need  a  simple,  fast, accurate, and
+                        easy-to-use modeling method for using in simulations of PV systems. In the first
+                        pages,  the  reader  will  find a tutorial on PV devices and will understand the
+                        parameters that compose the single-diode  PV  model. The modeling method is then
+                        introduced  and  presented in details. The model is validated with  experimental
+                        data of commercial PV arrays.},
+    keywords        = {equivalent  circuits;photodiodes;photovoltaic  cells;semiconductor
+                        device   models;circuit  simulator;commercial   array   data   sheets;equivalent
+                        circuit;nonlinear   I-V    equation;open    circuit;photovoltaic    arrays;short
+                        circuit;single-diode                                                photovoltaic
+                        model;Array;circuit;equivalent;model;modeling;photovoltaic     (PV);simulation},
+    doi             = {10.1109/TPEL.2009.2013862}, 
+    ISSN            = {0885-8993}, 
+    month           = {May},
 },
 @inbook{ref:kuchling:speedOfSoundTable,
     author          = {Horst Kuchling},
@@ -67,4 +92,33 @@
     address         = {Windisch},
     year            = {2015},
 },
+@article{ref:tian:model,
+    title           = "A detailed modeling method for photovoltaic cells ",
+    journal         = "Energy ",
+    volume          = "32",
+    number          = "9",
+    pages           = "1724 - 1730",
+    year            = "2007",
+    note            = "",
+    issn            = "0360-5442",
+    doi             = "http://dx.doi.org/10.1016/j.energy.2006.12.006",
+    url             = "http://www.sciencedirect.com/science/article/pii/S0360544206003501",
+    author          = "R. Chenni and M. Makhlouf and T. Kerbache and A. Bouzid",
+    keywords        = "Solar energy",
+    keywords        = "Photovoltaic panels",
+    keywords        = "Four parameters model",
+    keywords        = "Reverse saturation current",
+    keywords        = "Manufacturer's data ",
+    abstract        = "The photovoltaic cells current–voltage mathematical description is
+                        usually  defined  by a coupled nonlinear  equation,  difficult  to  solve  using
+                        analytical  methods.  This  paper  investigates a modeling process configuring a
+                        computer simulation  model,  able  to  demonstrate the cell's output features in
+                        terms  of irradiance and temperature environment changes. The model is based  on
+                        four  parameters,  and  it  is  tested  to  simulate  three  popular  types   of
+                        photovoltaic  panels  constructed  with  different  materials:   copper   indium
+                        diselenide (CIS) thin  film,  multi-crystalline  silicon,  and  mono-crystalline
+                        silicon. A comparative study  of  simulation results, carried out by the product
+                        manufacturer data, is provided to prove the efficiency of the proposed approach."
+},
+
 
