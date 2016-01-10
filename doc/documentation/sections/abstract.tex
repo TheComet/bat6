@@ -12,20 +12,21 @@
 % conclution
 
  % introduction
-Simulating photovoltaic  cells in a laboratory  environment currently requires
-expensive  and  complex equipment,  restricting  research  into this  area  to
-parties with substantial financial backing.
+Simulating  photovoltaic modules in a laboratory environment currently  requires
+expensive and complex equipment,  restricting research into this area to parties
+with substantial financial backing.
 % research problem
-In  order  to  facilitate access  to  this  area  of  research, a  lower  cost
-alternative to the existing expensive equipment is needed.
+In order to facilitate access to this area of research, a lower cost alternative
+to the existing expensive equipment is needed.
 
 % approach
-This  report details  our  efforts in  developing and  building  a device  for
-this  purpose. Its design  is  based around  a  microcontroller which  handles
-IO  tasks  and   implements  the  control  loop  for   operating  a  step-down
-converter, which  is responsible  for generating  the desired  output voltages
-and  currents. Furthermore, it  documents the  mathematics used  to model  the
-underlying physics.
+This  report details our efforts in developing and building a  device  for  this
+purpose. Its design is based around a microcontroller which handles IO tasks and
+implements two control loops for operating a pre-existing step-down converter in
+either constant  current  or constant voltage mode to generate an output voltage
+matching  a  dynamically programmable IV characteristics curve. The  mathematics
+used to  model  the  underlying  physical behaviour allows emulation of multiple
+series-connected  cells to generate more  complicated  solar  panel  behaviours.
 
 % results
 Unfortunately, the  device is not operational  at this point as  the step-down

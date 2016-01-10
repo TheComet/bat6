@@ -229,29 +229,34 @@ void menu_init(void)
 /* -------------------------------------------------------------------------- */
 static void handle_item_selection(unsigned int button)
 {
+    /* no items to select? */
     if(menu.navigation.max == 0)
         return;
 
     if(button == BUTTON_TWISTED_LEFT)
     {
+        /* clamp selection at item 0 */
         if(menu.navigation.item != 0)
             --menu.navigation.item;
 
+        /* scroll menu if we selected an item less than the scroll value */
         if(menu.navigation.item < menu.navigation.scroll)
             --menu.navigation.scroll;
-
+        
         menu_update();
         return;
     }
 
     if(button == BUTTON_TWISTED_RIGHT)
     {
+        /* clamp selection at max item - 1*/
         if(menu.navigation.item != menu.navigation.max - 1)
             ++menu.navigation.item;
 
-        if(menu.navigation.item - menu.navigation.scroll >= 4)
+        /* scroll menu if we selected the third item relative to the scroll value */
+        if(menu.navigation.item - menu.navigation.scroll >= 3)
             ++menu.navigation.scroll;
-
+        
         menu_update();
     }
 }
@@ -307,6 +312,10 @@ static void activate_selected_panel()
     /* store cell count in menu state, as it's required by submenus */
     cell_count = panels_db_get_cell_count(menu.manufacturer,
                                           menu.navigation.item);
+    
+    /* reset global parameters */
+    model_set_global_thermal_voltage((_Q16)(293 * 65536));
+    model_set_global_relative_solar_irradiation((_Q16)(100 * 65536));
 
     /*
      * Copy parameters for each cell in the db and add them to a
@@ -338,8 +347,8 @@ static void activate_selected_panel()
 
 static void load_menu_navigate_global_parameters(void)
 {
-    /* this is the cell that is used to display the global parameters */
-    menu.cell.active_id = model_cell_begin_iteration();
+    /* when navigating the global parameters, select an invalid cell ID */
+    menu.cell.active_id = 0;
 
     menu.navigation.max = 3;
     menu.navigation.item = 0;
@@ -378,18 +387,17 @@ static void load_menu_navigate_panel_cells(void)
     menu.state = STATE_NAVIGATE_PANEL_CELLS;
 }
 
-static void select_active_cell_from_active_menu(void)
+static unsigned char convert_index_to_cell_id(unsigned char index)
 {
-    unsigned char i = 0;
-
-    /* Get the cell ID of the selected cell. */
-    for(menu.cell.active_id = model_cell_begin_iteration();
-        menu.cell.active_id != 0;
-        menu.cell.active_id = model_cell_get_next(), i++)
+    /* Traverse the list of cells and return the ID of the nth cell */
+    unsigned char id;
+    for(id = model_cell_begin_iteration();
+        id != 0 && index != 0;
+        id = model_cell_get_next(), index--)
     {
-        if(i == menu.navigation.item - 1)
-            break;
     }
+    
+    return id;
 }
 
 static void load_menu_navigate_cell_parameters(void)
@@ -499,7 +507,8 @@ static void handle_menu_switches(unsigned int button)
                 load_menu_navigate_global_parameters();
             /* Every other item is a cell */
             else {
-                select_active_cell_from_active_menu();
+                menu.cell.active_id = convert_index_to_cell_id(
+                        menu.navigation.item - 1);
                 load_menu_navigate_cell_parameters();
             }
             menu_update();
@@ -543,38 +552,110 @@ static void handle_menu_switches(unsigned int button)
 }
 
 /* -------------------------------------------------------------------------- */
-static void append_temperature_of_selected_cell(char* buffer)
+static _Q16 modify_relative_solar_irradiation(unsigned int button, _Q16 param)
 {
-    char* ptr = buffer;
-    if(menu.cell.active_id == 0) /* invalid cell */
-    {
-        str_append(buffer, 21, "---");
-        return;
-    }
-    /* find insertion point in buffer */
-    while(*ptr)
-        ++ptr;
+    if(button == BUTTON_TWISTED_LEFT)
+        param += (_Q16)(65536);
+    else if(button == BUTTON_TWISTED_RIGHT)
+        param -= (_Q16)(65536);
 
-    /* allow for 4 characters for this number */
-    ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(menu.cell.active_id));
-    str_append(ptr, 21 + buffer - ptr, "°C");
+    if(param > (_Q16)(100 * 65536))
+        param = (_Q16)(100 * 65536);
+    if(param < 0)
+        param = 0;
+    
+    return param;
 }
 
 /* -------------------------------------------------------------------------- */
-static void append_irradiation_of_selected_cell(char* buffer)
+static _Q16 modify_thermal_voltage(unsigned int button, _Q16 param)
+{
+    if(button == BUTTON_TWISTED_LEFT)
+        param += (_Q16)(32768);
+    else if(button == BUTTON_TWISTED_RIGHT)
+        param -= (_Q16)(32768);
+    
+    return param;
+}
+
+/* -------------------------------------------------------------------------- */
+static void handle_parameter_editing(unsigned int button)
+{
+    switch(menu.state)
+    {
+        case STATE_CONTROL_GLOBAL_IRRADIATION:
+            model_set_global_relative_solar_irradiation(
+                modify_relative_solar_irradiation(button,
+                    model_get_global_relative_solar_irradiation()));
+            menu_update();
+            break;
+
+        case STATE_CONTROL_CELL_IRRADIATION:
+            model_set_relative_solar_irradiation(menu.cell.active_id,
+                modify_relative_solar_irradiation(button,
+                    model_get_relative_solar_irradiation(menu.cell.active_id)));
+            menu_update();
+            break;
+
+        case STATE_CONTROL_GLOBAL_TEMPERATURE:
+            model_set_global_thermal_voltage(
+                modify_thermal_voltage(button,
+                    model_get_global_thermal_voltage()));
+            menu_update();
+            break;
+
+        case STATE_CONTROL_CELL_TEMPERATURE:
+            model_set_thermal_voltage(menu.cell.active_id,
+                modify_thermal_voltage(button,
+                    model_get_thermal_voltage(menu.cell.active_id)));
+            menu_update();
+            break;
+
+        default: break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+static void append_temperature_of_cell(char* buffer, unsigned char cell_id)
 {
     char* ptr = buffer;
-    if(menu.cell.active_id == 0) /* invalid cell */
-    {
-        str_append(buffer, 21, "---");
-        return;
-    }
+    
     /* find insertion point in buffer */
     while(*ptr)
         ++ptr;
+    
+    /* global parameter */
+    if(cell_id == 0)
+    {
+        ptr = str_q16itoa(ptr, 5, model_get_global_thermal_voltage() -
+                (_Q16)(273 * 65536));
+    } else
+    {
+        ptr = str_q16itoa(ptr, 5, model_get_thermal_voltage(cell_id) - 
+            (_Q16)(273 * 65536));
+    }
 
-    /* allow for 3 characters for this number */
-    ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(menu.cell.active_id));
+    str_append(ptr, 21 + buffer - ptr, "C");
+}
+
+/* -------------------------------------------------------------------------- */
+static void append_irradiation_of_cell(char* buffer, unsigned char cell_id)
+{
+    char* ptr = buffer;
+
+    /* find insertion point in buffer */
+    while(*ptr)
+        ++ptr;
+    
+    /* Global parameter */
+    if(cell_id == 0)
+    {
+        ptr = str_q16itoa(ptr, 4, model_get_global_relative_solar_irradiation());
+    } else
+    {
+        ptr = str_q16itoa(ptr, 4, model_get_relative_solar_irradiation(cell_id));
+    }
+
     str_append(ptr, 21 + buffer - ptr, "%");
 }
 
@@ -583,6 +664,11 @@ static void menu_update(void)
 {
     char buffer[21];
     int i;
+    
+    /* First cell ID depends on how far we've scrolled */
+    unsigned char current_cell_id = model_cell_begin_iteration();
+    for(i = 0; i != menu.navigation.scroll; ++i)
+        current_cell_id = model_cell_get_next();
 
     for(i = 0; i != 3; ++i)
     {
@@ -599,11 +685,11 @@ static void menu_update(void)
          */
         if(current_item == menu.navigation.item)
             if(menu.state < STATE_CONTROL_GLOBAL_IRRADIATION)
-                str_append(buffer, 21, "> ");
+                str_append(buffer, 21, ">");
             else
-                str_append(buffer, 21, "= ");
+                str_append(buffer, 21, "=");
         else
-            str_append(buffer, 21, "  ");
+            str_append(buffer, 21, " ");
 
         /* get item string */
         switch(menu.state)
@@ -633,11 +719,11 @@ static void menu_update(void)
                 if(i == 0)
                 {
                     str_append(buffer, 21, "Exposure ");
-                    append_irradiation_of_selected_cell(buffer);
+                    append_irradiation_of_cell(buffer, menu.cell.active_id);
                 } else if(i == 1)
                 {
                     str_append(buffer, 21, "Temp ");
-                    append_temperature_of_selected_cell(buffer);
+                    append_temperature_of_cell(buffer, menu.cell.active_id);
                 } else {
                     str_append(buffer, 21, "Individual Cells");
                 }
@@ -650,11 +736,11 @@ static void menu_update(void)
                 if(i == 0)
                 {
                     str_append(buffer, 21, "Exposure ");
-                    append_irradiation_of_selected_cell(buffer);
+                    append_irradiation_of_cell(buffer, menu.cell.active_id);
                 } else if(i == 1)
                 {
                     str_append(buffer, 21, "Temp ");
-                    append_temperature_of_selected_cell(buffer);
+                    append_temperature_of_cell(buffer, menu.cell.active_id);
                 } else {
                     str_append(buffer, 21, "Go Back");
                 }
@@ -670,7 +756,17 @@ static void menu_update(void)
                 } else
                 {
                     char* ptr = str_append(buffer, 21, "Cell ");
-                    str_nitoa(ptr, 21 + buffer - ptr, current_item);
+                    ptr = str_nitoa(ptr, 21 + buffer - ptr, current_item);
+                    
+                    current_cell_id = convert_index_to_cell_id(current_item - 1);
+                    
+                    /* add cell information */
+                    ptr = str_append(ptr, 21 + buffer - ptr, " (");
+                    append_irradiation_of_cell(ptr, current_cell_id);
+                    ptr = str_append(ptr, 21 + buffer - ptr, ",");
+                    append_temperature_of_cell(ptr, current_cell_id);
+                    str_append(ptr, 21 + buffer - ptr, ")");
+                    current_cell_id = model_cell_get_next();
                 }
 
                 break;
@@ -714,6 +810,7 @@ static void on_button(unsigned int button)
 {
     handle_item_selection(button);
     handle_menu_switches(button);
+    handle_parameter_editing(button);
 }
 
 /* -------------------------------------------------------------------------- */
