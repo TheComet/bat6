@@ -26,7 +26,7 @@ about 6000 Instructions to finish one calculation.
 
 \subsection{Calculation of the I-V curve}
 
-The  I-V  curve  from  \eqref{eq:IV} is implemented using a fixed point  library
+The  I-V  curve  from  \eqref{eq:I-V} is implemented using a fixed point  library
 supplied by Microchip. Since this library also provides an exponential function,
 the implementation is made straightforward.
 
@@ -47,7 +47,7 @@ I-V   curve   of   the   model.   This   process   is   pictured    in    figure
 \end{figure}
 The  intersection  is found  by  using  a  binary  search  algorithm,  which  is
 converging slower than newton's method but more  stable  --- newton's method can
-fail if $V_T$ in \eqref{eq:IV} is small.
+fail if $V_T$ in \eqref{eq:I-V} is small.
 
 
 \subsection{Using more than one curve}

@@ -39,11 +39,11 @@ display on the device itself or from  a PC connected by USB using our software
 \begin{minipage}{0.5\textwidth}
     \center
     \includegraphics[width=\textwidth]{images/vi-curve.png}
-    \captionof{figure}{IV-Curve with \SI{-45}{\degree} slope indicated}
+    \captionof{figure}{I-V-Curve with \SI{-45}{\degree} slope indicated}
     \label{fig:controlcircuit:vicurve}
 \end{minipage}
 
-Emulation of the IV characteristic  curve  is  achieved  accurately by measuring
+Emulation of the I-V characteristic  curve  is  achieved  accurately by measuring
 both output voltage and output current. If  the  operating  point  is  above the
 \SI{-45}{\degree} slope (``A'' in  figure \ref{fig:controlcircuit:vicurve}) then
 it is more accurate  to  operate  the  regulator  in  constant  current mode. In
@@ -65,8 +65,8 @@ clouded skies or a partially covered module affects its output.
 \subsection{Model for one solar cell}
 
 The single diode model of the ideal PV cell\cite{ref:villa:pvmodel} servers as a
-basis for our model.  The  IV characteristic of this model can be expressed with
-\begin{equation} \label{eq:IV_old}
+basis for our model.  The  I-V characteristic of this model can be expressed with
+\begin{equation} \label{eq:I-V_old}
     I = I_{pv} - I_o \left[ \exp \left( \frac{V}{V_T} \right) - 1 \right]
 \end{equation}
 where $I_{pv}$ is the generated current, $I_o$ is the diode current and $V_T$ is
@@ -100,13 +100,13 @@ other temperatures please see \cite{ref:villa:pvmodel}} is
     I_o = \frac{I_{sc}}{e^{V_{oc} / V_T} - 1}
 \end{equation}
 If  we   insert   equations   \eqref{eq:I_o}   and   \eqref{eq:I_pv}  back  into
-\eqref{eq:IV_old} we yield
+\eqref{eq:I-V_old} we yield
 \begin{equation}
     I = I_{sc} \left( \frac{G}{G_n} - \frac{e^{\frac{V}{V_T}}-1}{e^{\frac{V_{oc}}{V_T}}-1} \right)
 \end{equation}
 If we now assume $V_{oc} > 5 * V_T$ we can  say  that  $e^{\frac{V_{oc}}{V_T}}-1
 \approx e^{\frac{V_{oc}}{V_T}}$ and our final formula becomes
-\begin{equation} \label{eq:IV}
+\begin{equation} \label{eq:I-V}
     I = I_{sc} \left( \frac{G}{G_n} - e^{\frac{V - V_{oc}}{V_T}} \right)
 \end{equation}
 
@@ -114,7 +114,7 @@ If we now assume $V_{oc} > 5 * V_T$ we can  say  that  $e^{\frac{V_{oc}}{V_T}}-1
 \subsection{Model for multiple Cells in Series}
 
 If the solar irradiation is the same  for  every  cell in series, then the whole
-array  can be simulated using equation \eqref{eq:IV}, where $V_{oc}$  and  $V_T$
+array  can be simulated using equation \eqref{eq:I-V}, where $V_{oc}$  and  $V_T$
 are linearly scaled with the number of cells.
 
 If the irradiation isn't the same for all  cells,  such  as  when  one  cell  is

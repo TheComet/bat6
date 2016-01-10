@@ -4,10 +4,10 @@ expected results based on simulations.
 
 \subsection{Test Fixtures}
 
-\subsubsection{Trivial IV Curve}
+\subsubsection{Trivial I-V Curve}
 
 
-\subsubsection{Non-trivial IV Curve}
+\subsubsection{Non-trivial I-V Curve}
 
 
 \subsubsection{Ripple Voltage and Ripple Current vs Resistive Load}
@@ -21,7 +21,7 @@ plot  of  the   ripple   current   and   voltage   versus  the  resistive  load.
 \begin{figure}[th!]
     \centering
     \includegraphics[width=.7\textwidth]{images/sim/ripple-vs-load.pdf}
-    \caption{Simulation of the amplitude of the ripple voltage and ripple current vs different resistive loads, obtained using LTspice IV's model of the LT3741}
+    \caption{Simulation of the amplitude of the ripple voltage and ripple current vs different resistive loads, obtained using LTspice I-V's model of the LT3741}
     \label{fig:verification:ripple_sim}
 \end{figure}
 
@@ -68,7 +68,7 @@ is closely monitored. The output voltage is expected to remain constant.
 
 \subsubsection{Transient Response}
 
-This test is used  to  determine  the reaction speed of the regulator and the IV
+This test is used  to  determine  the reaction speed of the regulator and the I-V
 control algorithm when switching  quickly  between  two extreme resistive loads.
 The device is programmed to mimic  the  behaviour of a simple solar panel model.
 As illustrated in figure \ref{fig:verification:transient_fix} the output voltage
