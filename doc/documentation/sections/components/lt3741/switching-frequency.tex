@@ -1,12 +1,12 @@
-There is a tradeoff when  selecting  the  switching  frequency $f_S$. The higher
-$f_S$ is selected, the  lower  the output ripple voltage will be, but the higher
-the power consumption will  be (caused by switching losses). Generally, one will
-want to maximise $f_S$.
+There is a trade-off when  selecting the switching frequency $f_S$. The higher
+$f_S$,  the  lower the  output  ripple  voltage  will be. However,  the  power
+consumption will also  increase due to switching losses.   Generally, $f_S$ is
+to be maximised to reduce ripple.
 
-Due to all  of  the factors depending on $f_S$, it is only possible to determine
-this value imperically. We found a value  of  $f_S \approx\SI{800}{\kilo\hertz}$
-to be best suitable. In the  rest  of  the  calculations, $f_S$ is assumed to be
-\SI{1}{\mega\hertz} to allow for some leeway.
+Because so  much depends  on $f_S$,  it is more  convenient to  determine this
+value empirically through simulations. The  most sutiable value was determined
+to be $f_S \approx\SI{800}{\kilo\hertz}$. In the remaining calculations, $f_S$
+is assumed to be \SI{1}{\mega\hertz} to allow for some leeway.
 
-The switching frequency $f_S$ is programmed by using  a specific resistor on one
-of the inputs of the LT3741.
+A specific  resistor on one  of the LT3741's inputs  is used to  configure the
+switching frequency $f_S$.

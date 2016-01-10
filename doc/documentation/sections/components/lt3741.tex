@@ -1,40 +1,41 @@
-There are  many reasons why the LT3741 was chosen to regulate the output voltage
-of this device. The most important reasons are listed here.
+The most important reasons we chose the LT3741 to regulate the output voltage are listed here:
+
 \begin{itemize}
-    \item \textbf{Re-inventing the wheel.}
-        Switch-mode regulators aren't new technology. They've been studied and perfected
-        over decades by many engineers. For  this  reason  we decided against building a
-        regulator  descretely  and  instead  opted  to  use  an  existing  regulator  if
-        available.
+    \item \textbf{Proven Technologies.}
+        Switch-mode  regulators have  been around  for decades  and have  been
+        perfected by many engineers.
     \item \textbf{Voltage and current requirements.}
-        The device is specified to  output  voltage  levels  between  \SI{0}{\volt}  and
-        \SI{24}{\volt} and current levels between \SI{0}{\ampere} and \SI{3.5}{\ampere}.
-        Further,  the  ripple voltage is specified to be $\le\SI{300}{\milli\volt}$  and
-        the ripple current  is  specified to be $\le\SI{100}{\milli\ampere}$. The LT3741
-        fulfills all of these requirements.
+        The device is specified to output voltage levels between \SI{0}{\volt}
+        and  \SI{24}{\volt} and  current  levels  between \SI{0}{\ampere}  and
+        \SI{3.5}{\ampere}.   Further, the  ripple voltage  is specified  to be
+        $\le\SI{300}{\milli\volt}$  and the  ripple  current  is specified  to
+        be  $\le\SI{100}{\milli\ampere}$. The  LT3741  fulfills all  of  these
+        requirements.
     \item \textbf{The importance of power absorption.}
-        Most switch-mode  regulators  are  only  able  to  \emph{supply}  power, but are
-        incapable  of  \emph{absorbing} power. Because our device may  be  connected  in
-        series (or parallel) with other power  supplies,  it  must  have  the ability to
-        absorb  power  too (which is the case if, say, it were connected  to  a  voltage
-        source   outputting   a   higher  voltage  level  than  our  own).  A  so-called
-        \emph{synchronous  converter} possesses this property and the LT3741 is  one  of
-        them.
+        Most switch-mode regulators are only  able to \emph{supply} power, but
+        are  incapable of  \emph{absorbing} power. Because  our device  may be
+        connected in series  (or parallel) with other power  supplies, it must
+        have  the ability  to absorb  power  (which is  the case  if, it  were
+        connected to a  voltage source outputting a higher  voltage level than
+        our own).
     \item \textbf{Control inputs.}
-        The LT3741 was chosen  because  it has dedicated input control pins for directly
-        manipulating the regulated output current.  This makes the design a lot simpler,
-        because no complicated additional circuitry is required.
+        The LT3741  has dedicated  input control pins  to change  directly the
+        output  current. This simplifies  the  design  because no  complicated
+        additional circuitry is required.
 \end{itemize}
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.75\textwidth]{images/circuit/buck.pdf}
-    \caption{Herzst\"uck des Projektes: Aufbau des LT3741 CVCC Synchronwandler}
+    %\caption{Herzst\"uck des Projektes: Aufbau des LT3741 CVCC Synchronwandler}
+    \caption{The device's heart: Circuit for the LT3741 CCVC synchronous converter}
     \label{fig:circuit:buck}
 \end{figure}
 
-With the LT3741 selected, the selection of  components  required  to control the
-LT3741 are discussed next.
+In the following paragraphs, the components and parameters required to control
+the LT3741  are discussed: Bypass capacitors, switching  frequency, inductors,
+MOSFETs and measuring output current and output voltage.
+
 
 % **************************************************************************** %
 \subsubsection{Bypass Capacitors}
@@ -55,7 +56,7 @@ LT3741 are discussed next.
 \input{sections/components/lt3741/inductor.tex}
 
 % **************************************************************************** %
-\subsubsection{MOSFET selection}
+\subsubsection{MOSFET Selection}
 % **************************************************************************** %
 
 \input{sections/components/lt3741/mosfet.tex}

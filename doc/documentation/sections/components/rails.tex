@@ -1,77 +1,67 @@
 \label{sec:voltage_rails}
 
-In order to power the components used  in  this  design,  hree different voltage
-levels (known as voltage \emph{rails}), which are  \SI{28}{\volt}, \SI{5}{\volt}
-and   \SI{3.3}{\volt}   respecitvely.  Each  rail  has  different   requirements
-concerning noise, power and efficiency.
+In order to power the components  used in this design, three different voltage
+levels  (usually referred  to  as voltage  \emph{rails})  are used. These  are
+\SI{28}{\volt},  \SI{5}{\volt} and  \SI{3.3}{\volt}.  Each  rail has  specific
+requirements concerning  noise, power  and efficiency.   Selecting appropriate
+voltage  regulators requires  determining approximate  values for  the maximum
+current in each rail.
 
-First  and  foremost,  the  maximum  current  of  each   voltage  rail  must  be
-approximately determined. This information is crucial for  selecting appropriate
-voltage regulators.
+The most power-hungry  components on the \SI{3.3}{\volt} rail  are the dsPIC33
+microcontroller  and LEDs. According  to  the  datasheet \code{TODO:  source},
+the microcontroller consumes \SI{0.5}{\milli\ampere\per\mega\hertz}. Since the
+microcontroller will be clocked  at \SI{120}{\mega\hertz}, the minimum current
+can be calculated using the following equation.
 
-The most  power-hungry  component  on  the  \SI{3.3}{\volt}  rail is clearly the
-dsPIC33   microcontroller   and  LEDs.   According   to   the   datasheet,   the
-microcontroller will  consume  \SI{0.5}{\milli\ampere\per\mega\hertz}. Since the
-microcontroller will be clocked  at  \SI{120}{\mega\hertz},  the minimum current
-can be calculated with the following equation.
 \begin{equation}
     I_{dsPIC} = \SI{0.5}{\milli\ampere\per\mega\hertz} \cdot \SI{120}{\mega\hertz} = \SI{60}{\milli\ampere}
 \end{equation}
-The other significant power-hungry components are the four LEDs connected to the
-dsPIC33 microcontroller. Each consume \SI{15}{\milli\ampere}. The total  current
-consumption of the \SI{3.3}{\volt} rail is therefore roughly:
+
+Each   of  the   four   LEDs  connected   to   the  microcontroller   consumes
+\SI{15}{\milli\ampere}. Taking  both the  microcontroller  and  the LEDs  into
+account, the total current consumption of the \SI{3.3}{\volt} rail is roughly:
 \begin{equation}
     I_{\SI{3.3}{\volt}} = I_{dsPIC} + 4 \cdot \SI{15}{\milli\ampere} = \SI{120}{\milli\ampere}
 \end{equation}
 
-The \SI{3.3}{\volt} rail  derives  it's  voltage  from  the  \SI{5}{\volt} rail.
-Additionally,  the OLED display is powered by  the  \SI{5}{\volt}  rail,  which,
-according to the datasheet, draws a maximum  current of \SI{135}{\milli\ampere}.
-The total  current  consumption of the \SI{5}{\volt} rail will approximately be:
+The \SI{5}{\volt}  rail supplies  both the \SI{3.3}{\volt}  rail and  the OLED
+display with power. According  to its datasheet \code{TODO:  source}, the OLED
+display draws a maximum current of \SI{135}{\milli\ampere}. Adding the current
+for the \SI{3.3}{\volt} rail yields  an approximate current consumption on the
+\SI{5}{\volt} line of:
+
 \begin{equation}
     I_{\SI{5}{\volt}} = I_{\SI{3.3}{\volt}} + \SI{135}{\milli\ampere} = \SI{255}{\milli\ampere}
 \end{equation}
 
-A  decision  for  each  voltage rail must be made. Do we use a switch-mode power
-regulator  or a linear regulator?  The  general  trade-off  is  that  swith-mode
-regulators have  a  very  high  efficiency,  but  due  to the nature of how they
-transform voltages, they produce a lot more jitter on the output. In contrast, a
-linear regulator produces almost  no jitter -- in fact, it even dampens incoming
-jitter  by  a substantial amount -- however, the linear regulator has very  poor
-efficiency since  it  just  ``burns''  the  excess voltage and produces a lot of
-heat,  making  it  a  poor  candidate  for transforming between  larger  voltage
-differences.
+Having determined  the current requirements for  each rail, we can  now choose
+appropriate methods  to generate  the voltage and  current. The \SI{28}{\volt}
+rail is provided by the power supply directly.
 
-The \SI{28}{\volt}  rail  is  already  taken care of, since that's precisely the
-voltage the external power supply provides.
+The    \SI{5}{\volt}   rail    is   supplied    by   converting    down   from
+\SI{28}{\volt}. This  can  either be  accomplished  with  a switch-mode  power
+regulator or a linear regulator. The former offers high efficiency at the cost
+of jitter  on its output  line, whereas the  latter offers very  smooth output
+voltages but  is not very efficient. Therefore,  for converting \SI{28}{\volt}
+down to  \SI{5}{\volt}, a switch-mode  regulator is used, otherwise  the power
+losses would be inacceptably high due to the larger voltage drop.
 
-Seeing as  there  is  a very large voltage difference between \SI{28}{\volt} and
-the next lower rail, \SI{5}{\volt}, a switch-mode regulator is clearly  the only
-sane choice to be made for powering  the  \SI{5}{\volt}  rail  due to efficiency
-reasons.   The    diagram   of   this   circuit   is   illustrated   in   figure
-\ref{fig:circuit:rails}. There is little reason  to  discuss  the  selection  of
-components of  this circuit in great detail; It's using a standard configuration
-according  to  the  datasheet.  The  regulator  was  chosen based on the current
-requirement $I_{\SI{5}{\volt}}$ and is capable of supplying a maximum current of
-\SI{750}{\milli\ampere}.
-
-All   digital   circuitry,  such  as   the   micro   controller,   operates   at
-\SI{3.3}{\volt}. It is particularly important for the  \SI{3.3}{\volt}  rail  to
-have as  little  noise/jitter  as possible. This requirement stems from the fact
-that  the  analog-to-digital  (ADC)  conversions  and  digital-to-analog   (DAC)
-conversions derive their  reference  voltage  from the \SI{3.3}{\volt} rail. Any
-noise on  this  rail  could  impact  the accuracy of these conversions and could
-result in lower accuracy of the final,  regulated  output  voltage of the device
-itself.  For  this  reason  we  opted  for  a  linear  regulator  to  power  the
-\SI{3.3}{\volt} off of the \SI{5}{\volt} rail.  The  circuit  is  illustrated in
-figure  \ref{fig:circuit:rails}.  This regulator was also chosen  based  on  the
-current requirement $I_{\SI{3.3}{\volt}}$ and is capable of  supplying a maximum
-current of \SI{1}{\ampere}.
+Because all  digital circuitry (such  as the microcontroller) operates  on the
+\SI{3.3}{\volt} rail,  it is  crucial that  it has  as little  noise/jitter as
+possible,  making a  linear regulator  for the  conversion from  \SI{5}{\volt}
+to  \SI{3.3}{\volt}  the  preferred  choice. The  reference  voltage  for  the
+analog-to-digital  (ADC) and  digital-to-analog (DAC)  conversions is  derived
+from the \SI{3.3}{\volt} rail, meaning any  deviations in that rail could lead
+to lower accuracy of the device's output voltage. The corresponding circuit is
+illustrated  in Figure  \ref{fig:circuit:rails}. The  selected regulator  also
+fulfills  the  current  requirement  and  can  supply  a  maximum  current  of
+\SI{1}{\ampere}.
 
 \begin{figure}[th!]
     \center
     \includegraphics[width=.75\textwidth]{images/circuit/5v-3v-rails.pdf}
-    \caption{Speisung f\"ur 5V mittels Abwertswandler (links) und Speisung f\"ur 3.3V mittels Linearregler (rechts)}
+    %\caption{Speisung f\"ur 5V mittels Abwertswandler (links) und Speisung f\"ur 3.3V mittels Linearregler (rechts)}
+    \caption{Supplying the \SI{5}{\volt} rail via switch-mode regulator (left) and the \SI{3.3}{\volt} rail via linear regulator (right)}
     \label{fig:circuit:rails}
 \end{figure}
 

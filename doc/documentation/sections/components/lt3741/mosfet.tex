@@ -1,9 +1,9 @@
-In contrast to a non-synchronous regulator, this design uses  two  complementary
-MOSFETs $V_2$ and $V_3$, where $V_3$ acts as an active replacement for the  free
-wheeling diode typically found in non-synchronous designs. As mentioned earlier,
-a crucial feature of  this  device  is the ability to \emph{absorb} power. $V_3$
-makes  this  possible  because  it  is  able to regulate current in the opposite
-direction through the inductor $L_1$.
+In contrast to a non-synchronous  regulator, our design uses two complementary
+MOSFETs $V_2$ and  $V_3$, whereby $V_3$ acts as an  active replacement for the
+free wheeling  diode typically found in  non-synchronous designs. As mentioned
+earlier, a  crucial feature  of this  device is  the ability  to \emph{absorb}
+power.   $V_3$ does  this  by  regulating current  in  the opposite  direction
+through the inductor $L_1$.
 
 When  selecting  switching  MOSFETs,  the  following  parameters are critical in
 determining the best devices for a given application: $Q_G$ (Total Gate Charge),
@@ -12,34 +12,33 @@ to Source  Charge),  $R_G$ (Gate Resistance), $V_{GS}$ (gate-to-source voltage),
 $V_{DS}$  (drain-to-source-voltage),  $I_{D_{max}}$  (peak  drain  current)  and
 $V_{GS_{THR}}$ (gate threshold voltage).
 
-The maximum drain current is equal to the previously  calculated  peak  inductor
-current $I_{L_{1_{peak}}}$ in equation \ref{eq:circuit:buck:inductor_peak}.
-\begin{equation}
-    I_{D_{max}} = I_{L_{1_{peak}}} = I_O + \left(\frac{V_{in}\cdot V_{out} - V_{out}^2}{2\cdot f_S \cdot L_1 \cdot V_{in}}\right) = \SI{5.2}{\ampere}
-    \label{eq:circuit:buck:mosfet_id}
-\end{equation}
-where $V_{in}$ is the  input  voltage  \SI{28}{\volt},  $V_{out}$  is the output
-voltage at peak power (which exists at $V_{out} = \SI{14}{\volt}$), $f_S$ is the
-switching  frequency  \SI{1}{\mega\hertz},  $L_1$  is the value of the  selected
-inductor (\SI{22}{\micro\henry})  and  $I_O$  is  the  maximum  output  current,
-assumed to be $I_O = \SI{5}{\ampere}$.
+The     maximum     drain     current     is     equal     to     the     peak
+inductor    current    $I_{L_{1_{peak}}}$    as   calculated    in    equation
+\ref{eq:circuit:buck:inductor_peak}: $I_{D_{max}}    =   I_{L_{1_{peak}}}    =
+\SI{5.2}{\ampere}$
 
-The  maximum drain-to-source voltage $V_{DS}$ must be  greater  than  the  input
-voltage $V_{in} = \SI{28}{\volt}$,  including  transients.  We  selected MOSFETs
-with $V_{DS} = \SI{40}{\volt}$.
+%\begin{equation}
+%    I_{D_{max}} = I_{L_{1_{peak}}} = I_O + \left(\frac{V_{in}\cdot V_{out} - V_{out}^2}{2\cdot f_S \cdot L_1 \cdot V_{in}}\right) = \SI{5.2}{\ampere}
+%    \label{eq:circuit:buck:mosfet_id}
+%\end{equation}
 
-The  signals  driving  the  gates  of  the MOSFETs have  a  maximum  voltage  of
-\SI{5}{\volt}  with   respect  to  the  source.  During  start-up  and  recovery
-conditions, the gate drive signals  may  be  as  low as \SI{3}{\volt}. To ensure
-that the LT3741 recovers properly, the  maximum gate threshold voltage should be
-less than \SI{2}{\volt}. For a robust design, the maximum gate-to-source voltage
-$V_{GS}$ should be greater than \SI{7}{\volt}.
+The maximum  drain-to-source voltage $V_{DS}$  must be greater than  the input
+voltage  $V_{in}  =  \SI{28}{\volt}$,  including  transients.   Otherwise  the
+MOSFETs will be damaged. MOSFETs with $V_{DS} = \SI{40}{\volt}$ were therefore
+selected.
 
-Power losses in the MOSFETs are related to the on-resistance $R_{DS{(on)}}$; the
-transition  losses  related  to  the  gate   resistance   $R_G$;   gate-to-drain
-capacitance  $Q_{GD}$ and gate-to-source capacitance $Q_{GS}$. Power loss to the
-on-resistance is an  Ohmic loss, $I^2 R_{DS_{(on)}}$. The power loss in the high
-side     MOSFET     $V_2$      can      be     approximated     with     formula
+The  signals driving  the  gates of  the  MOSFETs have  a  maximum voltage  of
+\SI{5}{\volt}  with  respect to  the  source.   During start-up  and  recovery
+conditions, the gate drive signals  may be as low as \SI{3}{\volt}. Therefore,
+to  ensure that  the  LT3741  recovers properly,  the  maximum gate  threshold
+voltage should  be less than  \SI{2}{\volt}. For a robust design,  the maximum
+gate-to-source voltage $V_{GS}$ should be greater than \SI{7}{\volt}.
+
+Power losses in  the MOSFETs are related to  the on-resistance $R_{DS{(on)}}$;
+the  transition losses  related to  the gate  resistance $R_G$;  gate-to-drain
+capacitance  $Q_{GD}$  and  gate-to-source  capacitance  $Q_{GS}$. Power  loss
+to  the  on-resistance  is  an  Ohmic  loss,  $I^2  R_{DS_{(on)}}$. The  power
+loss  in  the  high  side  MOSFET $V_2$  can  be  approximated  with  Equation
 \ref{eq:circuit:buck:mosfet_ploss}.
 
 \begin{multline}
@@ -48,29 +47,30 @@ side     MOSFET     $V_2$      can      be     approximated     with     formula
                     + \left( \frac{V_{in} \cdot I_O}{\SI{5}{\volt}} \cdot \left(Q_{GD} + Q_{GS} \right) \cdot \left( 2 \cdot R_G + R_{PU} + R_{PD} \right) \cdot f_S \right) \\
     \label{eq:circuit:buck:mosfet_ploss}
 \end{multline}
-where  $\rho_T$ is a temperature-dependant term of the  MOSFET's  on-resistance.
-Using \SI{70}{\degree C} as the maximum operating temperature, $\rho_T$ is
-roughly  equal  to  $1.3$.  $R_{PD}$  and $R_{PU}$ are the LT3741 high side gate
-driver   output   empedance,  \SI{1.3}{\ohm}  and  \SI{2.3}{\ohm}  respectively.
+whereby   $\rho_T$   is  a   temperature-dependant   term   of  the   MOSFET's
+on-resistance.  Using \SI{70}{\degree C} as the maximum operating temperature,
+$\rho_T$  roughly equals  $1.3$.  $R_{PD}$  and $R_{PU}$  are the  LT3741 high
+side  gate  driver  output   impedances,  \SI{1.3}{\ohm}  and  \SI{2.3}{\ohm},
+respectively.
 
-Another power loss related to switching MOSFET selection  is  the  power lost to
-driving the gates. The total gate  charge, $Q_G$, must be charged and discharged
-each switching cycle. The power is lost to the  internal  LDO within the LT3741.
-the power lost to the charging of the gates is:
+Driving the gates also causes power loss in switching MOSFETs.  The total gate
+charge, $Q_G$, must be charged and discharged switch each switching cycle. The
+power is  lost to the internal  LDO within the  LT3741. The power lost  to the
+charging of the gates is:
 \begin{equation}
     P_{LOSS\_LDO} \approx \left( (V_{in} - \SI{5}{\volt} \right) \cdot \left( Q_{GLG} + Q_{GHG} \right) \cdot f_S
     \label{eq:circuit:buck:switching_loss}
 \end{equation}
-where $G_{GLG}$ is the low side gate charge  and $Q_{GHG}$ is the high side gate
-charge.
+whereby $G_{GLG}$ is the  low side gate charge and $Q_{GHG}$  is the high side
+gate charge.
 
-In the table \ref{tab:circuit:buck:mosfet} are various candidates  that meet the
-above  constraints.  For   each   candidate  the  power  losses  $P_{LOSS}$  and
-$P_{LOSS\_LDO}$ were calculated.
+Table \ref{tab:circuit:buck:mosfet} lists possible MOSFETs that meet the above
+constraints.  For  each one  the power  losses $P_{LOSS}$  and $P_{LOSS\_LDO}$
+were calculated.
 
 \begin{table}[th!]
     \begin{center}
-        \caption{}
+        \caption{Possible choices for MOSFETs}
         \label{tab:circuit:buck:mosfet}
         \begin{tabular}{cccccccccc}
             \toprule
@@ -90,9 +90,6 @@ $P_{LOSS\_LDO}$ were calculated.
     \end{center}
 \end{table}
 
-The MOSFET highlighted in grey is the one we selected. In  this case, it is only
-the second best candidate that fits the required parameters, but  it  is  a  lot
-cheaper than the best fit and has better documentation.
-
-The same device is used for both the high-side and low-side switch.
-
+The MOSFET highlighted in grey was selected.  Though it is not the best model,
+it is a lot cheaper than the best fit and has better documentation.
+%The same device is used for both the high-side and low-side switch.
