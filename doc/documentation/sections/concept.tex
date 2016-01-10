@@ -14,18 +14,17 @@ responsibilities the  handling of IO tasks  (such as user interaction  and the
 display) and  controlling the step-down converter. Power  delivery is realised
 with a prebuilt DC power supply unit as per the requirements.
 
-With  an  eye towards  potential  serial  production,  a proprietary  PCB  was
-developed.  This allows tight control  over impedances in the lines connecting
+With  an  eye  towards  potential  serial production,  we  developed  our  own
+PCB.  This  allows tight  control over impedances  in the  connections between
 critical  components and  brings the  behavior  of the  prototype device  much
 closer  to  a mass  produced  version  than  a breadboard  solution  could. It
 should  also  be  pointed  out  that  trace  routing,  lengths  and  component
 placement are crucial,  as is discussed in  section \ref{sec:verification} (p.
 \pageref{sec:verification}ff), \emph{Verification}.
 
-Interaction with  our device can  be done both  via physical interface  on the
-device itself,  which is comprised  of a display  and a push-twist  button, as
-well as  on a PC  connected by USB  using our software  \emph{Smooth} (section
-\ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
+Users can  interact with our device  either through a push-twist  button and a
+display on the device itself or from  a PC connected by USB using our software
+\emph{Smooth} (section \ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
 
 
 % **************************************************************************** %
@@ -36,14 +35,25 @@ well as  on a PC  connected by USB  using our software  \emph{Smooth} (section
     \center
     \includegraphics[width=\textwidth,trim=140 140 120 100,clip]{images/block-diag-control.pdf}
     \captionof{figure}{Block diagram of control circuit}
-    \label{fig:diag:block}
+    \label{fig:controlcircuit:schcematic}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
     \center
     \includegraphics[width=\textwidth]{images/vi-curve.png}
     \captionof{figure}{VI-Curve with \SI{-45}{\degree} slope indicated}
-    \label{fig:circuit:buck:uset}
+    \label{fig:controlcircuit:vicurve}
 \end{minipage}
+
+Regulating  current and  voltage  is  done by  measuring  both output  current
+and  output  voltage. When  the  device  is operating  in  section  A  of  the
+VI-curve as  depicted in  figure \ref{fig:controlcircuit:vicurve},  the output
+current  is  measured  and  used  to   set  the  output  voltage,  whereas  in
+section  B,   output  voltage  is   measured  and  used  to   regulate  output
+current. The dividing  point between  the lines is  the contact  point between
+the  VI-curve  and   the  \SI{-45}{\degree}  slope  as   indicated  in  figure
+\ref{fig:controlcircuit:vicurve}.
+
+TODO: Why is this done thusly?
 
 
 \subsection{Goals of the model}
