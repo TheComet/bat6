@@ -34,66 +34,14 @@ static unsigned char generate_unique_identifier(void)
     return uid;
 }
 
-/* -------------------------------------------------------------------------- */
-static _Q16 _fp_exp(const _Q16 exponent)
-{
-    /*
-     * calculates exp using a spline approximation
-     * exponent range: 0 to ln(2)
-     * result range: 1 to 2
-     */
-
-    static const _Q16 spline_coefs[8][3] = {
-        {5702,    16374,    32768},
-        {6217,    17856,    35734},
-        {6780,    19472,    38968},
-        {7394,    21234,    42495},
-        {8063,    23156,    46341},
-        {8793,    25252,    50535},
-        {9588,    27537,    55109},
-        {10458,   30029,    60097}
-    };
-
-    const _Q16 spline_index = exponent >> 13;
-    const uint32_t delta = exponent << 3;
-    const uint32_t delta2 = (delta * delta) >> 16;
-    const uint32_t delta3 = (delta * delta2) >> 16;
-
-    uint32_t sum = spline_coefs[spline_index][2];
-    sum += delta * spline_coefs[spline_index][2] >> 16;
-    sum += delta2 * spline_coefs[spline_index][1] >> 16;
-    sum += delta3 * spline_coefs[spline_index][0] >> 16;
-
-    return sum >> 1;
-}
-
-static _Q16 fp_exp(const _Q16 exponent)
-{
-    /*
-     * calculates exp using the formula exp(x) = 2^k * exp(x - k * ln(2))
-     * range -16 to 1 format: S4.11;
-     * result range 0 to 2 format: Q1.15
-     */
-
-    int32_t num = (int32_t)exponent * 47274; // 47274 = 1/ln(2) * 2^15
-    _Q16 k = num >> 26; // 26 = 11 + 15;
-    _Q16 x = (num - (((int32_t)k)<<26)) >> 10;
-
-    if(k > 0){
-        //Overflow return max
-        return 0xffff;
-    }
-
-    return _fp_exp(x) >> (-k);
-}
 
 /* -------------------------------------------------------------------------- */
 static _Q16 Io_rel(const struct pv_cell_t* cell, const _Q16 vd)
 {
     /* calculates exp((vd-voc)/vt) */
     const _Q16 diff = vd - cell->voc; //
-    const _Q16 exponent = ((int32_t)diff << 13) / cell->vt;
-    return fp_exp(exponent);
+    const _Q16 exponent = _Q16div(diff, cell->vt);
+    return _Q16exp(exponent);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -105,18 +53,33 @@ static _Q16 Id(const struct pv_cell_t* cell, const _Q16 vd)
     return id;
 }
 
+static _Q16 Iload(const _Q16 vd, const _Q16 I_is, const _Q16 U_is){
+    return _Q16div(_Q16mpy(I_is, vd), U_is);
+}
+
 /* -------------------------------------------------------------------------- */
 _Q16 calc_voltage(const struct pv_cell_t* cell,
-                      const _Q16 voltage_is,
-                      const _Q16 current_is)
+                      const _Q16 U_is,
+                      const _Q16 I_is)
 {
     /*calculates the new voltage depending on the measured voltage and current
      *voltage format: Q5.11
      *current format: Q3.13 */
-    const _Q16 Idiff = Id(cell, voltage_is) - current_is;
-    const _Q16 Udiff = (int32_t)Idiff * voltage_is / current_is;
-
-    return voltage_is + Udiff;
+    
+    _Q16 vd_min = 0;
+    _Q16 vd_max = cell->voc;
+    
+    uint16_t i; 
+    for(i = 0; i < 10; i++){
+        _Q16 vd = (vd_min + vd_max) >> 1;
+        if(Id(cell, vd) < Iload(vd, I_is, U_is)){
+            vd_max = vd;
+        }else{
+            vd_min = vd;
+        }
+    }
+    
+    return (vd_min + vd_max) >> 1;
 }
 
 /* -------------------------------------------------------------------------- */
