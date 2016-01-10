@@ -11,21 +11,16 @@ class PVArrayPlot
 {
 public:
     /// Virtual destructor, this is a polymorphic class
-    virtual ~PVArrayPlot();
+    virtual ~PVArrayPlot() {}
 
     /*!
      * \brief Adds a new PVArray object to
      * \param name
      * \param pvarray
      */
-    void addPVArray(const QString& name, QSharedPointer<PVArray> pvarray);
-    void removePVArray(const QString& name);
-    QSharedPointer<PVArray> getPVArray(const QString& name);
-
+    virtual void addPVArray(const QString& name, QSharedPointer<PVArray> pvarray) = 0;
+    virtual void removePVArray(const QString& name) = 0;
     virtual void replot() = 0;
-
-protected:
-    QMap<QString, QSharedPointer<PVArray>> m_PVArrays;
 };
 
 #endif // PV_ARRAY_PLOT_H

@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QDebug>
 
+// ----------------------------------------------------------------------------
 CharacteristicCurve2DWidget::CharacteristicCurve2DWidget(QWidget* parent) :
     QwtPlot(parent),
     curve(new QwtPlotCurve)
@@ -18,6 +19,25 @@ CharacteristicCurve2DWidget::CharacteristicCurve2DWidget(QWidget* parent) :
     this->replot();
 }
 
+// ----------------------------------------------------------------------------
 CharacteristicCurve2DWidget::~CharacteristicCurve2DWidget()
 {
+}
+
+// ----------------------------------------------------------------------------
+void CharacteristicCurve2DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
+{
+
+}
+
+// ----------------------------------------------------------------------------
+void CharacteristicCurve2DWidget::removePVArray(const QString& name)
+{
+
+}
+
+// ----------------------------------------------------------------------------
+void CharacteristicCurve2DWidget::replot()
+{
+    QwtPlot::replot();
 }

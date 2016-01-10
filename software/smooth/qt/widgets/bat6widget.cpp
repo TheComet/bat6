@@ -104,7 +104,7 @@ void BAT6Widget::openSerialPort()
 
 void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget, double exposure)
 {
-    cc3d->getPVArray("array 1")->getChain("chain 1")->getCell(cellWidget->getName())->setExposure(exposure);
+    // TODO cc3d->getPVArray("array 1")->getChain("chain 1")->getCell(cellWidget->getName())->setExposure(exposure);
     cc3d->replot();
 }
 

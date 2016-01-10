@@ -29,11 +29,13 @@ public:
     QSharedPointer<PVArray> pvarray;
 };
 
+// ----------------------------------------------------------------------------
 CharacteristicCurve3DWidget::CharacteristicCurve3DWidget(QWidget* parent) :
     SurfacePlot(parent)
 {
 }
 
+// ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
 {
     if(pvfunction.contains(name))
@@ -66,17 +68,13 @@ void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer
     //setOrtho(false);
 }
 
+// ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::removePVArray(const QString& name)
 {
     pvfunction.remove(name);
 }
 
-QSharedPointer<PVArray> CharacteristicCurve3DWidget::getPVArray(const QString& name)
-{
-    auto array = pvfunction.find(name);
-    return (*array)->pvarray;
-}
-
+// ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::replot()
 {
     for(const auto& func : pvfunction)
