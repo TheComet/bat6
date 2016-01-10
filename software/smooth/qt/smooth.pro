@@ -23,6 +23,7 @@ SOURCES +=  main.cpp \
             widgets/bat6widget.cpp \
             widgets/characteristiccurve2dwidget.cpp \
             widgets/characteristiccurve3dwidget.cpp \
+            widgets/PVArrayPlot.cpp \
             models/pvcell.cpp \
             models/pvchain.cpp \
             models/pvarray.cpp \

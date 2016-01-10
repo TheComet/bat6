@@ -10,14 +10,22 @@ class PVModelFunction;
 class PVArrayPlot
 {
 public:
+    /// Virtual destructor, this is a polymorphic class
+    virtual ~PVArrayPlot();
+
+    /*!
+     * \brief Adds a new PVArray object to
+     * \param name
+     * \param pvarray
+     */
     void addPVArray(const QString& name, QSharedPointer<PVArray> pvarray);
     void removePVArray(const QString& name);
     QSharedPointer<PVArray> getPVArray(const QString& name);
 
-    void replot();
+    virtual void replot() = 0;
 
-private:
-    QMap<QString, QSharedPointer<PVModelFunction>> pvfunction;
+protected:
+    QMap<QString, QSharedPointer<PVArray>> m_PVArrays;
 };
 
 #endif // PV_ARRAY_PLOT_H
