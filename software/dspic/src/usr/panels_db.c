@@ -27,14 +27,14 @@ struct manufacturer_t
 struct manufacturer_t database[] = {
     { "Generic", {
         { "Generic Panel 1", {
-            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
-            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
-            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
-            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)}
+            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)},
+            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)},
+            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)},
+            {CELL_PARAM(6), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)}
         }},
         { "Generic Panel 2", {
-            {CELL_PARAM(12), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)},
-            {CELL_PARAM(12), CELL_PARAM(3), CELL_PARAM(293), CELL_PARAM(100)}
+            {CELL_PARAM(12), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)},
+            {CELL_PARAM(12), CELL_PARAM(3), CELL_PARAM(273), CELL_PARAM(100)}
         }}
     }}
 };

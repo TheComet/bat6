@@ -105,11 +105,11 @@ typedef enum menu_item_e
 {
     /* global parameter menu item indices */
     ITEM_IRRADIATION = 0,
-    ITEM_TEMPERATURE = 1,
-    ITEM_INDIVIDUAL_CELLS = 2,
+    ITEM_TEMPERATURE = 100,    /* was removed - set to 1 to restore */
+    ITEM_INDIVIDUAL_CELLS = 1, /* used to be 2 */
     /* cell parameter menu item indices */
     /* same as above, except for last item */
-    ITEM_GO_BACK = 2
+    ITEM_GO_BACK = 1
 } menu_item_e;
 
 struct menu_navigation_t
@@ -369,7 +369,7 @@ static void load_menu_navigate_global_parameters(void)
     /* when navigating the global parameters, select an invalid cell ID */
     menu.cell.active_id = 0;
 
-    menu.navigation.max = 3;
+    menu.navigation.max = 2;
     menu.navigation.item = 0;
     menu.navigation.scroll = 0;
 
@@ -423,7 +423,7 @@ static void load_menu_navigate_cell_parameters(void)
 {
     /* set up parameter menu. Options are "irradiation", "temperature", and
      * "go back" */
-    menu.navigation.max = 3;
+    menu.navigation.max = 2;
     menu.navigation.item = 0;
     menu.navigation.scroll = 0;
 
@@ -494,12 +494,12 @@ static void handle_menu_switches(unsigned int button)
                 menu_update();
                 break;
             }
-            if(menu.navigation.item == ITEM_TEMPERATURE)
+            /*if(menu.navigation.item == ITEM_TEMPERATURE)
             {
                 load_menu_control_global_temperature();
                 menu_update();
                 break;
-            }
+            }*/
             if(menu.navigation.item == ITEM_INDIVIDUAL_CELLS)
             {
                 load_menu_navigate_panel_cells();
@@ -540,12 +540,12 @@ static void handle_menu_switches(unsigned int button)
                 menu_update();
                 break;
             }
-            if(menu.navigation.item == ITEM_TEMPERATURE)
+            /*if(menu.navigation.item == ITEM_TEMPERATURE)
             {
                 load_menu_control_cell_temperature();
                 menu_update();
                 break;
-            }
+            }*/
             if(menu.navigation.item == ITEM_GO_BACK)
             {
                 load_menu_navigate_panel_cells();
@@ -739,11 +739,11 @@ static void menu_update(void)
                 {
                     str_append(buffer, 21, "Exposure ");
                     append_irradiation_of_cell(buffer, menu.cell.active_id);
-                } else if(i == 1)
+                } /*else if(i == 1)
                 {
                     str_append(buffer, 21, "Temp ");
                     append_temperature_of_cell(buffer, menu.cell.active_id);
-                } else {
+                } */else if(i == 1) {
                     str_append(buffer, 21, "Individual Cells");
                 }
 
@@ -756,11 +756,11 @@ static void menu_update(void)
                 {
                     str_append(buffer, 21, "Exposure ");
                     append_irradiation_of_cell(buffer, menu.cell.active_id);
-                } else if(i == 1)
+                } /*else if(i == 1)
                 {
-                    str_append(buffer, 21, "Temp ");
+                    str_append(buffer, 21, "Rel. Temp ");
                     append_temperature_of_cell(buffer, menu.cell.active_id);
-                } else {
+                } */else if(i == 1) {
                     str_append(buffer, 21, "Go Back");
                 }
 
@@ -782,8 +782,8 @@ static void menu_update(void)
                     /* add cell information */
                     ptr = str_append(ptr, 21 + buffer - ptr, " (");
                     append_irradiation_of_cell(ptr, current_cell_id);
-                    ptr = str_append(ptr, 21 + buffer - ptr, ",");
-                    append_temperature_of_cell(ptr, current_cell_id);
+                    /*ptr = str_append(ptr, 21 + buffer - ptr, ",");
+                    append_temperature_of_cell(ptr, current_cell_id);*/
                     str_append(ptr, 21 + buffer - ptr, ")");
                     current_cell_id = model_cell_get_next();
                 }
