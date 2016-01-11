@@ -6,10 +6,10 @@
 #include <QColor>
 #include <QDebug>
 
-class PVModelFunction : public QwtSeriesData<QPointF>
+class PVModelFunction2D : public QwtSeriesData<QPointF>
 {
 public:
-    PVModelFunction(QSharedPointer<PVArray> pvarray) :
+    PVModelFunction2D(QSharedPointer<PVArray> pvarray) :
         m_PVArray(pvarray)
     {
     }
@@ -54,13 +54,19 @@ CharacteristicCurve2DWidget::~CharacteristicCurve2DWidget()
 // ----------------------------------------------------------------------------
 void CharacteristicCurve2DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
 {
+    if(m_Function.contains(name))
+        throw std::runtime_error("Failed to add array \"" +
+                                 std::string(name.toLocal8Bit().constData()) +
+                                 "\": Duplicate name");
 
+    QSharedPointer<PVModelFunction2D> model(new PVModelFunction2D(pvarray));
+    m_Function.insert(name, model);
 }
 
 // ----------------------------------------------------------------------------
 void CharacteristicCurve2DWidget::removePVArray(const QString& name)
 {
-
+    m_Function.remove(name);
 }
 
 // ----------------------------------------------------------------------------

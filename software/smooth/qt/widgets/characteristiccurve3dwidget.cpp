@@ -10,11 +10,23 @@
 using namespace Qwt3D;
 
 // ----------------------------------------------------------------------------
-class PVModelFunction : public Function
+// Returns the largest item in the function list. Only requires operator<()
+template <class T>
+T max(T arg)
+    { return arg; }
+
+template <class T1, class... T2>
+T1 max(T1 arg, T2&&... rest)
+{
+    T1 otherMax = max(std::forward<T2>(rest)...);
+    return (arg < otherMax ? otherMax : arg);
+}
+
+// ----------------------------------------------------------------------------
+class PVModelFunction3D : public Function
 {
 public:
-
-    PVModelFunction(SurfacePlot* pw, QSharedPointer<PVArray> pvarray) :
+    PVModelFunction3D(SurfacePlot* pw, QSharedPointer<PVArray> pvarray) :
         Function(pw),
         m_PVArray(pvarray)
     {
@@ -82,17 +94,21 @@ void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer
                                  std::string(name.toLocal8Bit().constData()) +
                                  "\": Duplicate name");
 
-    QSharedPointer<PVModelFunction> model(new PVModelFunction(this, pvarray));
+    QSharedPointer<PVModelFunction3D> model(new PVModelFunction3D(this, pvarray));
+
     m_Function.insert(name, model);
 
-    model->setMesh(50,50);
+    model->setMesh(50, 50);
     model->setDomain(0, 3, 0, 100); // 0-3 amps, 0-100% exposure
 
-    setRotation(30,0,15);
-    setScale(1.0 / model->getCurrentDomain(),
-             1.0 / model->getExposureDomain(),
-             1.0 / model->getVoltageDomain());
-    setZoom(0.9);
+    setRotation(30,0,-15);
+    double largestAxis = max(model->getCurrentDomain(),
+                             model->getExposureDomain(),
+                             model->getVoltageDomain());
+    setScale(largestAxis / model->getCurrentDomain(),
+             largestAxis / model->getExposureDomain(),
+             largestAxis / model->getVoltageDomain());
+    setZoom(.25);
 
     for (unsigned i=0; i!=coordinates()->axes.size(); ++i)
     {

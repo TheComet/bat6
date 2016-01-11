@@ -3,11 +3,14 @@
 
 #include "widgets/PVArrayPlot.h"
 
-#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QMap>
+#include <QString>
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_plot_curve.h>
 
 class QwtPlotCurve;
+class PVModelFunction2D;
 
 class CharacteristicCurve2DWidget :
         public QwtPlot,
@@ -25,6 +28,7 @@ public:
 
 private:
     QwtPlotCurve* curve;
+    QMap<QString, QSharedPointer<PVModelFunction2D>> m_Function;
 };
 
 #endif // CHARACTERISTICCURVE2DWIDGET_H
