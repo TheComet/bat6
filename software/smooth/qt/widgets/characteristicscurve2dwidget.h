@@ -27,7 +27,8 @@ public:
     virtual void replot() override;
 
 private:
-    QwtPlotCurve* curve;
+    QwtPlotCurve* m_IVCurve;
+    QwtPlotCurve* m_PowerCurve;
     QMap<QString, QSharedPointer<IVCharacteristicsCurve>> m_Function;
 };
 

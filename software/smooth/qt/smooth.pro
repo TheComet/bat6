@@ -29,7 +29,8 @@ SOURCES +=  main.cpp \
             models/comport.cpp \
             plot/pvmodelfunctionbase.cpp \
             plot/characteristicscurve3d.cpp \
-            plot/ivcharacteristicscurve.cpp
+            plot/ivcharacteristicscurve.cpp \
+            plot/powercurve.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
@@ -45,7 +46,8 @@ HEADERS  += widgets/mainwindow.h \
             tools/Lambda.h \
             plot/pvmodelfunctionbase.h \
             plot/characteristicscurve3d.h \
-            plot/ivcharacteristicscurve.h
+            plot/ivcharacteristicscurve.h \
+            plot/powercurve.h
 
 SOURCES +=  qaccordion/qaccordion.cpp \
             qaccordion/clickableframe.cpp \
