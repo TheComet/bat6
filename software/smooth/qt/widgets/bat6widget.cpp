@@ -3,8 +3,8 @@
 
 #include "widgets/consolewidget.h"
 #include "widgets/cellwidget.h"
-#include "widgets/characteristiccurve2dwidget.h"
-#include "widgets/characteristiccurve3dwidget.h"
+#include "widgets/characteristicscurve2dwidget.h"
+#include "widgets/characteristicscurve3dwidget.h"
 
 #include "models/pvarray.h"
 #include "models/pvchain.h"
@@ -62,10 +62,10 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     plotContainer->setLayout(plotLayout);
 
     // add the two plots, one does V(I) the other I(V)
-    cc3d = new CharacteristicCurve3DWidget();
+    cc3d = new CharacteristicsCurve3DWidget();
     cc3d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc3d);
-    cc2d = new CharacteristicCurve2DWidget();
+    cc2d = new CharacteristicsCurve2DWidget();
     cc2d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc2d);
 

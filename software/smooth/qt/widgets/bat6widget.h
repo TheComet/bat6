@@ -11,8 +11,8 @@ namespace Ui {
 class QGridLayout;
 class ConsoleWidget;
 class CellWidget;
-class CharacteristicCurve2DWidget;
-class CharacteristicCurve3DWidget;
+class CharacteristicsCurve2DWidget;
+class CharacteristicsCurve3DWidget;
 
 class BAT6Widget : public QWidget
 {
@@ -32,8 +32,8 @@ private:
     QScopedPointer<Ui::BAT6Widget> ui;
     QGridLayout* cellLayout;
     ConsoleWidget* console;
-    CharacteristicCurve2DWidget* cc2d;
-    CharacteristicCurve3DWidget* cc3d;
+    CharacteristicsCurve2DWidget* cc2d;
+    CharacteristicsCurve3DWidget* cc3d;
 };
 
 #endif // BAT6WIDGET_H

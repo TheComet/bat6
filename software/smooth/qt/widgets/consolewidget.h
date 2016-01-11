@@ -35,7 +35,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "models/COMPort.h"
+#include "models/comport.h"
 
 #include <QPlainTextEdit>
 

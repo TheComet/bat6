@@ -1,7 +1,7 @@
 #ifndef CHARACTERISTICCURVE2DWIDGET_H
 #define CHARACTERISTICCURVE2DWIDGET_H
 
-#include "widgets/PVArrayPlot.h"
+#include "widgets/pvarrayplotwidgetbase.h"
 
 #include <QSharedPointer>
 #include <QMap>
@@ -10,17 +10,17 @@
 #include <qwt/qwt_plot_curve.h>
 
 class QwtPlotCurve;
-class PVModelFunction2D;
+class IVCharacteristicsCurve;
 
-class CharacteristicCurve2DWidget :
+class CharacteristicsCurve2DWidget :
         public QwtPlot,
-        public PVArrayPlot
+        public PVArrayPlotWidgetBase
 {
     Q_OBJECT
 
 public:
-    CharacteristicCurve2DWidget(QWidget* parent=nullptr);
-    ~CharacteristicCurve2DWidget();
+    CharacteristicsCurve2DWidget(QWidget* parent=nullptr);
+    ~CharacteristicsCurve2DWidget();
 
     virtual void addPVArray(const QString &name, QSharedPointer<PVArray> pvarray) override;
     virtual void removePVArray(const QString &name) override;
@@ -28,7 +28,7 @@ public:
 
 private:
     QwtPlotCurve* curve;
-    QMap<QString, QSharedPointer<PVModelFunction2D>> m_Function;
+    QMap<QString, QSharedPointer<IVCharacteristicsCurve>> m_Function;
 };
 
 #endif // CHARACTERISTICCURVE2DWIDGET_H

@@ -21,25 +21,31 @@ SOURCES +=  main.cpp \
             widgets/cellwidget.cpp \
             widgets/consolewidget.cpp \
             widgets/bat6widget.cpp \
-            widgets/characteristiccurve2dwidget.cpp \
-            widgets/characteristiccurve3dwidget.cpp \
+            widgets/characteristicscurve2dwidget.cpp \
+            widgets/characteristicscurve3dwidget.cpp \
             models/pvcell.cpp \
             models/pvchain.cpp \
             models/pvarray.cpp \
-            models/COMPort.cpp
+            models/comport.cpp \
+            plot/pvmodelfunctionbase.cpp \
+            plot/characteristicscurve3d.cpp \
+            plot/ivcharacteristicscurve.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
             widgets/consolewidget.h \
             widgets/bat6widget.h \
-            widgets/characteristiccurve2dwidget.h \
-            widgets/characteristiccurve3dwidget.h \
-            widgets/PVArrayPlot.h \
+            widgets/characteristicscurve2dwidget.h \
+            widgets/characteristicscurve3dwidget.h \
+            widgets/pvarrayplotwidgetbase.h \
             models/pvcell.h \
             models/pvchain.h \
             models/pvarray.h \
-            models/COMPort.h \
-            tools/Lambda.h
+            models/comport.h \
+            tools/Lambda.h \
+            plot/pvmodelfunctionbase.h \
+            plot/characteristicscurve3d.h \
+            plot/ivcharacteristicscurve.h
 
 SOURCES +=  qaccordion/qaccordion.cpp \
             qaccordion/clickableframe.cpp \

@@ -1,6 +1,7 @@
 #include "cellwidget.h"
 #include "ui_cellwidget.h"
 
+// ----------------------------------------------------------------------------
 CellWidget::CellWidget(const QString& cellName, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CellWidget),
@@ -9,20 +10,24 @@ CellWidget::CellWidget(const QString& cellName, QWidget *parent) :
     ui->setupUi(this);
 }
 
+// ----------------------------------------------------------------------------
 CellWidget::~CellWidget()
 {
 }
 
+// ----------------------------------------------------------------------------
 void CellWidget::allowRemovingFromChain(bool allow)
 {
     (void)allow;
 }
 
+// ----------------------------------------------------------------------------
 const QString& CellWidget::getName() const
 {
     return cellName;
 }
 
+// ----------------------------------------------------------------------------
 void CellWidget::on_intensity_valueChanged(int value)
 {
     ui->label_intensity->setText(QString::number(value) + "%");

@@ -6,11 +6,11 @@
 
 class PVArray;
 
-class PVArrayPlot
+class PVArrayPlotWidgetBase
 {
 public:
     /// Virtual destructor, this is a polymorphic class
-    virtual ~PVArrayPlot() {}
+    virtual ~PVArrayPlotWidgetBase() {}
 
     /*!
      * \brief Adds a new PVArray object to
