@@ -5,7 +5,6 @@
 #include <QSharedPointer>
 
 class PVArray;
-class PVModelFunction;
 
 class PVArrayPlot
 {

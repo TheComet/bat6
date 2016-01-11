@@ -21,6 +21,7 @@
 #include <QTableWidget>
 #include <QDebug>
 
+// ----------------------------------------------------------------------------
 BAT6Widget::BAT6Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BAT6Widget)
@@ -70,10 +71,10 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
 
     QSharedPointer<PVArray> pvarray(new PVArray);
     PVChain pvchain;
-    pvchain.addCell("cell 1", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 2", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 3", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 4", PVCell(0.56, 2.41));
+    pvchain.addCell("cell 1", PVCell(6, 3, 7));
+    pvchain.addCell("cell 2", PVCell(6, 3, 7));
+    pvchain.addCell("cell 3", PVCell(6, 3, 7));
+    pvchain.addCell("cell 4", PVCell(6, 3, 7));
     pvarray->addChain("chain 1", pvchain);
     cc3d->addPVArray("array 1", pvarray);
     cc3d->replot();
@@ -94,20 +95,24 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     ui->tabConsoleLayout->addWidget(console);
 }
 
+// ----------------------------------------------------------------------------
 BAT6Widget::~BAT6Widget()
 {
 }
 
+// ----------------------------------------------------------------------------
 void BAT6Widget::openSerialPort()
 {
 }
 
+// ----------------------------------------------------------------------------
 void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget, double exposure)
 {
     // TODO cc3d->getPVArray("array 1")->getChain("chain 1")->getCell(cellWidget->getName())->setExposure(exposure);
     cc3d->replot();
 }
 
+// ----------------------------------------------------------------------------
 void BAT6Widget::onReadData()
 {
     QByteArray data; // = something, TODO

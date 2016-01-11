@@ -22,7 +22,7 @@ public:
     virtual void replot() override;
 
 private:
-    QMap<QString, QSharedPointer<PVModelFunction>> pvfunction;
+    QMap<QString, QSharedPointer<PVModelFunction>> m_Function;
 };
 
 #endif // CHARACTERISTICCURVE3DWIDGET_H

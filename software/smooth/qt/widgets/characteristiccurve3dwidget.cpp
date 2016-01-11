@@ -4,29 +4,68 @@
 #include "models/pvcell.h"
 #include "widgets/cellwidget.h"
 
-#include <QDebug>
 #include <qwtplot3d/qwt3d_function.h>
 #include <cmath>
 
 using namespace Qwt3D;
 
+// ----------------------------------------------------------------------------
 class PVModelFunction : public Function
 {
 public:
 
     PVModelFunction(SurfacePlot* pw, QSharedPointer<PVArray> pvarray) :
         Function(pw),
-        pvarray(pvarray)
+        m_PVArray(pvarray)
     {
+        this->updateBoundingBox();
     }
 
-    double operator()(double current, double temperature)
+    double getVoltageDomain() const
+        { return m_MaxVoltage - m_MinVoltage; }
+    double getCurrentDomain() const
+        { return m_MaxCurrent - m_MinCurrent; }
+    double getExposureDomain() const
+        { return m_MaxExposure - m_MinExposure; }
+
+    double operator()(double current, double exposure)
     {
-        pvarray->setTemperature(temperature);
-        return pvarray->calculateVoltage(current);
+        double exposureTemp = m_PVArray->getExposure();
+        m_PVArray->setExposure(exposure * 0.01); // convert percent to absolute
+        double voltage = m_PVArray->calculateVoltage(current);
+        m_PVArray->setExposure(exposureTemp);
+        return voltage;
     }
 
-    QSharedPointer<PVArray> pvarray;
+    void updateBoundingBox()
+    {
+        PVArray tempPVArray = m_PVArray.operator*();
+
+        // calculate maximum voltage by setting the exposure of all cells to maximum
+        tempPVArray.setExposure(1);
+        for(PVChain& chain : tempPVArray.getChains())
+        {
+            for(PVCell& cell : chain.getCells())
+                cell.setExposure(1);
+            chain.setExposure(1);
+        }
+
+        m_MaxVoltage = tempPVArray.calculateVoltage(0); // 0 amps = open circuit
+        m_MinVoltage = 0.0;
+        m_MaxCurrent = tempPVArray.calculateCurrent(0); // 0 volts = short circuit
+        m_MinCurrent = 0.0;
+        m_MaxExposure = 100.0;
+        m_MinExposure = 0.0;
+    }
+
+private:
+    QSharedPointer<PVArray> m_PVArray;
+    double m_MinVoltage;
+    double m_MaxVoltage;
+    double m_MinCurrent;
+    double m_MaxCurrent;
+    double m_MinExposure;
+    double m_MaxExposure;
 };
 
 // ----------------------------------------------------------------------------
@@ -38,20 +77,21 @@ CharacteristicCurve3DWidget::CharacteristicCurve3DWidget(QWidget* parent) :
 // ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
 {
-    if(pvfunction.contains(name))
+    if(m_Function.contains(name))
         throw std::runtime_error("Failed to add array \"" +
                                  std::string(name.toLocal8Bit().constData()) +
                                  "\": Duplicate name");
 
     QSharedPointer<PVModelFunction> model(new PVModelFunction(this, pvarray));
-    pvfunction.insert(name, model);
+    m_Function.insert(name, model);
 
-    model->setMesh(100,100);
-    model->setDomain(0, 3, 273, 500);
+    model->setMesh(50,50);
+    model->setDomain(0, 3, 0, 100); // 0-3 amps, 0-100% exposure
 
-    //setRotation(30,0,15);
-    setScale(100, 1, 100);
-    setShift(0.15,0,0);
+    setRotation(30,0,15);
+    setScale(1.0 / model->getCurrentDomain(),
+             1.0 / model->getExposureDomain(),
+             1.0 / model->getVoltageDomain());
     setZoom(0.9);
 
     for (unsigned i=0; i!=coordinates()->axes.size(); ++i)
@@ -60,9 +100,9 @@ void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer
         coordinates()->axes[i].setMinors(4);
     }
 
-    coordinates()->axes[X1].setLabelString("Temperature (K)");
-    coordinates()->axes[Y1].setLabelString("Voltage (V)");
-    coordinates()->axes[Z1].setLabelString("Current (A)");
+    coordinates()->axes[X1].setLabelString("Current (A)");
+    coordinates()->axes[Y1].setLabelString("Exposure (%)");
+    coordinates()->axes[Z1].setLabelString("Voltage (A)");
 
     setCoordinateStyle(BOX);
     //setOrtho(false);
@@ -71,13 +111,13 @@ void CharacteristicCurve3DWidget::addPVArray(const QString& name, QSharedPointer
 // ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::removePVArray(const QString& name)
 {
-    pvfunction.remove(name);
+    m_Function.remove(name);
 }
 
 // ----------------------------------------------------------------------------
 void CharacteristicCurve3DWidget::replot()
 {
-    for(const auto& func : pvfunction)
+    for(const auto& func : m_Function)
         func->create();
 
     updateData();

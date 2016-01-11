@@ -2,8 +2,9 @@
 #define PVARRAY_H
 
 #include <QMap>
+#include <QString>
 
-class PVChain;
+#include "models/pvchain.h"
 
 /*!
  * \brief Represents an array of cells.
@@ -44,7 +45,18 @@ public:
      * \param exposure The exposure to set, where 0.0 is no light and 1.0 is
      * maximum light.
      */
-    void setExposure(double exposure);
+    void setExposure(double exposureWeight)
+    {
+        m_ExposureWeight = (exposureWeight < 0.0 ? 0.0 : exposureWeight);
+        m_ExposureWeight = (exposureWeight > 1.0 ? 1.0 : exposureWeight);
+    }
+
+    /*!
+     * \brief Returns the exposure of the entire array.
+     * \return The exposure where 0.0 is no light and 1.0 is maximum light.
+     */
+    double getExposure() const
+        { return m_ExposureWeight; }
 
     /*!
      * \brief Adds a new chain of cells to the cell array.
@@ -60,17 +72,15 @@ public:
     void removeChain(const QString& chainName);
 
     /*!
-     * \brief Retrieves a cell chain with the specified name.
-     * \param chainName The name of the chain to get.
-     * \return If the chain does not exist, NULL is returned.
+     * \brief Returns the container of PVChain objects.
      */
-    PVChain* getChain(const QString& chainName);
+    QMap<QString, PVChain>& getChains();
 
 private:
     double calculateAverageParallelVoltage(double totalCurrent) const;
 
-    QMap<QString, PVChain> cellArray;
-    double exposure;
+    QMap<QString, PVChain> m_Chains;
+    double m_ExposureWeight;
 };
 
 #endif // PVARRAY_H
