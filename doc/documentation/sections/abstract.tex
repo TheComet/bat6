@@ -12,28 +12,25 @@
 % conclution
 
  % introduction
-Simulating  photovoltaic modules in a laboratory environment currently  requires
-expensive and complex equipment,  restricting research into this area to parties
-with substantial financial backing.
+Reproducible simulation of photovoltaic modules requires
+advanced and expensive equipment, hindering development of solar power products  
 % research problem
-In order to facilitate access to this area of research, a lower cost alternative
-to the existing expensive equipment is needed.
+To facilitate access to this area of research, a low-cost alternative
+to the existing equipment is in demand.
 
 % approach
-This  report details our efforts in developing and building a  device  for  this
-purpose. Its design is based around a microcontroller which handles IO tasks and
-implements two control loops for operating a pre-existing step-down converter in
-either constant  current  or constant voltage mode to generate an output voltage
-matching  a  dynamically programmable IV characteristics curve. The  mathematics
-used to  model  the  underlying  physical behaviour allows emulation of multiple
-series-connected  cells to generate more  complicated  solar  panel  behaviours.
+The core of our device is a microcontroller which communicates with the outside world and
+regulates a step-down converter to generate an output voltage and current
+
+matching a programmable load curve. The underlying mathematical
+ model allows emulation of multiple
+series-connected  cells to generate typical solar  panel  behaviours.
 
 % results
-Unfortunately, the  device is not operational  at this point as  the step-down
-converter keeps being damaged with the current design.
+The  device is not operational  at this point as  the step-down
+converter is damaged with the current circuit board.
 
 TODO: Insert suspicions about causes
 
-With more time available,  we are confident that the cause  of our issue would
-be found and fixed, and the device made operational as originally specified.
-% new hardware revision somethingsomething
+The next step in finalising the device would be to design a new circuit board.
+%hardware revision something something
