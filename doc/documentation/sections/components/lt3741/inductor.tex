@@ -1,39 +1,44 @@
-The size of the inductor $L_1$, as illustrated in figure \ref{fig:circuit:buck},
-was calculated using formula \ref{eq:circuit:buck:inductor}
+The size of the inductor $L_1$, as illustrated in Figure \ref{fig:circuit:buck},
+was calculated using the formula below:
+
 \begin{equation}
     L_1 = \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot V_{in}} \right) = \SI{6}{\micro\henry}
     \label{eq:circuit:buck:inductor}
 \end{equation}
-where $V_{in}$ is the  input  voltage  \SI{28}{\volt},  $V_{out}$  is the output
-voltage at peak power (which exists at $V_{out} = \SI{14}{\volt}$), $f_S$ is the
-switching frequency \SI{1}{\mega\hertz} and $I_O$ is the maximum output current,
-assumed   to   be   $I_O  =  \SI{5}{\ampere}$  for   some   additional   leeway.
 
-We ended up selecting a  larger  inductor  of  $L_1  = \SI{22}{\micro\henry}$ to
-further decrease ripple current.
+where  $V_{in}$ equals  the  input voltage  \SI{28}{\volt},  $V_{out}$ is  the
+output voltage  at peak  power (which exists  at $V_{out}  = \SI{14}{\volt}$),
+$f_S$ is the switching frequency  \SI{1}{\mega\hertz} and $I_O$ is the maximum
+output  current, assumed  to be  $I_O  = \SI{5}{\ampere}$,  allowing for  some
+additional leeway.   A larger  inductor of  $L_1 =  \SI{22}{\micro\henry}$ was
+selected to further decrease ripple current.
 
-In addition to the value of  the  inductor, the maximum current rating, DCR, and
-saturation  current are also important factors to consider. The maximum  current
-of the inductor is calculated using formula 
-\ref{eq:circuit:buck:inductor_peak}
+In addition to the value inductor's value, the maximum current rating, DCR, and
+saturation  current are also important factors to consider. The inductor's peak
+current is calculated using
 \begin{equation}
     I_{L_{1_{peak}}} = I_O + \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{2 \cdot f_S \cdot L_1 \cdot V_{in}} \right) = \SI{5.2}{\ampere}
     \label{eq:circuit:buck:inductor_peak}
 \end{equation}
-Where $L_1$  is  the  value  of  the selected inductor, \SI{22}{\micro\henry}. The
-saturation  current  of the inductor was sized factor $1.2$ higher than the peak
-current.
-\begin{equation}
-    I_{L_{1_{saturation}}} = 1.2 \cdot I_{L_{1_{peak}}}
-    \label{eq:circuit:buck:inductor_saturation}
-\end{equation}
 
-A  list  of  candidates  matching  the  above  parameters  are  listed in  table
+Where  $V_{in}$ equals  the  input voltage  \SI{28}{\volt},  $V_{out}$ is  the
+output voltage  at peak  power (which exists  at $V_{out}  = \SI{14}{\volt}$),
+$f_S$ is  the switching frequency  \SI{1}{\mega\hertz}, $L_1$ is the  value of
+the selected inductor (\SI{22}{\micro\henry}) and  $I_O$ is the maximum output
+current, assumed  to be  $I_O =  \SI{5}{\ampere}$.  The  inductor's saturation
+current  was  sized  $1.2$  times  higher than  the  peak  current. With  this
+defined,  a list  of  possible inductors  could be  compiled,  shown in  table
 \ref{tab:circuit:buck:inductor}.
+
+%\begin{equation}
+%    I_{L_{1_{saturation}}} = 1.2 \cdot I_{L_{1_{peak}}}
+%    \label{eq:circuit:buck:inductor_saturation}
+%\end{equation}
+
 
 \begin{table}[th!]
     \begin{center}
-        \caption{}
+        \caption{List of inductors matching our requirements}
         \label{tab:circuit:buck:inductor}
         \begin{tabular}{lcccc}
             \toprule
@@ -48,6 +53,5 @@ A  list  of  candidates  matching  the  above  parameters  are  listed in  table
     \end{center}
 \end{table}
 
-It  is  clear that the one with the lowest DCR will be the most optimal. The one
-highlighted in grey is the one we chose.
-
+We  chose the  inductor highlighted  in  grey because  it has  the lowest  DCR
+(direct current resistance) of the three, making it the most optimal choice.
