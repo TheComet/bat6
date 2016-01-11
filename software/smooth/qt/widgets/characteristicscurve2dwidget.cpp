@@ -2,6 +2,9 @@
 #include "models/pvarray.h"
 #include "plot/ivcharacteristicscurve.h"
 
+#include <qwt/qwt_point_data.h>
+#include <qwt/qwt_scale_engine.h>
+
 #include <QColor>
 #include <QDebug>
 
@@ -10,11 +13,9 @@ CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
     QwtPlot(parent),
     curve(new QwtPlotCurve)
 {
-    /*static const double x[] = {1, 2, 5, 3};
-    static const double y[] = {1, 2, 3, 4};
-
-    curve->setData(new QwtCPointerData(x, y, 4));
-    curve->attach(this);*/
+    curve->attach(this);
+    curve->setItemAttribute(QwtPlotItem::AutoScale, true);
+    this->setAxisAutoScale(QwtPlot::xBottom);
     this->setCanvasBackground(QColor(Qt::white));
     this->replot();
 }
@@ -34,6 +35,10 @@ void CharacteristicsCurve2DWidget::addPVArray(const QString& name, QSharedPointe
 
     QSharedPointer<IVCharacteristicsCurve> model(new IVCharacteristicsCurve(pvarray));
     m_Function.insert(name, model);
+
+    curve->setData(new IVCharacteristicsCurve(pvarray));
+    this->setAxisScale(QwtPlot::xBottom, 0, 24);
+    this->setAxisScale(QwtPlot::yLeft, 0, 3);
 }
 
 // ----------------------------------------------------------------------------

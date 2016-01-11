@@ -1,4 +1,5 @@
 #include "plot/ivcharacteristicscurve.h"
+#include "models/pvarray.h"
 
 // ----------------------------------------------------------------------------
 IVCharacteristicsCurve::IVCharacteristicsCurve(QSharedPointer<PVArray> pvarray) :
@@ -22,9 +23,16 @@ size_t IVCharacteristicsCurve::size() const
 // ----------------------------------------------------------------------------
 QPointF IVCharacteristicsCurve::sample(size_t i) const
 {
+    double current = m_MaxCurrent * double(i) / double(m_SampleCount);
+    double voltage = m_PVArray->calculateVoltage(current);
+    return QPointF(voltage, current);
 }
 
 // ----------------------------------------------------------------------------
 QRectF IVCharacteristicsCurve::boundingRect() const
 {
+    return QRectF(m_MinVoltage,
+                  m_MinCurrent + this->getCurrentDomain(),
+                  this->getVoltageDomain(),
+                  this->getCurrentDomain());
 }

@@ -71,13 +71,16 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
 
     QSharedPointer<PVArray> pvarray(new PVArray);
     PVChain pvchain;
-    pvchain.addCell("cell 1", PVCell(6, 3, 7));
-    pvchain.addCell("cell 2", PVCell(6, 3, 7));
-    pvchain.addCell("cell 3", PVCell(6, 3, 7));
-    pvchain.addCell("cell 4", PVCell(6, 3, 7));
+    pvchain.addCell("cell 1", PVCell(6, 3, 2));
+    pvchain.addCell("cell 2", PVCell(6, 3, 2));
+    pvchain.addCell("cell 3", PVCell(6, 3, 2));
+    pvchain.addCell("cell 4", PVCell(6, 3, 2));
     pvarray->addChain("chain 1", pvchain);
     cc3d->addPVArray("array 1", pvarray);
     cc3d->replot();
+
+    cc2d->addPVArray("array 1", pvarray);
+    cc2d->replot();
 
     // add and connect the cell widgets
     /*
