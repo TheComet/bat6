@@ -22,13 +22,7 @@ public:
     explicit BAT6Widget(QWidget *parent = 0);
     ~BAT6Widget();
 
-private slots:
-    void onCellExposureChanged(CellWidget* cellWidget, double exposure);
-    void onReadData();
-
 private:
-    void openSerialPort();
-
     QScopedPointer<Ui::BAT6Widget> ui;
     QGridLayout* cellLayout;
     ConsoleWidget* console;
@@ -36,4 +30,4 @@ private:
     CharacteristicsCurve3DWidget* cc3d;
 };
 
-#endif // BAT6WIDGET_H
+#endif // BAT6_WIDGET_H

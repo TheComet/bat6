@@ -8,6 +8,7 @@ CellWidget::CellWidget(const QString& cellName, QWidget *parent) :
     cellName(cellName)
 {
     ui->setupUi(this);
+    ui->group_box->setTitle(cellName);
 }
 
 // ----------------------------------------------------------------------------

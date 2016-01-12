@@ -32,39 +32,31 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     QSplitter* splitter = new QSplitter;
     ui->tabUiLayout->addWidget(splitter);
 
-    // create a QFrame on the left side of the splitter and give it a layout
-    /*
-    QFrame* cellContainer = new QFrame;
-    splitter->addWidget(cellContainer);
-    cellLayout = new QGridLayout;
-    cellContainer->setLayout(cellLayout);*/
-
-    // add a scroll area and accordion widget to the left side of the splitter
-    QScrollArea* scrollAreaTop = new QScrollArea;
-    splitter->addWidget(scrollAreaTop);
-    QAccordion* accordionTop = new QAccordion;
-    scrollAreaTop->setWidget(accordionTop);
-    scrollAreaTop->setWidgetResizable(true);
+    // add a scroll area to the left side of the splitter - this is where
+    // all of the cell widgets are inserted
+    QScrollArea* scrollArea = new QScrollArea;
+    splitter->addWidget(scrollArea);
+    scrollArea->setLayout(new QVBoxLayout);
+    scrollArea->layout()->setAlignment(Qt::Alignment(Qt::AlignTop));
 
     for(int i = 1; i != 3; ++i)
     {
         QString name = "Cell " + QString::number(i);
-        int paneIndex = accordionTop->addContentPane(name);
-        QFrame* contentFrame = accordionTop->getContentPane(paneIndex)->getContentFrame();
-        contentFrame->setLayout(new QGridLayout);
-        contentFrame->layout()->addWidget(new CellWidget(name));
+        scrollArea->layout()->addWidget(new CellWidget(name));
     }
 
-    // on the right side of the splitter is the plot
+    // on the right side of the splitter are the plots - add a frame widget
+    // to contain them
     QWidget* plotContainer = new QFrame;
     splitter->addWidget(plotContainer);
     QGridLayout* plotLayout = new QGridLayout;
     plotContainer->setLayout(plotLayout);
 
-    // add the two plots, one does V(I) the other I(V)
+    // add 3D plot
     cc3d = new CharacteristicsCurve3DWidget();
     cc3d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc3d);
+    // add 2D plot
     cc2d = new CharacteristicsCurve2DWidget();
     cc2d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc2d);
@@ -82,16 +74,6 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     cc2d->addPVArray("array 1", pvarray);
     cc2d->replot();
 
-    // add and connect the cell widgets
-    /*
-    for(int i = 1; i != 5; ++i)
-    {
-        CellWidget* cellWidget = new CellWidget("cell " + QString::number(i));
-        cellLayout->addWidget(cellWidget);
-        connect(cellWidget, SIGNAL(exposureChanged(CellWidget*,double)),
-                this, SLOT(onCellExposureChanged(CellWidget*,double)));
-    }*/
-
     // configure console
     console = new ConsoleWidget;
     console->setEnabled(true);
@@ -103,21 +85,3 @@ BAT6Widget::~BAT6Widget()
 {
 }
 
-// ----------------------------------------------------------------------------
-void BAT6Widget::openSerialPort()
-{
-}
-
-// ----------------------------------------------------------------------------
-void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget, double exposure)
-{
-    // TODO cc3d->getPVArray("array 1")->getChain("chain 1")->getCell(cellWidget->getName())->setExposure(exposure);
-    cc3d->replot();
-}
-
-// ----------------------------------------------------------------------------
-void BAT6Widget::onReadData()
-{
-    QByteArray data; // = something, TODO
-    console->putData(data);
-}

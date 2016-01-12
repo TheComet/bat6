@@ -5,6 +5,8 @@
 #include "models/pvcell.h"
 #include "plot/characteristicscurve3d.h"
 
+#include <qwtplot3d/qwt3d_colorlegend.h>
+
 #include <cmath>
 
 // ----------------------------------------------------------------------------

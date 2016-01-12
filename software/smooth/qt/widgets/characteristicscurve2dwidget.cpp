@@ -47,6 +47,7 @@ CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
     grid->setMinorPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(this);
 
+    // legend
     QwtPlotLegendItem* legend = new QwtPlotLegendItem();
     legend->attach(this);
     legend->setAlignment(Qt::Alignment(Qt::AlignRight | Qt::AlignTop));
