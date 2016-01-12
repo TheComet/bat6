@@ -17,6 +17,8 @@ class CharacteristicsCurve3DWidget :
 public:
     CharacteristicsCurve3DWidget(QWidget* parent=nullptr);
 
+    void normaliseScale();
+
     virtual void addPVArray(const QString& name, QSharedPointer<PVArray> pvarray) override;
     virtual void removePVArray(const QString& name) override;
     virtual void replot() override;

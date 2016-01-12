@@ -13,6 +13,8 @@ class ConsoleWidget;
 class CellWidget;
 class CharacteristicsCurve2DWidget;
 class CharacteristicsCurve3DWidget;
+class QPushButton;
+class PVArray;
 
 class BAT6Widget : public QWidget
 {
@@ -22,12 +24,29 @@ public:
     explicit BAT6Widget(QWidget *parent = 0);
     ~BAT6Widget();
 
+    void addCell();
+    void removeCell(CellWidget* cell);
+
+private:
+    void updateCellNames();
+    void updateModelCellNames();
+    void updateModel();
+
+private slots:
+    void onAddCellButtonReleased();
+    void onRemoveCellButtonReleased(CellWidget* cell);
+
 private:
     QScopedPointer<Ui::BAT6Widget> ui;
-    QFrame* cellWidgetContainer;
-    ConsoleWidget* console;
-    CharacteristicsCurve2DWidget* cc2d;
-    CharacteristicsCurve3DWidget* cc3d;
+
+    QSharedPointer<PVArray> m_PVArray;
+
+    // pointers to various widgets we control
+    QFrame* m_CellWidgetContainer;
+    ConsoleWidget* m_Console;
+    CharacteristicsCurve2DWidget* m_cc2d;
+    CharacteristicsCurve3DWidget* m_cc3d;
+    QPushButton* m_AddCellButton;
 };
 
 #endif // BAT6_WIDGET_H

@@ -5,7 +5,7 @@
 CellWidget::CellWidget(const QString& cellName, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CellWidget),
-    cellName(cellName)
+    m_CellName(cellName)
 {
     ui->setupUi(this);
     ui->group_box->setTitle(cellName);
@@ -23,9 +23,16 @@ void CellWidget::allowRemovingFromChain(bool allow)
 }
 
 // ----------------------------------------------------------------------------
+void CellWidget::setName(const QString& name)
+{
+    m_CellName = name;
+    ui->group_box->setTitle(name);
+}
+
+// ----------------------------------------------------------------------------
 const QString& CellWidget::getName() const
 {
-    return cellName;
+    return m_CellName;
 }
 
 // ----------------------------------------------------------------------------

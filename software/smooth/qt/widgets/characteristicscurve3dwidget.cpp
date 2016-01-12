@@ -29,6 +29,30 @@ CharacteristicsCurve3DWidget::CharacteristicsCurve3DWidget(QWidget* parent) :
 }
 
 // ----------------------------------------------------------------------------
+void CharacteristicsCurve3DWidget::normaliseScale()
+{
+    double largestAxis = 0;
+    double largestXAxis = 0;
+    double largestYAxis = 0;
+    double largestZAxis = 0;
+    for(const auto& model : m_Function)
+    {
+        model->updateBoundingBox();
+        double temp = max(model->getCurrentDomain(),
+                          model->getExposureDomain(),
+                          model->getVoltageDomain());
+        largestAxis =  (temp > largestAxis ? temp : largestAxis);
+        largestXAxis = (model->getCurrentDomain()  > largestXAxis ? model->getCurrentDomain()  : largestXAxis);
+        largestYAxis = (model->getExposureDomain() > largestYAxis ? model->getExposureDomain() : largestYAxis);
+        largestZAxis = (model->getVoltageDomain()  > largestZAxis ? model->getVoltageDomain()  : largestZAxis);
+    }
+
+    setScale(largestAxis / largestXAxis,
+             largestAxis / largestYAxis,
+             largestAxis / largestZAxis);
+}
+
+// ----------------------------------------------------------------------------
 void CharacteristicsCurve3DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
 {
     if(m_Function.contains(name))
@@ -43,13 +67,8 @@ void CharacteristicsCurve3DWidget::addPVArray(const QString& name, QSharedPointe
     model->setMesh(50, 50);
     model->setDomain(0, 3, 0, 100); // 0-3 amps, 0-100% exposure
 
+    this->normaliseScale();
     setRotation(30,0,-15);
-    double largestAxis = max(model->getCurrentDomain(),
-                             model->getExposureDomain(),
-                             model->getVoltageDomain());
-    setScale(largestAxis / model->getCurrentDomain(),
-             largestAxis / model->getExposureDomain(),
-             largestAxis / model->getVoltageDomain());
     setZoom(.25);
 
     for (unsigned i=0; i!=coordinates()->axes.size(); ++i)
@@ -85,6 +104,7 @@ void CharacteristicsCurve3DWidget::replot()
     for(const auto& func : m_Function)
         func->create();
 
+    this->normaliseScale();
     updateData();
     updateGL();
 }
