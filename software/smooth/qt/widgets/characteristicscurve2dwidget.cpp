@@ -90,7 +90,32 @@ void CharacteristicsCurve2DWidget::removePVArray(const QString& name)
 }
 
 // ----------------------------------------------------------------------------
+void CharacteristicsCurve2DWidget::autoScale()
+{
+    double maxPower = 0;
+    double maxVoltage = 0;
+    double maxCurrent = 0;
+    for(const auto& model : m_Function)
+    {
+        model->updateBoundingBox();
+        for(int i = 0; i != model->size(); ++i)
+        {
+            const QPointF& iv = model->sample(i);
+            double power = iv.x() * iv.y();
+            maxPower = (power > maxPower ? power : maxPower);
+            maxVoltage = (model->getVoltageDomain() > maxVoltage ? model->getVoltageDomain() : maxVoltage);
+            maxCurrent = (model->getCurrentDomain() > maxCurrent ? model->getCurrentDomain() : maxCurrent);
+        }
+    }
+
+    this->setAxisScale(QwtPlot::xBottom, 0, maxVoltage);
+    this->setAxisScale(QwtPlot::yLeft, 0, maxCurrent);
+    this->setAxisScale(QwtPlot::yRight, 0, maxPower);
+}
+
+// ----------------------------------------------------------------------------
 void CharacteristicsCurve2DWidget::replot()
 {
+    this->autoScale();
     QwtPlot::replot();
 }

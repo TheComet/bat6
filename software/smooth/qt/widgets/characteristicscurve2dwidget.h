@@ -22,6 +22,8 @@ public:
     CharacteristicsCurve2DWidget(QWidget* parent=nullptr);
     ~CharacteristicsCurve2DWidget();
 
+    void autoScale();
+
     virtual void addPVArray(const QString &name, QSharedPointer<PVArray> pvarray) override;
     virtual void removePVArray(const QString &name) override;
     virtual void replot() override;
