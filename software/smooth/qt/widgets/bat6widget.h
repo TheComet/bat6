@@ -8,7 +8,7 @@ namespace Ui {
     class BAT6Widget;
 }
 
-class QGridLayout;
+class QFrame;
 class ConsoleWidget;
 class CellWidget;
 class CharacteristicsCurve2DWidget;
@@ -24,7 +24,7 @@ public:
 
 private:
     QScopedPointer<Ui::BAT6Widget> ui;
-    QGridLayout* cellLayout;
+    QFrame* cellWidgetContainer;
     ConsoleWidget* console;
     CharacteristicsCurve2DWidget* cc2d;
     CharacteristicsCurve3DWidget* cc3d;

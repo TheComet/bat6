@@ -24,7 +24,11 @@
 // ----------------------------------------------------------------------------
 BAT6Widget::BAT6Widget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::BAT6Widget)
+    ui(new Ui::BAT6Widget),
+    cellWidgetContainer(new QFrame(this)),
+    console(new ConsoleWidget(this)),
+    cc2d(new CharacteristicsCurve2DWidget(this)),
+    cc3d(new CharacteristicsCurve3DWidget(this))
 {
     ui->setupUi(this);
 
@@ -33,17 +37,16 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     ui->tabUiLayout->addWidget(splitter);
 
     // add a scroll area to the left side of the splitter - this is where
-    // all of the cell widgets are inserted
+    // all of the cell widgets are displayed
     QScrollArea* scrollArea = new QScrollArea;
     splitter->addWidget(scrollArea);
-    scrollArea->setLayout(new QVBoxLayout);
-    scrollArea->layout()->setAlignment(Qt::Alignment(Qt::AlignTop));
+    scrollArea->setWidget(cellWidgetContainer);
 
-    for(int i = 1; i != 3; ++i)
-    {
-        QString name = "Cell " + QString::number(i);
-        scrollArea->layout()->addWidget(new CellWidget(name));
-    }
+    // the scroll area gives a view into a QFrame object. Configure the
+    // frame with a layout to contain the cell widgets
+    cellWidgetContainer->setLayout(new QVBoxLayout);
+    cellWidgetContainer->layout()->setAlignment(Qt::Alignment(Qt::AlignTop));
+    cellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
     // on the right side of the splitter are the plots - add a frame widget
     // to contain them
@@ -53,13 +56,23 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     plotContainer->setLayout(plotLayout);
 
     // add 3D plot
-    cc3d = new CharacteristicsCurve3DWidget();
-    cc3d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc3d);
+    cc3d->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
     // add 2D plot
-    cc2d = new CharacteristicsCurve2DWidget();
-    cc2d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     plotLayout->addWidget(cc2d);
+    cc2d->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
+
+    for(int i = 1; i != 5; ++i)
+    {
+        QString name = "Cell " + QString::number(i);
+        CellWidget* cell = new CellWidget(name);
+        cellWidgetContainer->layout()->addWidget(cell);
+    }
+
+    QList<int> sizes = splitter->sizes();
+    sizes[0] = 140;
+    sizes[1] = splitter->size().width() - sizes[0];
+    splitter->setSizes(sizes);
 
     QSharedPointer<PVArray> pvarray(new PVArray);
     PVChain pvchain;
@@ -75,7 +88,6 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     cc2d->replot();
 
     // configure console
-    console = new ConsoleWidget;
     console->setEnabled(true);
     ui->tabConsoleLayout->addWidget(console);
 }
@@ -84,4 +96,3 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
 BAT6Widget::~BAT6Widget()
 {
 }
-
