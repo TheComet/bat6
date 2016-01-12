@@ -5,9 +5,13 @@
 
 #include <qwt/qwt_point_data.h>
 #include <qwt/qwt_scale_engine.h>
+#include <qwt/qwt_text_label.h>
+#include <qwt/qwt_legend_data.h>
+#include <qwt/qwt_legend_label.h>
+#include <qwt/qwt_plot_grid.h>
+#include <qwt/qwt_plot_legenditem.h>
 
 #include <QColor>
-#include <QDebug>
 
 // ----------------------------------------------------------------------------
 CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
@@ -15,11 +19,40 @@ CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
     m_IVCurve(new QwtPlotCurve),
     m_PowerCurve(new QwtPlotCurve)
 {
-    m_IVCurve->attach(this);
-    m_IVCurve->setItemAttribute(QwtPlotItem::AutoScale, true);
-    m_PowerCurve->attach(this);
-    m_PowerCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
+    this->setTitle("IV Characteristic Curve and Power");
 
+    // IV curve
+    m_IVCurve->attach(this);
+    m_IVCurve->setTitle(QString("IV Characteristic"));
+    m_IVCurve->setItemAttribute(QwtPlotItem::AutoScale, true);
+    m_IVCurve->setPen(QPen(QColor(0, 0, 255)));
+
+    // Power curve
+    this->enableAxis(QwtPlot::yRight);
+    m_PowerCurve->attach(this);
+    m_PowerCurve->setTitle(QString("Power"));
+    m_PowerCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
+    m_PowerCurve->setPen(QPen(QColor(255, 0, 0)));
+
+    // set axis titles
+    this->setAxisTitle(QwtPlot::yLeft, QString("Current (I)"));
+    this->setAxisTitle(QwtPlot::yRight, QString("Power (W)"));
+    this->setAxisTitle(QwtPlot::xBottom, QString("Voltage (V)"));
+
+    // Add a dotted grid
+    QwtPlotGrid* grid = new QwtPlotGrid;
+    grid->enableX(true);
+    grid->enableY(true);
+    grid->setMajorPen(QPen(Qt::black, 0, Qt::DotLine));
+    grid->setMinorPen(QPen(Qt::gray, 0 , Qt::DotLine));
+    grid->attach(this);
+
+    QwtPlotLegendItem* legend = new QwtPlotLegendItem();
+    legend->attach(this);
+    legend->setAlignment(Qt::Alignment(Qt::AlignRight | Qt::AlignTop));
+    legend->setMaxColumns(1);
+
+    // configure plot
     this->setAxisAutoScale(QwtPlot::xBottom);
     this->setCanvasBackground(QColor(Qt::white));
     this->replot();
@@ -46,7 +79,7 @@ void CharacteristicsCurve2DWidget::addPVArray(const QString& name, QSharedPointe
 
     this->setAxisScale(QwtPlot::xBottom, 0, 24);
     this->setAxisScale(QwtPlot::yLeft, 0, 3);
-    this->setAxisScale(QwtPlot::yRight, 0, 80);
+    this->setAxisScale(QwtPlot::yRight, 0, 40);
 }
 
 // ----------------------------------------------------------------------------
