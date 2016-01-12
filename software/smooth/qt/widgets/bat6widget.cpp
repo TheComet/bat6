@@ -35,13 +35,19 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     ui->setupUi(this);
 
     // add a splitter object into the "UI" tab.
-    QSplitter* splitter = new QSplitter;
+    /*QSplitter* splitter = new QSplitter;
     ui->tabUiLayout->addWidget(splitter);
 
     // add a scroll area to the left side of the splitter - this is where
     // all of the cell widgets are displayed
     QScrollArea* scrollArea = new QScrollArea;
-    splitter->addWidget(scrollArea);
+    splitter->addWidget(scrollArea);*/
+    QScrollArea* scrollArea = new QScrollArea;
+    scrollArea->setSizePolicy(QSizePolicy::Policy::Minimum,
+                              QSizePolicy::Policy::Minimum);
+    scrollArea->setMinimumWidth(280);
+    ui->group_box_cells->setLayout(new QGridLayout);
+    ui->group_box_cells->layout()->addWidget(scrollArea);
     scrollArea->setWidget(m_CellWidgetContainer);
 
     // the scroll area gives a view into a QFrame object. Configure the
@@ -49,25 +55,15 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     m_CellWidgetContainer->setLayout(new QVBoxLayout);
     m_CellWidgetContainer->layout()->setAlignment(Qt::Alignment(Qt::AlignTop));
     m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-    // on the right side of the splitter are the plots - add a frame widget
-    // to contain them
-    QWidget* plotContainer = new QFrame;
-    splitter->addWidget(plotContainer);
-    QGridLayout* plotLayout = new QGridLayout;
-    plotContainer->setLayout(plotLayout);
+    m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
     // add 3D plot
-    plotLayout->addWidget(m_cc3d);
-    m_cc3d->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
+    ui->group_box_plots->setLayout(new QHBoxLayout);
+    ui->group_box_plots->layout()->addWidget(m_cc3d);
+    m_cc3d->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
     // add 2D plot
-    plotLayout->addWidget(m_cc2d);
-    m_cc2d->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
-
-    QList<int> sizes = splitter->sizes();
-    sizes[0] = 150;
-    sizes[1] = splitter->size().width() - sizes[0];
-    splitter->setSizes(sizes);
+    ui->group_box_plots->layout()->addWidget(m_cc2d);
+    m_cc2d->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 
     m_PVArray = QSharedPointer<PVArray>(new PVArray);
     PVChain pvchain;
