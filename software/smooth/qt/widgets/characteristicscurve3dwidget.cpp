@@ -64,7 +64,7 @@ void CharacteristicsCurve3DWidget::addPVArray(const QString& name, QSharedPointe
 
     m_Function.insert(name, model);
 
-    model->setMesh(50, 50);
+    model->setMesh(80, 80);
     model->setDomain(0, 3, 0, 100); // 0-3 amps, 0-100% exposure
 
     this->normaliseScale();

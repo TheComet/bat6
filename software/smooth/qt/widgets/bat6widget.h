@@ -35,6 +35,10 @@ private:
 private slots:
     void onAddCellButtonReleased();
     void onRemoveCellButtonReleased(CellWidget* cell);
+    void onOpenCircuitVoltageChanged(CellWidget* cell);
+    void onShortCircuitCurrentChanged(CellWidget* cell);
+    void onDarkVoltageChanged(CellWidget* cell);
+    void onIntensityChanged(CellWidget* cell);
 
 private:
     QScopedPointer<Ui::BAT6Widget> ui;

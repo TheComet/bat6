@@ -107,16 +107,44 @@ void BAT6Widget::addCell()
     this->connect(cellWidget->ui->remove_cell, SIGNAL(released()), new Lambda([this, cellWidget]() {
             this->onRemoveCellButtonReleased(cellWidget);
     }, cellWidget), SLOT(call()));
+    // connect open circuit voltage spinbox
+    this->connect(cellWidget->ui->open_circuit_voltage, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onOpenCircuitVoltageChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect short circuit current spinbox
+    this->connect(cellWidget->ui->short_circuit_current, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onShortCircuitCurrentChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect dark voltage spinbox
+    this->connect(cellWidget->ui->dark_voltage, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onDarkVoltageChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect intensity slider
+    this->connect(cellWidget->ui->intensity, SIGNAL(valueChanged(int)), new Lambda([this, cellWidget]() {
+        this->onIntensityChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
 
     // add cell to model too - copy parameters from first cell
     auto chain = m_PVArray->getChains().find("Chain 1");
     const auto& templateCell = chain->getCells().find("Cell 1");
     if(templateCell == chain->getCells().end())
+    {
         chain->addCell(name, PVCell(6, 3, 2));
+        cellWidget->ui->open_circuit_voltage->setValue(6);
+        cellWidget->ui->short_circuit_current->setValue(3);
+        cellWidget->ui->dark_voltage->setValue(2);
+        cellWidget->ui->intensity->setValue(100);
+    }
     else
+    {
         chain->addCell(name, PVCell(templateCell->getOpenCircuitVoltage(),
                                     templateCell->getShortCircuitCurrent(),
                                     templateCell->getDarkVoltage()));
+        cellWidget->ui->open_circuit_voltage->setValue(templateCell->getOpenCircuitVoltage());
+        cellWidget->ui->short_circuit_current->setValue(templateCell->getShortCircuitCurrent());
+        cellWidget->ui->dark_voltage->setValue(templateCell->getDarkVoltage());
+        cellWidget->ui->intensity->setValue(templateCell->getExposure() * 100);
+    }
 
     this->updateModel();
 }
@@ -181,7 +209,39 @@ void BAT6Widget::onAddCellButtonReleased()
 }
 
 // ----------------------------------------------------------------------------
-void BAT6Widget::onRemoveCellButtonReleased(CellWidget* cell)
+void BAT6Widget::onRemoveCellButtonReleased(CellWidget* cellWidget)
 {
-    this->removeCell(cell);
+    this->removeCell(cellWidget);
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onOpenCircuitVoltageChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setOpenCircuitVoltage(cellWidget->ui->open_circuit_voltage->value());
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onShortCircuitCurrentChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setShortCircuitCurrent(cellWidget->ui->short_circuit_current->value());
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onDarkVoltageChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setDarkVoltage(cellWidget->ui->dark_voltage->value());
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onIntensityChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setExposure(cellWidget->ui->intensity->value() * 0.01);
+    this->updateModel();
 }
