@@ -27,6 +27,7 @@ SOURCES +=  main.cpp \
             models/pvchain.cpp \
             models/pvarray.cpp \
             models/comport.cpp \
+            models/dummycurrentandvoltagesensor.cpp \
             plot/pvmodelfunctionbase.cpp \
             plot/ivcharacteristicscurve3d.cpp \
             plot/ivcharacteristicscurve.cpp \
@@ -44,6 +45,7 @@ HEADERS  += widgets/mainwindow.h \
             models/pvchain.h \
             models/pvarray.h \
             models/comport.h \
+            models/dummycurrentandvoltagesensor.h \
             tools/Lambda.h \
             plot/pvmodelfunctionbase.h \
             plot/curve3dbase.h \

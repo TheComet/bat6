@@ -10,6 +10,7 @@
 #include "models/pvarray.h"
 #include "models/pvchain.h"
 #include "models/pvcell.h"
+#include "models/dummycurrentandvoltagesensor.h"
 
 #include "tools/Lambda.h"
 
@@ -80,6 +81,12 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     m_Console->setEnabled(true);
     ui->tabConsoleLayout->addWidget(m_Console);
 
+    // set up a dummy voltage and current measurer, so we have some idea of what
+    // the end product will look like
+    DummyCurrentAndVoltageSensor* sensor = new DummyCurrentAndVoltageSensor(this, 22, 1, 1, 0.1);
+    this->connect(sensor, SIGNAL(currentMeasured(double)), this, SLOT(onCurrentMeasured(double)));
+    this->connect(sensor, SIGNAL(voltageMeasured(double)), this, SLOT(onVoltageMeasured(double)));
+
     // signals
     this->connect(m_AddCellButton, SIGNAL(released()), this, SLOT(onAddCellButtonReleased()));
     this->connect(ui->slider_global_exposure, SIGNAL(valueChanged(int)), this, SLOT(onGlobalExposureChanged(int)));
@@ -128,10 +135,10 @@ void BAT6Widget::addCell()
     const auto& templateCell = chain->getCells().find("Cell 1");
     if(templateCell == chain->getCells().end())
     {
-        chain->addCell(name, PVCell(6, 3, 2));
+        chain->addCell(name, PVCell(6, 3, 1));
         cellWidget->ui->open_circuit_voltage->setValue(6);
         cellWidget->ui->short_circuit_current->setValue(3);
-        cellWidget->ui->dark_voltage->setValue(2);
+        cellWidget->ui->dark_voltage->setValue(1);
         cellWidget->ui->intensity->setValue(100);
     }
     else
@@ -263,4 +270,18 @@ void BAT6Widget::onGlobalExposureChanged(int value)
     m_PVArray->setExposure(value * 0.01);
     ui->label_global_exposure->setText(QString::number(value) + "%");
     m_cc2d->replot(); // 3D plot doesn't change
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onVoltageMeasured(double voltage)
+{
+    ui->line_edit_measured_voltage->setText(QString::number(voltage));
+    ui->line_edit_measured_power->setText(QString::number(ui->line_edit_measured_current->text().toDouble() * voltage));
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onCurrentMeasured(double current)
+{
+    ui->line_edit_measured_current->setText(QString::number(current));
+    ui->line_edit_measured_power->setText(QString::number(ui->line_edit_measured_voltage->text().toDouble() * current));
 }

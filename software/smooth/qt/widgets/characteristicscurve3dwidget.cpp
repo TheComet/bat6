@@ -5,7 +5,6 @@
 #include "models/pvcell.h"
 #include "plot/ivcharacteristicscurve3d.h"
 #include "plot/powercurve3d.h"
-#include "plot/crosssection.h"
 
 #include <qwtplot3d/qwt3d_colorlegend.h>
 
@@ -45,7 +44,10 @@ CharacteristicsCurve3DWidget::CharacteristicsCurve3DWidget(QWidget* parent) :
     coordinates()->axes[Qwt3D::Y3].setLabelString("Exposure (%)");
     coordinates()->axes[Qwt3D::Z3].setLabelString("Voltage (V)");
 
-    setCoordinateStyle(Qwt3D::BOX);
+    this->setCoordinateStyle(Qwt3D::BOX);
+    this->setOrtho(false);
+
+    this->setTitle(QString("Power(Voltage, Irradiation)"));
 }
 
 // ----------------------------------------------------------------------------
@@ -78,9 +80,9 @@ void CharacteristicsCurve3DWidget::normaliseScale()
                          0, 100); // exposure 0 to 100%
     }
 
-    setScale(largestAxis / largestXAxis,
-             largestAxis / largestYAxis,
-             largestAxis / largestZAxis);
+    this->setScale(largestAxis / largestXAxis,
+                   largestAxis / largestYAxis,
+                   largestAxis / largestZAxis);
 }
 
 // ----------------------------------------------------------------------------
@@ -96,10 +98,8 @@ void CharacteristicsCurve3DWidget::addPVArray(const QString& name, QSharedPointe
 
     this->normaliseScale();
     model->setMesh(60, 60);
-    setRotation(30,0,-15);
-    setZoom(.5);
-
-    //setOrtho(false);
+    this->setRotation(30,0,-15);
+    this->setZoom(.5);
 }
 
 // ----------------------------------------------------------------------------

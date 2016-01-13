@@ -41,6 +41,8 @@ private slots:
     void onDarkVoltageChanged(CellWidget* cell);
     void onCellExposureChanged(CellWidget* cell);
     void onGlobalExposureChanged(int value);
+    void onVoltageMeasured(double voltage);
+    void onCurrentMeasured(double current);
 
 private:
     QScopedPointer<Ui::BAT6Widget> ui;
