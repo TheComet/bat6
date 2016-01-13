@@ -9,80 +9,62 @@
 %        Wie soll unser Ger\"at bedient werden k\"onnen?
 %\end{itemize}
 
-Underpinning our device  is a microcontroller which is primarily responsible for
-handling I/O tasks (such  as  user  interaction and the display) and controlling
-the step-down converter. Power  delivery  is  realised  with a prebuilt DC power
-supply unit.
+This section  primrarily deals with  the underlying mathematics used  to model
+the  various configurations  of solar  cells the  device needs  to be  able to
+emulate. Additionally, it presents a brief overview of the hardware.
 
-With an eye towards  potential serial production, we developed our own PCB. This
-allows  tight  control  over impedances  in  the  connections  between  critical
-components and brings the behavior of the prototype device much closer to a mass
-produced version than a breadboard solution could. This is because trace routing
-lengths and component placement are  crucial factors, as is discussed in section
-\ref{sec:verification}  (p.  \pageref{sec:verification}ff), \emph{Verification}.
-
-Users can  interact with our device  either through a push-twist  button and a
-display on the device itself or from  a PC connected by USB using our software
-\emph{Smooth} (section \ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
+%Our device is based  on a microcontroller, which is used  to handle user input
+%and output and  controls the step-down converter.  Power  delivery is realised
+%with a  prebuilt DC  power supply  unit. In addition  to interacting  with the
+%device directly, users can also connect a PC to our device by USB and then use
+%our front-end  software \emph{Smooth}  to interface  with the  device (section
+%\ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
+%
+%With an eye towards  potential serial production, we developed our own PCB. This
+%allows  tight  control  over impedances  in  the  connections  between  critical
+%components and brings the behavior of the prototype device much closer to a mass
+%produced version than a breadboard solution could. This is because trace routing
+%lengths and component placement are  crucial factors, as is discussed in section
+%\ref{sec:verification}  (p.  \pageref{sec:verification}ff), \emph{Verification}.
 
 
 % **************************************************************************** %
-\subsection{Concept of Regulation Circuit}
+\subsection{The Model}
 % **************************************************************************** %
 
-\begin{minipage}{0.5\textwidth}
-    \center
-    \includegraphics[width=\textwidth,trim=140 140 120 100,clip]{images/block-diag-control.pdf}
-    \captionof{figure}{Block diagram of control circuit}
-    \label{fig:controlcircuit:schcematic}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \center
-    \includegraphics[width=\textwidth]{images/vi-curve.png}
-    \captionof{figure}{I-V-Curve with \SI{-45}{\degree} slope indicated}
-    \label{fig:controlcircuit:vicurve}
-\end{minipage}
-
-Emulation of the I-V characteristic  curve  is  achieved  accurately by measuring
-both output voltage and output current. If  the  operating  point  is  above the
-\SI{-45}{\degree} slope (``A'' in  figure \ref{fig:controlcircuit:vicurve}) then
-it is more accurate  to  operate  the  regulator  in  constant  current mode. In
-contrast, if the operating point is below  the \SI{-45}{\degree} slope (``B'' in
-figure \ref{fig:controlcircuit:vicurve}) then it is more accurate to operate the
-regulator in constant voltage mode. A more detailed explanation can  be found in
-section         \ref{subsec:finding-the-operating-point}         on         page
-\pageref{subsec:finding-the-operating-point}.
+The aim in developing  our model was to find the  sweet spot between usability
+and  accuracy. It  should  have  a  small,  comprehensive  set  of  parameters
+which  can be  easily understood  by the  user, while  still representing  the
+actual physics  accurately enough to  yield good results.
+%This  includes solar
+%irradiation, as  we want  to model  how clouded skies  or a  partially covered
+%module affects overall output.
 
 
-\subsection{Goals of the model}
+% **************************************************************************** %
+\subsubsection{Single Solar Cell}
+% **************************************************************************** %
 
-The aim  was  to  find  the sweet spot between usability and accuracy. Our model
-should  have  a  small,  comprehensive  set  of parameters which can  be  easily
-understood by the user. This includes solar irradiation, as we want to model how
-clouded skies or a partially covered module affects its output.
-
-
-\subsection{Model for one solar cell}
-
-The single diode model of the ideal PV cell\cite{ref:villa:pvmodel} servers as a
-basis for our model.  The  I-V characteristic of this model can be expressed with
+The single diode model of  the ideal PV cell\cite{ref:villa:pvmodel} serves as
+a basis for our model.  The I-V  characteristic of this model can be expressed
+with
 \begin{equation} \label{eq:I-V_old}
     I = I_{pv} - I_o \left[ \exp \left( \frac{V}{V_T} \right) - 1 \right]
 \end{equation}
-where $I_{pv}$ is the generated current, $I_o$ is the diode current and $V_T$ is
-the thermal  voltage.  Although  these  three  parameters depend on the junction
-temperature,  the  inclusion  of  the junction temperature into our model  as  a
-parameter would only contribute a minor correction factor,  negligible  for  our
-purposes.  For  this  reason  we  can simplify our model if we assume  that  the
-temperature is equal to  the  nominal  temperature  $T_n = 298.15K$. The thermal
+whereby $I_{pv}$  is the  generated current,  $I_o$ is  the diode  current and
+$V_T$ is the  thermal voltage.  Although these three parameters  depend on the
+junction temperature, the inclusion of the junction temperature into our model
+as a parameter would only contribute a minor correction factor, negligible for
+our purposes.  For this reason we can simplify our model if we assume that the
+temperature is equal  to the nominal temperature $T_n  = 298.15K$. The thermal
 voltage is defined as
 \begin{equation}
     V_T = a k T / q
 \end{equation}
-where  $T$ is the junction temperature, $k$ is the Boltzman-constant, $q$ is the
-elementary  charge  and  $a$  is the diode ideality factor, which typically lies
-around 1.2 for silicon substrates. This gives us $V_T \approx  30.8mV$  for  one
-cell. The current generated by the cell is defined as
+whereby $T$ is the junction temperature,  $k$ is the Boltzman-constant, $q$ is
+the elementary  charge and $a$ is  the diode ideality factor,  which typically
+lies around 1.2 for silicon substrates. This gives us $V_T \approx 30.8mV$ for
+one cell. The current generated by the cell is defined as
 \begin{equation}
     I_{pv} = \left( I_n + K_I \Delta_T \right) \frac{G}{G_n}
 \end{equation}
@@ -111,7 +93,9 @@ If we now assume $V_{oc} > 5 * V_T$ we can  say  that  $e^{\frac{V_{oc}}{V_T}}-1
 \end{equation}
 
 
-\subsection{Model for multiple Cells in Series}
+% **************************************************************************** %
+\subsubsection{Multiple Cells in Series}
+% **************************************************************************** %
 
 If the solar irradiation is the same  for  every  cell in series, then the whole
 array  can be simulated using equation \eqref{eq:I-V}, where $V_{oc}$  and  $V_T$
@@ -119,28 +103,55 @@ are linearly scaled with the number of cells.
 
 If the irradiation isn't the same for all  cells,  such  as  when  one  cell  is
 shaded, a more complex model must be used.
-\begin{figure}[h]
-	\center
-    \includegraphics[width=.5\textwidth]{images/model/shaded.png}
-    \caption{I-V curves for different configurations and shaded cells\cite{ref:tian:model}}
-    \label{fig:model:shaded}
-\end{figure}
 
-Figure \ref{fig:model:shaded}  shows  what  varied  characteristics  of a shaded
-PV-module  look  like  and  how  bypass  diodes affect them. In our model we can
-imitate  the  I-V  curve of an array with a shaded cell and no bypass  diode  by
+\begin{minipage}{0.5\textwidth}
+    \center
+    \includegraphics[width=\textwidth]{images/model/shaded.png}
+    \captionof{figure}{I-V curves for different configurations and shaded cells\cite{ref:tian:model}}
+    \label{fig:model:shaded}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+	\center
+    \includegraphics[width=\textwidth]{images/model/steps.png}
+    \captionof{figure}{The typical characteristic of modules connected in series or in parallel}
+    \label{fig:model:steps}
+\end{minipage}
+
+
+Figure \ref{fig:model:shaded}  shows varied characteristic curves  of a shaded
+PV  module and  the effect  of bypass  diodes on  them.  In  our model  we can
+imitate the I-V  curve of an array with  a shaded cell and no  bypass diode by
 setting $V_T = V_{oc}$.
 
-\begin{figure}[h]
-	\center
-    \includegraphics[width=.5\textwidth]{images/model/steps.png}
-    \caption{The typical characteristic of modules connected in series or in parallel}
-    \label{fig:model:steps}
-\end{figure}
-The  characteristic  curves  shown  in  figure  \ref{fig:model:steps}  show  how
+%Figure \ref{fig:model:shaded}  shows  what  varied  characteristics  of a shaded
+%PV-module  look  like  and  how  bypass  diodes affect them. In our model we can
+%imitate  the  I-V  curve of an array with a shaded cell and no bypass  diode  by
+%setting $V_T = V_{oc}$.
+
+The  characteristic  curves  shown  in  Figure  \ref{fig:model:steps}  show  how
 ``steps'' emerge when two or more modules  with bypass diodes, which are exposed
 to different irradiation intensities, get  connected in series. To simulate this
 behaviour, we take  a number of curves with decreasing short circuit current and
 increasing  open  circuit  voltage  and  determine  which curve is applicable by
 checking  what  curve  returns  the  maximum  current  for  the  given  voltage.
 
+%TODO: sounds confusing, maybe shorten?
+
+
+% **************************************************************************** %
+\subsection{Hardware}
+% **************************************************************************** %
+
+Our device is based  on a microcontroller, which is used  to handle user input
+and output and  controls the step-down converter.  Power  delivery is realised
+with a  prebuilt DC  power supply  unit. In addition  to interacting  with the
+device directly, users can also connect a PC to our device by USB and then use
+our front-end  software \emph{Smooth}  to interface  with the  device (section
+\ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
+
+With an eye towards  potential serial production, we developed our own PCB. This
+allows  tight  control  over impedances  in  the  connections  between  critical
+components and brings the behavior of the prototype device much closer to a mass
+produced version than a breadboard solution could. This is because trace routing
+lengths and component placement are  crucial factors, as is discussed in section
+\ref{sec:verification}  (p.  \pageref{sec:verification}ff), \emph{Verification}.
