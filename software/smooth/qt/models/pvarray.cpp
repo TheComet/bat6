@@ -4,20 +4,23 @@
 
 #include <QString>
 
+// ----------------------------------------------------------------------------
 PVArray::PVArray() :
-    exposure(1.0)
+    m_ExposureWeight(1.0)
 {
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateCurrent(double voltage) const
 {
     // Current just adds up because the cells are in parallel
     double current = 0.0;
-    for(const auto& chain : cellArray)
-        current += chain.calculateCurrent(voltage, this->exposure);
+    for(const auto& chain : m_Chains)
+        current += chain.calculateCurrent(voltage, m_ExposureWeight);
     return current;
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateVoltage(double targetCurrent) const
 {
     /*
@@ -26,17 +29,17 @@ double PVArray::calculateVoltage(double targetCurrent) const
      * problem is to use an iterative algorithm until the error goes below
      * a certain threshold.
      */
-    int maxIterations = 20;
+    int maxIterations = 10;
 
     // if there's only one chain then there's no reason to iterate
-    if(cellArray.size() == 1)
+    if(m_Chains.size() == 1)
     {
-        return cellArray.begin()->calculateVoltage(targetCurrent, this->exposure);
+        return m_Chains.begin()->calculateVoltage(targetCurrent, m_ExposureWeight);
     }
 
     // top range of approximation window
     double top = 0.0;
-    for(const auto& chain : cellArray)
+    for(const auto& chain : m_Chains)
         top = (chain.getOpenCircuitVoltage() > top ? chain.getOpenCircuitVoltage() : top);
 
     // bottom range
@@ -57,43 +60,34 @@ double PVArray::calculateVoltage(double targetCurrent) const
     return voltage;
 }
 
-void PVArray::setExposure(double exposure)
-{
-    exposure = (exposure < 0.0 ? 0.0 : exposure);
-    this->exposure = (exposure > 1.0 ? 1.0 : exposure);
-}
-
-void PVArray::setTemperature(double temperature)
-{
-    for(auto& chain : cellArray)
-        chain.setTemperature(temperature);
-}
-
+// ----------------------------------------------------------------------------
 void PVArray::addChain(const QString& chainName, const PVChain& chain)
 {
-    if(cellArray.contains(chainName))
+    if(m_Chains.contains(chainName))
         return;
-    cellArray.insert(chainName, chain);
+    m_Chains.insert(chainName, chain);
 }
 
+// ----------------------------------------------------------------------------
 void PVArray::removeChain(const QString& chainName)
 {
-    cellArray.remove(chainName);
+    m_Chains.remove(chainName);
 }
 
-PVChain* PVArray::getChain(const QString& chainName)
+// ----------------------------------------------------------------------------
+QMap<QString, PVChain>& PVArray::getChains()
 {
-    auto chain = cellArray.find(chainName);
-    return chain.operator->();
+    return m_Chains;
 }
 
+// ----------------------------------------------------------------------------
 double PVArray::calculateAverageParallelVoltage(double totalCurrent) const
 {
-    double currentPerCell = totalCurrent / cellArray.size();
+    double currentPerCell = totalCurrent / m_Chains.size();
     double voltage = 0.0;
-    for(const auto& chain : cellArray)
+    for(const auto& chain : m_Chains)
     {
         voltage += chain.calculateVoltage(currentPerCell);
     }
-    return voltage / cellArray.size();
+    return voltage / m_Chains.size();
 }

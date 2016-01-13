@@ -1,16 +1,18 @@
 #include "bat6widget.h"
 #include "ui_bat6widget.h"
+#include "ui_cellwidget.h"
 
 #include "widgets/consolewidget.h"
 #include "widgets/cellwidget.h"
-#include "widgets/characteristiccurve2dwidget.h"
-#include "widgets/characteristiccurve3dwidget.h"
+#include "widgets/characteristicscurve2dwidget.h"
+#include "widgets/characteristicscurve3dwidget.h"
 
 #include "models/pvarray.h"
 #include "models/pvchain.h"
 #include "models/pvcell.h"
+#include "models/dummycurrentandvoltagesensor.h"
 
-#include "qaccordion/qaccordion.h"
+#include "tools/Lambda.h"
 
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_curve.h"
@@ -19,102 +21,267 @@
 #include <QSplitter>
 #include <QSpacerItem>
 #include <QTableWidget>
-#include <QDebug>
+#include <QScrollArea>
 
+// ----------------------------------------------------------------------------
 BAT6Widget::BAT6Widget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::BAT6Widget)
+    ui(new Ui::BAT6Widget),
+    m_CellWidgetContainer(new QFrame(this)),
+    m_Console(new ConsoleWidget(this)),
+    m_cc2d(new CharacteristicsCurve2DWidget(this)),
+    m_cc3d(new CharacteristicsCurve3DWidget(this)),
+    m_AddCellButton(new QPushButton("Add Cell"))
 {
     ui->setupUi(this);
 
     // add a splitter object into the "UI" tab.
-    QSplitter* splitter = new QSplitter;
+    /*QSplitter* splitter = new QSplitter;
     ui->tabUiLayout->addWidget(splitter);
 
-    // create a QFrame on the left side of the splitter and give it a layout
-    /*
-    QFrame* cellContainer = new QFrame;
-    splitter->addWidget(cellContainer);
-    cellLayout = new QGridLayout;
-    cellContainer->setLayout(cellLayout);*/
+    // add a scroll area to the left side of the splitter - this is where
+    // all of the cell widgets are displayed
+    QScrollArea* scrollArea = new QScrollArea;
+    splitter->addWidget(scrollArea);*/
+    QScrollArea* scrollArea = new QScrollArea;
+    scrollArea->setSizePolicy(QSizePolicy::Policy::Minimum,
+                              QSizePolicy::Policy::Minimum);
+    scrollArea->setMinimumWidth(280);
+    ui->group_box_cells->setLayout(new QGridLayout);
+    ui->group_box_cells->layout()->addWidget(scrollArea);
+    scrollArea->setWidget(m_CellWidgetContainer);
 
-    // add a scroll area and accordion widget to the left side of the splitter
-    QScrollArea* scrollAreaTop = new QScrollArea;
-    splitter->addWidget(scrollAreaTop);
-    QAccordion* accordionTop = new QAccordion;
-    scrollAreaTop->setWidget(accordionTop);
-    scrollAreaTop->setWidgetResizable(true);
+    // the scroll area gives a view into a QFrame object. Configure the
+    // frame with a layout to contain the cell widgets
+    m_CellWidgetContainer->setLayout(new QVBoxLayout);
+    m_CellWidgetContainer->layout()->setAlignment(Qt::Alignment(Qt::AlignTop));
+    m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
-    for(int i = 0; i < 100; ++i)
-    {
-        accordionTop->addContentPane("Cell " + QString::number(i));
-    }
+    // button for adding cells
+    m_CellWidgetContainer->layout()->addWidget(m_AddCellButton);
 
-    int paneIndex = accordionTop->addContentPane("Cell 1");
-    /*QFrame* contentFrame = accordionTop->getContentPane(paneIndex)->getContentFrame();
-    contentFrame->setLayout(new QGridLayout);
-    contentFrame->layout()->addWidget(new CellWidget("Cell 1"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 2"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 3"));
-    contentFrame->layout()->addWidget(new CellWidget("Cell 4"));*/
+    // add 3D plot
+    ui->group_box_plots->setLayout(new QHBoxLayout);
+    ui->group_box_plots->layout()->addWidget(m_cc3d);
+    m_cc3d->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
+    // add 2D plot
+    ui->group_box_plots->layout()->addWidget(m_cc2d);
+    m_cc2d->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 
+    // create model with no cells
+    m_PVArray = QSharedPointer<PVArray>(new PVArray);
+    m_PVArray->addChain("Chain 1", PVChain());
 
-    // on the right side of the splitter is the plot
-    QWidget* plotContainer = new QFrame;
-    splitter->addWidget(plotContainer);
-    QGridLayout* plotLayout = new QGridLayout;
-    plotContainer->setLayout(plotLayout);
-
-    // add the two plots, one does V(I) the other I(V)
-    cc3d = new CharacteristicCurve3DWidget();
-    cc3d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    plotLayout->addWidget(cc3d);
-    cc2d = new CharacteristicCurve2DWidget();
-    cc2d->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    plotLayout->addWidget(cc2d);
-
-    QSharedPointer<PVArray> pvarray(new PVArray);
-    PVChain pvchain;
-    pvchain.addCell("cell 1", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 2", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 3", PVCell(0.56, 2.41));
-    pvchain.addCell("cell 4", PVCell(0.56, 2.41));
-    pvarray->addChain("chain 1", pvchain);
-    cc3d->addPVArray("array 1", pvarray);
-    cc3d->replot();
-
-    // add and connect the cell widgets
-    /*
-    for(int i = 1; i != 5; ++i)
-    {
-        CellWidget* cellWidget = new CellWidget("cell " + QString::number(i));
-        cellLayout->addWidget(cellWidget);
-        connect(cellWidget, SIGNAL(exposureChanged(CellWidget*,double)),
-                this, SLOT(onCellExposureChanged(CellWidget*,double)));
-    }*/
+    // add model to plots
+    m_cc3d->addPVArray("Array 1", m_PVArray);
+    m_cc2d->addPVArray("Array 1", m_PVArray);
 
     // configure console
-    console = new ConsoleWidget;
-    console->setEnabled(true);
-    ui->tabConsoleLayout->addWidget(console);
+    m_Console->setEnabled(true);
+    ui->tabConsoleLayout->addWidget(m_Console);
+
+    // set up a dummy voltage and current measurer, so we have some idea of what
+    // the end product will look like
+    DummyCurrentAndVoltageSensor* sensor = new DummyCurrentAndVoltageSensor(this, 22, 1, 1, 0.1);
+    this->connect(sensor, SIGNAL(currentMeasured(double)), this, SLOT(onCurrentMeasured(double)));
+    this->connect(sensor, SIGNAL(voltageMeasured(double)), this, SLOT(onVoltageMeasured(double)));
+
+    // signals
+    this->connect(m_AddCellButton, SIGNAL(released()), this, SLOT(onAddCellButtonReleased()));
+    this->connect(ui->slider_global_exposure, SIGNAL(valueChanged(int)), this, SLOT(onGlobalExposureChanged(int)));
+
+    this->addCell();
 }
 
+// ----------------------------------------------------------------------------
 BAT6Widget::~BAT6Widget()
 {
 }
 
-void BAT6Widget::openSerialPort()
+// ----------------------------------------------------------------------------
+void BAT6Widget::addCell()
 {
+    QLayout* layout = m_CellWidgetContainer->layout();
+
+    // add a new cell widget
+    QString name = "Cell " + QString::number(layout->count());
+    CellWidget* cellWidget = new CellWidget(name);
+    layout->addWidget(cellWidget);
+
+    // connect the cell's "remove cell" button
+    this->connect(cellWidget->ui->remove_cell, SIGNAL(released()), new Lambda([this, cellWidget]() {
+            this->onRemoveCellButtonReleased(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect open circuit voltage spinbox
+    this->connect(cellWidget->ui->open_circuit_voltage, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onOpenCircuitVoltageChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect short circuit current spinbox
+    this->connect(cellWidget->ui->short_circuit_current, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onShortCircuitCurrentChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect dark voltage spinbox
+    this->connect(cellWidget->ui->dark_voltage, SIGNAL(valueChanged(double)), new Lambda([this, cellWidget]() {
+        this->onDarkVoltageChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+    // connect intensity slider
+    this->connect(cellWidget->ui->intensity, SIGNAL(valueChanged(int)), new Lambda([this, cellWidget]() {
+        this->onCellExposureChanged(cellWidget);
+    }, cellWidget), SLOT(call()));
+
+    // add cell to model too - copy parameters from first cell
+    auto chain = m_PVArray->getChains().find("Chain 1");
+    const auto& templateCell = chain->getCells().find("Cell 1");
+    if(templateCell == chain->getCells().end())
+    {
+        chain->addCell(name, PVCell(6, 3, 1));
+        cellWidget->ui->open_circuit_voltage->setValue(6);
+        cellWidget->ui->short_circuit_current->setValue(3);
+        cellWidget->ui->dark_voltage->setValue(1);
+        cellWidget->ui->intensity->setValue(100);
+    }
+    else
+    {
+        chain->addCell(name, PVCell(templateCell->getOpenCircuitVoltage(),
+                                    templateCell->getShortCircuitCurrent(),
+                                    templateCell->getDarkVoltage()));
+        cellWidget->ui->open_circuit_voltage->setValue(templateCell->getOpenCircuitVoltage());
+        cellWidget->ui->short_circuit_current->setValue(templateCell->getShortCircuitCurrent());
+        cellWidget->ui->dark_voltage->setValue(templateCell->getDarkVoltage());
+        cellWidget->ui->intensity->setValue(templateCell->getExposure() * 100);
+    }
+
+    this->autoScalePlots();
+    this->updateModel();
 }
 
-void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget, double exposure)
+// ----------------------------------------------------------------------------
+void BAT6Widget::removeCell(CellWidget* cell)
 {
-    cc3d->getPVArray("array 1")->getChain("chain 1")->getCell(cellWidget->getName())->setExposure(exposure);
-    cc3d->replot();
+    if(m_CellWidgetContainer->layout()->count() <= 2)
+        return;
+
+    m_CellWidgetContainer->layout()->removeWidget(cell);
+    cell->deleteLater();
+
+    // remove cell from model too
+    auto chain = m_PVArray->getChains().find("Chain 1");
+    chain->getCells().remove(cell->getName());
+
+    this->updateCellNames();
+    this->autoScalePlots();
+    this->updateModel();
 }
 
-void BAT6Widget::onReadData()
+// ----------------------------------------------------------------------------
+void BAT6Widget::updateCellNames()
 {
-    QByteArray data; // = something, TODO
-    console->putData(data);
+    QLayout* layout = m_CellWidgetContainer->layout();
+    for(int i = 1; i < layout->count(); ++i)
+    {
+        QString name = "Cell " + QString::number(i);
+        CellWidget* cell = qobject_cast<CellWidget*>(layout->itemAt(i)->widget());
+        cell->setName(name);
+    }
+
+    this->updateModelCellNames();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::updateModelCellNames()
+{
+    PVChain newChain;
+    int i = 1;
+    for(auto& cell : m_PVArray->getChains().find("Chain 1")->getCells())
+    {
+        QString name = "Cell " + QString::number(i++);
+        newChain.addCell(name, cell);
+    }
+
+    m_PVArray->removeChain("Chain 1");
+    m_PVArray->addChain("Chain 1", newChain);
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::updateModel()
+{
+    m_cc2d->replot();
+    m_cc3d->replot();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::autoScalePlots()
+{
+    m_cc2d->autoScale();
+    m_cc3d->normaliseScale();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onAddCellButtonReleased()
+{
+    this->addCell();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onRemoveCellButtonReleased(CellWidget* cellWidget)
+{
+    this->removeCell(cellWidget);
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onOpenCircuitVoltageChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setOpenCircuitVoltage(cellWidget->ui->open_circuit_voltage->value());
+    this->autoScalePlots();
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onShortCircuitCurrentChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setShortCircuitCurrent(cellWidget->ui->short_circuit_current->value());
+    this->autoScalePlots();
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onDarkVoltageChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setDarkVoltage(cellWidget->ui->dark_voltage->value());
+    this->autoScalePlots();
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget)
+{
+    auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
+    cell->setExposure(cellWidget->ui->intensity->value() * 0.01);
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onGlobalExposureChanged(int value)
+{
+    m_PVArray->setExposure(value * 0.01);
+    ui->label_global_exposure->setText(QString::number(value) + "%");
+    m_cc2d->replot(); // 3D plot doesn't change
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onVoltageMeasured(double voltage)
+{
+    ui->line_edit_measured_voltage->setText(QString::number(voltage));
+    ui->line_edit_measured_power->setText(QString::number(ui->line_edit_measured_current->text().toDouble() * voltage));
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onCurrentMeasured(double current)
+{
+    ui->line_edit_measured_current->setText(QString::number(current));
+    ui->line_edit_measured_power->setText(QString::number(ui->line_edit_measured_voltage->text().toDouble() * current));
 }
