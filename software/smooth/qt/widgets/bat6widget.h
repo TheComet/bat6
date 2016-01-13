@@ -38,7 +38,8 @@ private slots:
     void onOpenCircuitVoltageChanged(CellWidget* cell);
     void onShortCircuitCurrentChanged(CellWidget* cell);
     void onDarkVoltageChanged(CellWidget* cell);
-    void onIntensityChanged(CellWidget* cell);
+    void onCellExposureChanged(CellWidget* cell);
+    void onGlobalExposureChanged(int value);
 
 private:
     QScopedPointer<Ui::BAT6Widget> ui;

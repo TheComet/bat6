@@ -28,8 +28,8 @@ void PVModelFunctionBase::updateBoundingBox()
     }
 
     m_MaxVoltage = tempPVArray.calculateVoltage(0); // 0 amps = open circuit
-    m_MinVoltage = 0.0;
     m_MaxCurrent = tempPVArray.calculateCurrent(0); // 0 volts = short circuit
+    m_MinVoltage = 0.0;
     m_MinCurrent = 0.0;
     m_MaxExposure = 100.0;
     m_MinExposure = 0.0;

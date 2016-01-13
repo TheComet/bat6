@@ -69,7 +69,7 @@ void CharacteristicsCurve3DWidget::addPVArray(const QString& name, QSharedPointe
 
     this->normaliseScale();
     setRotation(30,0,-15);
-    setZoom(.25);
+    setZoom(.5);
 
     for (unsigned i=0; i!=coordinates()->axes.size(); ++i)
     {

@@ -13,7 +13,6 @@ class CharacteristicsCurve3DWidget :
         public Qwt3D::SurfacePlot,
         public PVArrayPlotWidgetBase
 {
-    Q_OBJECT
 public:
     CharacteristicsCurve3DWidget(QWidget* parent=nullptr);
 

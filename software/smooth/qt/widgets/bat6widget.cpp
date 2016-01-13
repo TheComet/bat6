@@ -57,6 +57,9 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
     m_CellWidgetContainer->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
+    // button for adding cells
+    m_CellWidgetContainer->layout()->addWidget(m_AddCellButton);
+
     // add 3D plot
     ui->group_box_plots->setLayout(new QHBoxLayout);
     ui->group_box_plots->layout()->addWidget(m_cc3d);
@@ -65,22 +68,23 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
     ui->group_box_plots->layout()->addWidget(m_cc2d);
     m_cc2d->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 
+    // create model with no cells
     m_PVArray = QSharedPointer<PVArray>(new PVArray);
     PVChain pvchain;
-    pvchain.addCell("Cell 1", PVCell(24, 3, 2));
     m_PVArray->addChain("Chain 1", pvchain);
-    m_cc3d->addPVArray("Array 1", m_PVArray);
-    m_cc3d->replot();
 
+    // add model to plots
+    m_cc3d->addPVArray("Array 1", m_PVArray);
     m_cc2d->addPVArray("Array 1", m_PVArray);
-    m_cc2d->replot();
 
     // configure console
     m_Console->setEnabled(true);
     ui->tabConsoleLayout->addWidget(m_Console);
 
-    m_CellWidgetContainer->layout()->addWidget(m_AddCellButton);
+    // signals
     this->connect(m_AddCellButton, SIGNAL(released()), this, SLOT(onAddCellButtonReleased()));
+    this->connect(ui->slider_global_exposure, SIGNAL(valueChanged(int)), this, SLOT(onGlobalExposureChanged(int)));
+
     this->addCell();
 }
 
@@ -117,7 +121,7 @@ void BAT6Widget::addCell()
     }, cellWidget), SLOT(call()));
     // connect intensity slider
     this->connect(cellWidget->ui->intensity, SIGNAL(valueChanged(int)), new Lambda([this, cellWidget]() {
-        this->onIntensityChanged(cellWidget);
+        this->onCellExposureChanged(cellWidget);
     }, cellWidget), SLOT(call()));
 
     // add cell to model too - copy parameters from first cell
@@ -235,9 +239,17 @@ void BAT6Widget::onDarkVoltageChanged(CellWidget* cellWidget)
 }
 
 // ----------------------------------------------------------------------------
-void BAT6Widget::onIntensityChanged(CellWidget* cellWidget)
+void BAT6Widget::onCellExposureChanged(CellWidget* cellWidget)
 {
     auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
     cell->setExposure(cellWidget->ui->intensity->value() * 0.01);
+    this->updateModel();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::onGlobalExposureChanged(int value)
+{
+    m_PVArray->setExposure(value * 0.01);
+    ui->label_global_exposure->setText(QString::number(value) + "%");
     this->updateModel();
 }

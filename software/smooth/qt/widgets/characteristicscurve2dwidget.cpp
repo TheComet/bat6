@@ -67,26 +67,16 @@ CharacteristicsCurve2DWidget::~CharacteristicsCurve2DWidget()
 // ----------------------------------------------------------------------------
 void CharacteristicsCurve2DWidget::addPVArray(const QString& name, QSharedPointer<PVArray> pvarray)
 {
-    if(m_Function.contains(name))
-        throw std::runtime_error("Failed to add array \"" +
-                                 std::string(name.toLocal8Bit().constData()) +
-                                 "\": Duplicate name");
-
-    QSharedPointer<IVCharacteristicsCurve> model(new IVCharacteristicsCurve(pvarray));
-    m_Function.insert(name, model);
+    // TODO map array names to curve objects
 
     m_IVCurve->setData(new IVCharacteristicsCurve(pvarray));
     m_PowerCurve->setData(new PowerCurve(pvarray));
-
-    this->setAxisScale(QwtPlot::xBottom, 0, 24);
-    this->setAxisScale(QwtPlot::yLeft, 0, 3);
-    this->setAxisScale(QwtPlot::yRight, 0, 40);
 }
 
 // ----------------------------------------------------------------------------
 void CharacteristicsCurve2DWidget::removePVArray(const QString& name)
 {
-    m_Function.remove(name);
+    // TODO
 }
 
 // ----------------------------------------------------------------------------
@@ -95,17 +85,21 @@ void CharacteristicsCurve2DWidget::autoScale()
     double maxPower = 0;
     double maxVoltage = 0;
     double maxCurrent = 0;
-    for(const auto& model : m_Function)
+
+    IVCharacteristicsCurve* ivCurve = dynamic_cast<IVCharacteristicsCurve*>(m_IVCurve->data());
+    PowerCurve* powerCurve = dynamic_cast<PowerCurve*>(m_PowerCurve->data());
+    if(!ivCurve || !powerCurve)
+        return;
+    ivCurve->updateBoundingBox();
+    powerCurve->updateBoundingBox();
+
+    for(unsigned int i = 0; i != ivCurve->size(); ++i)
     {
-        model->updateBoundingBox();
-        for(int i = 0; i != model->size(); ++i)
-        {
-            const QPointF& iv = model->sample(i);
-            double power = iv.x() * iv.y();
-            maxPower = (power > maxPower ? power : maxPower);
-            maxVoltage = (model->getVoltageDomain() > maxVoltage ? model->getVoltageDomain() : maxVoltage);
-            maxCurrent = (model->getCurrentDomain() > maxCurrent ? model->getCurrentDomain() : maxCurrent);
-        }
+        const QPointF& iv = ivCurve->sample(i);
+        double power = iv.x() * iv.y();
+        maxPower = (power > maxPower ? power : maxPower);
+        maxVoltage = (ivCurve->getVoltageDomain() > maxVoltage ? ivCurve->getVoltageDomain() : maxVoltage);
+        maxCurrent = (ivCurve->getCurrentDomain() > maxCurrent ? ivCurve->getCurrentDomain() : maxCurrent);
     }
 
     this->setAxisScale(QwtPlot::xBottom, 0, maxVoltage);

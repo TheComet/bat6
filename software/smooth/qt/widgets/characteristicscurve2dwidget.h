@@ -31,7 +31,6 @@ public:
 private:
     QwtPlotCurve* m_IVCurve;
     QwtPlotCurve* m_PowerCurve;
-    QMap<QString, QSharedPointer<IVCharacteristicsCurve>> m_Function;
 };
 
 #endif // CHARACTERISTICCURVE2DWIDGET_H

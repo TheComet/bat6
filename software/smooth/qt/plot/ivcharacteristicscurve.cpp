@@ -23,7 +23,7 @@ size_t IVCharacteristicsCurve::size() const
 // ----------------------------------------------------------------------------
 QPointF IVCharacteristicsCurve::sample(size_t i) const
 {
-    double current = m_MaxCurrent * double(i) / double(m_SampleCount);
+    double current = m_MaxCurrent * double(i) / double(m_SampleCount - 1);
     double voltage = m_PVArray->calculateVoltage(current);
     return QPointF(voltage, current);
 }
