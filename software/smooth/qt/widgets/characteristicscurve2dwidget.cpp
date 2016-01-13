@@ -10,6 +10,8 @@
 #include <qwt/qwt_legend_label.h>
 #include <qwt/qwt_plot_grid.h>
 #include <qwt/qwt_plot_legenditem.h>
+#include <qwt/qwt_plot_marker.h>
+#include <qwt/qwt_symbol.h>
 
 #include <QColor>
 
@@ -52,6 +54,15 @@ CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
     legend->attach(this);
     legend->setAlignment(Qt::Alignment(Qt::AlignRight | Qt::AlignTop));
     legend->setMaxColumns(1);
+
+    /*
+     * TODO: This doesn't work yet
+    QwtSymbol* sym = new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::red), QPen(Qt::red), QSize(5,5));
+    QwtPlotMarker* marker=new QwtPlotMarker;
+    marker->setSymbol(sym);
+    marker->setValue(1, 10);
+    marker->attach(this);
+    */
 
     // configure plot
     this->setCanvasBackground(QColor(Qt::white));
