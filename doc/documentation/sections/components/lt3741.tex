@@ -1,4 +1,12 @@
-The most important reasons we chose the LT3741 to regulate the output voltage are listed here:
+\emph{Note:} The schematic  for the  LT3471's circuit  is located  in appendix
+\ref{appendix:lt3741:circuit} on page \pageref{appendix:lt3741:circuit}. It is
+intended  to be  folded out  while reading  this section  of the  report. This
+allows for convenient cross-referencing between  the circuit schematic and the
+text without needing to insert multiple  copies of the schematic or constantly
+scroll back and forth through the report.
+
+The most important reasons we chose  the LT3741 to regulate the output voltage
+are as follows:
 
 \begin{itemize}
     \item \textbf{Proven Technologies.}
@@ -24,17 +32,18 @@ The most important reasons we chose the LT3741 to regulate the output voltage ar
         additional circuitry is required.
 \end{itemize}
 
-\begin{figure}[th!]
-    \center
-    \includegraphics[width=.75\textwidth]{images/circuit/buck.pdf}
-    %\caption{Herzst\"uck des Projektes: Aufbau des LT3741 CVCC Synchronwandler}
-    \caption{The device's heart: Circuit for the LT3741 CCVC synchronous converter}
-    \label{fig:circuit:buck}
-\end{figure}
+%\begin{figure}[th!]
+%    \center
+%    \includegraphics[width=.67\textwidth]{images/circuit/buck.pdf}
+%    %\caption{Herzst\"uck des Projektes: Aufbau des LT3741 CVCC Synchronwandler}
+%    \caption{The device's heart: Overview over circuit for the LT3741 CCVC synchronous converter.}
+%    \label{fig:circuit:buck}
+%\end{figure}
 
-In the following paragraphs, the components and parameters required to control
-the LT3741  are discussed: Bypass capacitors, switching  frequency, inductors,
-MOSFETs and measuring output current and output voltage.
+Figure \ref{fig:circuit:buck}  presents an overview for  the LT3741's circuit,
+parts  of which  are discussed  in more  detail in  the following  paragraphs:
+Bypass  capacitors,  switching  frequency, inductors,  MOSFETs  and  measuring
+output current and output voltage.
 
 
 % **************************************************************************** %
@@ -51,12 +60,14 @@ MOSFETs and measuring output current and output voltage.
 
 % **************************************************************************** %
 \subsubsection{Inductor Selection}
+\label{subsubsec:lt3741:inductors}
 % **************************************************************************** %
 
 \input{sections/components/lt3741/inductor.tex}
 
 % **************************************************************************** %
 \subsubsection{MOSFET Selection}
+\label{subsubsec:lt3741:mosfets}
 % **************************************************************************** %
 
 \input{sections/components/lt3741/mosfet.tex}
@@ -68,6 +79,7 @@ MOSFETs and measuring output current and output voltage.
 \input{sections/components/lt3741/feedback.tex}
 
 % **************************************************************************** %
+\clearpage
 \subsubsection{Output}
 % **************************************************************************** %
 

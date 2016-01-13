@@ -28,30 +28,7 @@ the selected inductor (\SI{22}{\micro\henry}) and  $I_O$ is the maximum output
 current, assumed  to be  $I_O =  \SI{5}{\ampere}$.  The  inductor's saturation
 current  was  sized  $1.2$  times  higher than  the  peak  current. With  this
 defined,  a list  of  possible inductors  could be  compiled,  shown in  table
-\ref{tab:circuit:buck:inductor}.
-
-%\begin{equation}
-%    I_{L_{1_{saturation}}} = 1.2 \cdot I_{L_{1_{peak}}}
-%    \label{eq:circuit:buck:inductor_saturation}
-%\end{equation}
-
-
-\begin{table}[th!]
-    \begin{center}
-        \caption{List of inductors matching our requirements}
-        \label{tab:circuit:buck:inductor}
-        \begin{tabular}{lcccc}
-            \toprule
-            Digikey         & Price (CHF) & Inductance (\SI{}{\micro\henry}) & DCR (\SI{}{\ohm}) & Ohmic Loss (\SI{}{\watt}) \\
-            \midrule
-            \rowcolor{lightgray}
-            732-4237-1-ND   & 8.03        & 22                               & 0.007             & 0.175  \\
-            732-2179-1-ND   & 6.4         & 47                               & 0.0335            & 0.8375 \\
-            732-2177-1-ND   & 6.4         & 22                               & 0.0146            & 0.365  \\
-            \bottomrule
-        \end{tabular}
-    \end{center}
-\end{table}
-
-We  chose the  inductor highlighted  in  grey because  it has  the lowest  DCR
-(direct current resistance) of the three, making it the most optimal choice.
+\ref{tab:circuit:buck:inductor}.  \ref{tab:circuit:buck:inductor} in  appendix
+\ref{appendix:inductors} on  page \pageref{appendix:inductors}.  We  chose the
+\emph{732-4237-1-ND} because it has the lowest DCR (direct current resistance)
+of the models listed.

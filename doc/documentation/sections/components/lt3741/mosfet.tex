@@ -64,32 +64,8 @@ charging of the gates is:
 whereby $G_{GLG}$ is the  low side gate charge and $Q_{GHG}$  is the high side
 gate charge.
 
-Table \ref{tab:circuit:buck:mosfet} lists possible MOSFETs that meet the above
+Table  \ref{tab:circuit:buck:mosfet}  in  appendix  \ref{appendix:mosfets}  on
+page  \pageref{appendix:mosfets} lists  possible MOSFETs  that meet  the above
 constraints.  For  each one  the power  losses $P_{LOSS}$  and $P_{LOSS\_LDO}$
-were calculated.
-
-\begin{table}[th!]
-    \begin{center}
-        \caption{Possible choices for MOSFETs}
-        \label{tab:circuit:buck:mosfet}
-        \begin{tabular}{cccccccccc}
-            \toprule
-            $R_{DS_{(on)}}$ & $Q_{GD}$ & $Q_{GS}$ & $R_G$ & $V_{GS_{THR}}$ & Ohmic Loss & Transision Loss & Total Loss & Drive Loss \\
-            \midrule
-            0.0032          & 4        & 2.5      & 0.4   & 2.5            & 0.104      & 1.0296          & 1.1336     & 0.806 \\
-            0.0039          & 7        & 9        & 2.4   & 3.3            & 0.12675    & 4.8384          & 4.96515    & 1.984 \\
-            0.0042          & 7        & 9        & 2.4   & 3.3            & 0.1365     & 4.8384          & 4.9749     & 1.984 \\
-            0.008           & 2        & 4.5      & 3     & 2              & 0.26       & 2.2464          & 2.5064     & 0.558 \\
-            0.0067          & 5.3      & 3.9      & 1.5   & 1              & 0.21775    & 2.18592         & 2.40367    & 0.7998 \\
-            \rowcolor{lightgray}
-            0.0093          & 2        & 4.9      & 1     & 2              & 0.30225    & 1.39104         & 1.69329    & 1.488 \\
-            0.019           & 8        & 4        & 1.3   & 2              & 0.6175     & 2.6784          & 3.2959     & 1.798 \\
-            0.0095          & 7.5      & 6        & 1     & 3              & 0.30875    & 2.7216          & 3.03035    & 1.736 \\
-            \bottomrule
-        \end{tabular}
-    \end{center}
-\end{table}
-
-The MOSFET highlighted in grey was selected.  Though it is not the best model,
-it is a lot cheaper than the best fit and has better documentation.
-%The same device is used for both the high-side and low-side switch.
+were calculated. The  MOSFET which  ended up  being selected  is not  the best
+model, but it is a lot cheaper than the best fit and has better documentation.
