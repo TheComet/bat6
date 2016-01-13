@@ -28,7 +28,8 @@
 \RequirePackage{times}
 \RequirePackage{graphicx}
 \geometry{a4paper,twoside=true}
-\geometry{width=160mm,height=241mm,top=32mm,outer=25mm}
+%\geometry{width=160mm,height=241mm,top=32mm,outer=25mm}
+\geometry{width=170mm,height=251mm,top=27mm,outer=20mm}
 \geometry{footskip=19mm,headsep=13mm}
 \newcommand{\CaptionFont}{\em}
 \newcommand{\SecFont}{\sf\bfseries}

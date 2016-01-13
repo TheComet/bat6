@@ -31,7 +31,7 @@ output connectors, as illustrated in figure \ref{fig:verification:ripple_fix}
 
 \begin{figure}[th!]
     \centering
-    \includegraphics[width=.6\textwidth]{images/sim/ripple-fixture.png}
+    \includegraphics[width=.5\textwidth]{images/sim/ripple-fixture.png}
     \caption{Test fixture for measuring ripple voltage \& ripple current of the device}
     \label{fig:verification:ripple_fix}
 \end{figure}
@@ -55,7 +55,7 @@ illustrated      in      figure     \ref{fig:verification:power_absorbtion_fix}.
 
 \begin{figure}[th!]
     \centering
-    \includegraphics[width=.6\textwidth]{images/sim/power-absorbtion-fixture.png}
+    \includegraphics[width=.5\textwidth]{images/sim/power-absorbtion-fixture.png}
     \caption{Test fixture for measuring power absorbtion of the device.}
     \label{fig:verification:power_absorbtion_fix}
 \end{figure}
@@ -77,7 +77,7 @@ and off over the output using a MOSFET and a signal generator.
 
 \begin{figure}[th!]
     \centering
-    \includegraphics[width=.6\textwidth]{images/sim/transient-fixture.png}
+    \includegraphics[width=.5\textwidth]{images/sim/transient-fixture.png}
     \caption{Test fixture for measuring the transient response of the device}
     \label{fig:verification:transient_fix}
 \end{figure}
@@ -116,8 +116,6 @@ time to do so were available.
 
 \subsection{Analysis of the Issue}
 
-\subsubsection{A Quick Overview}
-
 The  first regulator output the correct voltage  of  \SI{12}{\volt}  when  being
 supplied  with  \SI{32}{\volt}.  Unplugging the device and re-plugging it into a
 \SI{36}{\volt}  power  supply  instantly  damaged  it  permanently.  After  some
@@ -128,17 +126,17 @@ of  \SI{40}{\volt} -- during switching, the high-side MOSFET driver was  exposed
 to transients exceeding the device's absolute maximum ratings  and thus damaging
 the driver permanently.
 
-The regulator was replaced with a new  one  and  the  supply voltage was lowered
-from  \SI{36}{\volt}  to \SI{28}{\volt} in order to give  more  leeway  for  the
-supposed transient voltages. The new regulator appeared  to  output  the correct
-voltage of \SI{12}{\volt}, so a resistive load of \SI{80}{\ohm} was connected on
-the  output  of  the  regulator.  After  about  \SI{20}{\second}  of  continuous
-operation, the output  voltage  again  dropped  and  the  device was permanently
-damaged. Unfortunately, we were unable to capture some vital measurements of the
-transients we were looking for to confirm our suspicions from the first failure.
-It is clear, however, that the damage was not caused by  the device overheating,
-as none of the components were remotely warm  to  the touch. This seems to align
-with the transient theory.
+The regulator was replaced  with a new one and the  supply voltage was lowered
+from \SI{36}{\volt}  to \SI{28}{\volt} in  order to  give more leeway  for the
+transient voltages. The new  regulator appeared to output  the correct voltage
+of  \SI{12}{\volt}, so  a resistive  load  of \SI{80}{\ohm}  was connected  to
+the  output of  the  regulator.  After  about  \SI{20}{\second} of  continuous
+operation, the  output voltage  again dropped and  the device  was permanently
+damaged. Unfortunately, we were  unable to capture some  vital measurements of
+the transients  we were looking for  to confirm our suspicions  from the first
+failure.  It is clear,  however, that the damage was not  caused by the device
+overheating, as none  of the components were remotely warm  to the touch. This
+seems to align with the transient theory.
 
 
 \subsection{Simulating the Issue}
@@ -148,7 +146,7 @@ The physical layout of  the  regulator  and  the  MOSFETs  is depicted in figure
 connecting the  Switch  (SW),  High  Gate  (HG)  and  Low  Gate (LG) pins of the
 regulator to the switching MOSFETs is fairly  long (>\SI{2}{\centi\metre}). Most
 of the time, the parasitic  inductances and capacitances are negligible. In this
-case, however, they aren't.
+case, however, it turned out that they are not.
 
 The series  inductance  and  series  resistance  is  calculated using an on-line
 calculator\cite{ref:trace_inductance}\cite{ref:trace_resistance}   (the   width,
@@ -198,6 +196,5 @@ of  the  critical  connections  to  dampen  the  ringing.  The   effect   of   a
 \emph{sw\_fix}). When compared  to  the  ideal  and real curves, we see that the
 peak voltage has been reduced to a much less dangerous level.
 
-The more optimal  solution is of course to modify the PCB layout such that these
-traces have a much shorter distance.
-
+The more  optimal solution  (more elegant  and cheaper) is  to modify  the PCB
+layout to drastically reduce the length of these traces.

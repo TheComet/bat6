@@ -21,33 +21,18 @@ Some  of  the  more  important  items  that  were  considered  are  listed here.
 
 \begin{minipage}{0.5\textwidth}
     Figure \ref{fig:pcb:partitioning}  shows how  our \SI{60x60}{\milli\meter}
-    printed  circuit  board  is  partitioned.  In  particular  we  would  like
-    to  emphasise   how  the  ground  plane   has  been  split  from   top  to
-    bottom,  physically separating  partition  \emph{A} from  the other  three
-    partitions,  and how  the LT3741  is placed  in the  center where  the two
-    planes  join.   Partition  \emph{A}  contains  high  power/high  frequency
-    components,  such as  the two  switching  MOSFETs, the  inductor, and  the
-    output  capacitors, whereas  the other  partitions contain  more sensitive
-    circuitry (in particular partition \emph{C}). The split helps minimize any
-    crosstalk. The LT3741  chip is placed at  the joining position of  the two
-    split planes because  it must communicated with the digital  logic as well
-    as power the high power circuitry.
+    printed circuit board is partitioned. The ground plane has been split from
+    top to  bottom, physically  separating partition  \emph{A} from  the other
+    three partitions.  The LT3741 is placed in the centre where top and bottom
+    planes join  because it must  communicate both  with the digital  logic as
+    well  as  the  high  power  circuitry. Partition  \emph{A}  contains  high
+    power/high frequency  components, such as  the two switching  MOSFETs, the
+    inductor, and the output capacitors,  whereas the other partitions contain
+    more  sensitive circuitry  (in particular  partition \emph{C}). The  split
+    helps minimising crosstalk.
 
     Partition \emph{C}  contains the micro controller,  LCD header, push/twist
     button header and other digital components.
-
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \centering
-    \includegraphics[width=.9\linewidth]{images/pcb/partitioning.png}
-    \captionof{figure}{Partitioning scheme of component groups.
-        \textbf{A:} High power components
-        \textbf{B:} Voltage rails
-        \textbf{C:} Digital logic
-        \textbf{D:} Isolated transceiver logic
-    }
-    \label{fig:pcb:partitioning}
-\end{minipage}
 
     Partition \emph{B} contains the  components responsible for generating the
     three voltage  rails discussed in section  \ref{sec:voltage_rails}. It was
@@ -61,31 +46,38 @@ Some  of  the  more  important  items  that  were  considered  are  listed here.
     isolated because  the voltage potential of  a connected USB device  may be
     different than the potential our device is running on.
 
-    It  is  critical for  the  total  physical length  of  these  loops to  be
-    minimized. Our solution can  be seen in the physical PCB  layout in figure
-    \ref{fig:pcb:loops2}.
-
-\begin{minipage}{0.5\textwidth}
     Figure  \ref{fig:pcb:loops1}  shows the  two  critical  loops where  short
     intervals  of high  amounts  of  current flow  in  this design. The  first
     (green) loop is  active when the switching MOSFET $V_2$  is conducting and
     transferring  charge  from  the  input  bypass  capacitors  $C_3$,  $C_4$,
-    $C_{12}$ and $C_1$ through the resistor $R4$ into the inductor $L_1$.  The
-    second (blue) loop is active when the switching mosfet $V_3$ is conducting
-    and transferring charge from the inductor $L_1$ through the resistor $R_4$
-    into the output bypass capacitors $C_{15}$, $C_{11}$, $C_7$ and $C_8$.
-
+    $C_{12}$ and $C_1$ through the resistor $R4$ into the inductor $L_1$.
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth,trim=0 25mm 0 0,clip]{images/circuit/schematic_high_current.png}
+    \includegraphics[width=.9\linewidth]{images/pcb/partitioning.png}
+    \captionof{figure}{Partitioning scheme of component groups.
+        \textbf{A:} High power components
+        \textbf{B:} Voltage rails
+        \textbf{C:} Digital logic
+        \textbf{D:} Isolated transceiver logic
+    }
+    \label{fig:pcb:partitioning}
+    \centering
+    \includegraphics[width=.9\textwidth,trim=0 25mm 0 0,clip]{images/circuit/schematic_high_current.png}
     \captionof{figure}{Critical high current, high frequency loops in the schematic. Blue indicates the current path of the first critical loop, green the second.}
     \label{fig:pcb:loops1}
 \end{minipage}
 
-\begin{figure}[h!]
-    \center
-    \includegraphics[width=.3\textwidth]{images/pcb/buck2.png}
-    \caption{High current, high frequency loops are routed as tightly as possible}
-    \label{fig:pcb:loops2}
-\end{figure}
+The second (blue) loop is active when the switching mosfet $V_3$ is conducting
+and transferring  charge from  the inductor $L_1$  through the  resistor $R_4$
+into the output bypass capacitors $C_{15}$, $C_{11}$, $C_7$ and $C_8$.
+
+
+
+
+%\begin{figure}[h!]
+%    \center
+%    \includegraphics[width=.3\textwidth]{images/pcb/buck2.png}
+%    \caption{High current, high frequency loops are routed as tightly as possible}
+%    \label{fig:pcb:loops2}
+%\end{figure}
