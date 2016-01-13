@@ -38,15 +38,19 @@ void CharacteristicsCurve3DWidget::normaliseScale()
     for(const auto& model : m_Function)
     {
         model->updateBoundingBox();
+
+        // finds the largest axis among all functions
         double largestModelAxis = max(model->getBoundingRect().width(),
                                       model->getBoundingRect().height(),
                                       100); // exposure max
         largestAxis =  (largestModelAxis > largestAxis ? largestModelAxis : largestAxis);
-        largestXAxis = (model->getBoundingRect().width() > largestXAxis ?
-                        model->getBoundingRect().width() : largestXAxis);
+
+        // finds the largest single axes among all functions
+        largestXAxis = (model->getBoundingRect().height() > largestXAxis ?
+                        model->getBoundingRect().height() : largestXAxis);
         largestYAxis = 100; // exposure is always 100
-        largestZAxis = (model->getBoundingRect().height() > largestZAxis ?
-                        model->getBoundingRect().height() : largestZAxis);
+        largestZAxis = (model->getBoundingRect().width() > largestZAxis ?
+                        model->getBoundingRect().width() : largestZAxis);
     }
 
     setScale(largestAxis / largestXAxis,
