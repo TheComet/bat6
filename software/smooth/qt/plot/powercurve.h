@@ -1,12 +1,10 @@
 #ifndef IV_POWER_CURVE_H
 #define IV_POWER_CURVE_H
 
-#include <qwt/qwt_series_data.h>
-#include "plot/pvmodelfunctionbase.h"
+#include "plot/curve2dbase.h"
 
 class PowerCurve :
-        public QwtSeriesData<QPointF>,
-        public PVModelFunctionBase
+        public Curve2DBase
 {
 public:
     PowerCurve(QSharedPointer<PVArray> pvarray);

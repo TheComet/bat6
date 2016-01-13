@@ -7,7 +7,7 @@
 #include <qwtplot3d/qwt3d_surfaceplot.h>
 
 class PVArray;
-class CharacteristicsCurve3D;
+class Curve3DBase;
 
 class CharacteristicsCurve3DWidget :
         public Qwt3D::SurfacePlot,
@@ -23,7 +23,7 @@ public:
     virtual void replot() override;
 
 private:
-    QMap<QString, QSharedPointer<CharacteristicsCurve3D>> m_Function;
+    QMap<QString, QSharedPointer<Curve3DBase>> m_Function;
 };
 
 #endif // CHARACTERISTICCURVE3DWIDGET_H

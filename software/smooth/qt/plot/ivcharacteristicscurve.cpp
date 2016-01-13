@@ -3,7 +3,7 @@
 
 // ----------------------------------------------------------------------------
 IVCharacteristicsCurve::IVCharacteristicsCurve(QSharedPointer<PVArray> pvarray) :
-    PVModelFunctionBase(pvarray),
+    Curve2DBase(pvarray),
     m_SampleCount(1024)
 {
 }

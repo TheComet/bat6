@@ -1,12 +1,10 @@
 #ifndef IV_CHARACTERISTICS_CURVE_H
 #define IV_CHARACTERISTICS_CURVE_H
 
-#include <qwt/qwt_series_data.h>
-#include "plot/pvmodelfunctionbase.h"
+#include "plot/curve2dbase.h"
 
 class IVCharacteristicsCurve :
-        public QwtSeriesData<QPointF>,
-        public PVModelFunctionBase
+        public Curve2DBase
 {
 public:
     IVCharacteristicsCurve(QSharedPointer<PVArray> pvarray);

@@ -18,7 +18,7 @@ double PVChain::calculateCurrent(double targetVoltage, double exposure) const
      * problem is to use an iterative algorithm until the error goes below
      * a certain threshold.
      */
-    int maxIterations = 20;
+    int maxIterations = 10;
 
     // Corner case when voltage is 0. Just return average current.
     if(targetVoltage == 0.0)

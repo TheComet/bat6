@@ -29,7 +29,7 @@ double PVArray::calculateVoltage(double targetCurrent) const
      * problem is to use an iterative algorithm until the error goes below
      * a certain threshold.
      */
-    int maxIterations = 20;
+    int maxIterations = 10;
 
     // if there's only one chain then there's no reason to iterate
     if(m_Chains.size() == 1)

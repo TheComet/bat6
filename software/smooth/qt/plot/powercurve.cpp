@@ -3,7 +3,7 @@
 
 // ----------------------------------------------------------------------------
 PowerCurve::PowerCurve(QSharedPointer<PVArray> pvarray) :
-    PVModelFunctionBase(pvarray),
+    Curve2DBase(pvarray),
     m_SampleCount(1024),
     m_MaxCurrent(0)
 {

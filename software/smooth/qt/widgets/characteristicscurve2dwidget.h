@@ -9,9 +9,6 @@
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_plot_curve.h>
 
-class QwtPlotCurve;
-class IVCharacteristicsCurve;
-
 class CharacteristicsCurve2DWidget :
         public QwtPlot,
         public PVArrayPlotWidgetBase

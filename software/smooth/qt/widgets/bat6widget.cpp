@@ -227,6 +227,7 @@ void BAT6Widget::onOpenCircuitVoltageChanged(CellWidget* cellWidget)
 {
     auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
     cell->setOpenCircuitVoltage(cellWidget->ui->open_circuit_voltage->value());
+    this->autoScalePlots();
     this->updateModel();
 }
 
@@ -235,6 +236,7 @@ void BAT6Widget::onShortCircuitCurrentChanged(CellWidget* cellWidget)
 {
     auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
     cell->setShortCircuitCurrent(cellWidget->ui->short_circuit_current->value());
+    this->autoScalePlots();
     this->updateModel();
 }
 
@@ -243,6 +245,7 @@ void BAT6Widget::onDarkVoltageChanged(CellWidget* cellWidget)
 {
     auto cell = m_PVArray->getChains().find("Chain 1")->getCells().find(cellWidget->getName());
     cell->setDarkVoltage(cellWidget->ui->dark_voltage->value());
+    this->autoScalePlots();
     this->updateModel();
 }
 
@@ -259,5 +262,5 @@ void BAT6Widget::onGlobalExposureChanged(int value)
 {
     m_PVArray->setExposure(value * 0.01);
     ui->label_global_exposure->setText(QString::number(value) + "%");
-    this->updateModel();
+    m_cc2d->replot(); // 3D plot doesn't change
 }

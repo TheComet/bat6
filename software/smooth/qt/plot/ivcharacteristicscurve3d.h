@@ -1,16 +1,14 @@
 #ifndef CHARACTERISTICS_CURVE_3D_H
 #define CHARACTERISTICS_CURVE_3D_H
 
-#include <qwtplot3d/qwt3d_function.h>
-#include "plot/pvmodelfunctionbase.h"
 #include "plot/ivcharacteristicscurve.h"
+#include "plot/curve3dbase.h"
 
-class CharacteristicsCurve3D :
-        public Qwt3D::Function,
-        public PVModelFunctionBase
+class IVCharacteristicsCurve3D :
+    public Curve3DBase
 {
 public:
-    CharacteristicsCurve3D(Qwt3D::SurfacePlot* pw, QSharedPointer<PVArray> pvarray);
+    IVCharacteristicsCurve3D(QSharedPointer<PVArray> pvarray, Qwt3D::SurfacePlot* pw);
 
     double operator()(double current, double exposure);
 
