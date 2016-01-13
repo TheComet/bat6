@@ -224,8 +224,8 @@ int QAccordion::internalAddContentPane(QString header, QFrame *cframe,
     this->contentPanes.push_back(cpane);
 
     // manage the clicked signal in a lambda expression
-    Lambda actionWrapper([this, cpane]() { this->handleClickedSignal(cpane); });
-    QObject::connect(cpane, SIGNAL(clicked()), &actionWrapper, SLOT(call()));
+    Lambda* actionWrapper = new Lambda([this, cpane]() { this->handleClickedSignal(cpane); }, this);
+    QObject::connect(cpane, SIGNAL(clicked()), actionWrapper, SLOT(call()));
 
     emit numberOfContentPanesChanged(this->contentPanes.size());
 
@@ -259,8 +259,8 @@ bool QAccordion::internalInsertContentPane(uint index, QString header,
     this->contentPanes.insert(this->contentPanes.begin() + index, cpane);
 
     // manage the clicked signal in a lambda expression
-    Lambda actionWrapper([this, cpane]() { this->handleClickedSignal(cpane); });
-    this->connect(cpane, SIGNAL(clicked()), &actionWrapper, SLOT(call()));
+    Lambda* actionWrapper = new Lambda([this, cpane]() { this->handleClickedSignal(cpane); }, this);
+    this->connect(cpane, SIGNAL(clicked()), actionWrapper, SLOT(call()));
 
     emit numberOfContentPanesChanged(this->contentPanes.size());
 

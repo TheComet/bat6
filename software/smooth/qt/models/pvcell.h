@@ -8,10 +8,10 @@ class PVCell
 {
 public:
     PVCell();
-    PVCell(double openCircuitVoltage,
-           double shortCircuitCurrent,
-           double temperature=273.13+25.0,
-           double exposure=1.0);
+    PVCell(double m_OpenCircuitVoltage,
+           double m_ShortCircuitCurrent,
+           double m_DarkVoltage,
+           double m_Exposure=1.0);
 
     /*!
      * \brief Calculates the voltage this cell would generate based on the
@@ -20,7 +20,7 @@ public:
      * \param exposure (Optional) add a weight to the cell's exposure.
      * \return Returns the voltage in volts.
      */
-    double calculateVoltage(double current, double exposure=1.0) const;
+    double calculateVoltage(double current, double exposureWeight=1.0) const;
 
     /*!
      * \brief Calculates the current this cell would generated based on the
@@ -29,42 +29,44 @@ public:
      * \param exposure (Optional) add a weight to the cell's exposure.
      * \return Returns the current in amps.
      */
-    double calculateCurrent(double voltage, double exposure=1.0) const;
+    double calculateCurrent(double voltage, double exposureWeight=1.0) const;
 
     /*!
      * \brief Sets the light exposure on this cell.
      * \param exposure The exposure where 0.0 is no light and 1.0 is maximum
      * light. The number is clamped clamped.
      */
-    void setExposure(double exposure);
+    void setExposure(double exposure)
+    {
+        m_Exposure = (exposure >= 1.0 ? 1.0 : exposure);
+        m_Exposure = (exposure <= 0.0 ? 0.0 : exposure);
+    }
 
     /*!
      * \brief Gets the cell's light exposure value.
      * \return The exposure, where 0.0 is no light and 1.0 is maximum light.
      */
-    double getExposure() const;
+    double getExposure() const
+        { return m_Exposure; }
 
-    void setTemperature(double temperature);
-
-    double getTemperature() const;
-
-    /*!
-     * \brief Returns the short circuit current of this cell.
-     * \return The short circuit current in amps.
-     */
-    double getShortCircuitCurrent() const;
-
-    /*!
-     * \brief Returns the open circuit voltage of this cell.
-     * \return The open circuit voltage in volts.
-     */
-    double getOpenCircuitVoltage() const;
+    void setOpenCircuitVoltage(double openCircuitVoltage)
+        { m_OpenCircuitVoltage = openCircuitVoltage; }
+    double getOpenCircuitVoltage() const
+        { return m_OpenCircuitVoltage; }
+    void setShortCircuitCurrent(double shortCircuitCurrent)
+        { m_ShortCircuitCurrent = shortCircuitCurrent; }
+    double getShortCircuitCurrent() const
+        { return m_ShortCircuitCurrent; }
+    void setDarkVoltage(double darkVoltage)
+        { m_DarkVoltage = darkVoltage; }
+    double getDarkVoltage() const
+        { return m_DarkVoltage; }
 
 private:
-    double shortCircuitCurrent;
-    double openCircuitVoltage;
-    double temperature;
-    double exposure;
+    double m_ShortCircuitCurrent;
+    double m_OpenCircuitVoltage;
+    double m_DarkVoltage;
+    double m_Exposure;
 };
 
 #endif // PVCELL_H

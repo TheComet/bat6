@@ -1,4 +1,4 @@
-#include "models/COMPort.h"
+#include "models/comport.h"
 
 // ----------------------------------------------------------------------------
 // C code for handling port open/close on linux
