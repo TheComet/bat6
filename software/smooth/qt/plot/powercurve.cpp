@@ -53,8 +53,10 @@ void PowerCurve::updateBoundingBox()
     double maxPower = 0;
     for(unsigned int i = 0; i != this->size(); ++i)
     {
-        QPointF pv = this->sample(i);
-        maxPower = (pv.y() > maxPower ? pv.y() : maxPower);
+        double current = m_MaxCurrent * double(i) / double(m_SampleCount - 1);
+        double voltage = tempPVArray.calculateVoltage(current);
+        double power = voltage * current;
+        maxPower = (power > maxPower ? power : maxPower);
     }
 
     m_BoundingBox.setRect(0, 0, maxVoltage, maxPower);

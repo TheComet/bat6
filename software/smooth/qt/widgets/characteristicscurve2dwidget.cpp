@@ -54,7 +54,6 @@ CharacteristicsCurve2DWidget::CharacteristicsCurve2DWidget(QWidget* parent) :
     legend->setMaxColumns(1);
 
     // configure plot
-    this->setAxisAutoScale(QwtPlot::xBottom);
     this->setCanvasBackground(QColor(Qt::white));
     this->replot();
 }
@@ -92,7 +91,7 @@ void CharacteristicsCurve2DWidget::autoScale()
 
     this->setAxisScale(QwtPlot::xBottom, ivCurve->boundingRect().x(), ivCurve->boundingRect().width());
     this->setAxisScale(QwtPlot::yLeft, ivCurve->boundingRect().y(), ivCurve->boundingRect().height());
-    this->setAxisScale(QwtPlot::yRight, powerCurve->boundingRect().x(), powerCurve->boundingRect().height());
+    this->setAxisScale(QwtPlot::yRight, powerCurve->boundingRect().y(), powerCurve->boundingRect().height());
 }
 
 // ----------------------------------------------------------------------------
