@@ -23,16 +23,28 @@ size_t IVCharacteristicsCurve::size() const
 // ----------------------------------------------------------------------------
 QPointF IVCharacteristicsCurve::sample(size_t i) const
 {
-    double current = m_MaxCurrent * double(i) / double(m_SampleCount - 1);
+    double maxCurrent = this->boundingRect().y() + this->boundingRect().height();
+    double current = maxCurrent * double(i) / double(m_SampleCount - 1);
     double voltage = m_PVArray->calculateVoltage(current);
     return QPointF(voltage, current);
 }
 
 // ----------------------------------------------------------------------------
-QRectF IVCharacteristicsCurve::boundingRect() const
+void IVCharacteristicsCurve::updateBoundingBox()
 {
-    return QRectF(m_MinVoltage,
-                  m_MinCurrent + this->getCurrentDomain(),
-                  this->getVoltageDomain(),
-                  this->getCurrentDomain());
+    // we want to calculate the bounding box of an array where the exposure is
+    // set to its maximum
+    PVArray tempPVArray = m_PVArray.operator*();
+    tempPVArray.setExposure(1);
+    for(PVChain& chain : tempPVArray.getChains())
+    {
+        for(PVCell& cell : chain.getCells())
+            cell.setExposure(1);
+        chain.setExposure(1);
+    }
+
+    double maxVoltage = tempPVArray.calculateVoltage(0); // 0 amps = open circuit
+    double maxCurrent = tempPVArray.calculateCurrent(0); // 0 volts = short circuit
+
+    m_BoundingBox.setRect(0, 0, maxVoltage, maxCurrent);
 }

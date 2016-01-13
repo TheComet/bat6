@@ -31,6 +31,7 @@ private:
     void updateCellNames();
     void updateModelCellNames();
     void updateModel();
+    void autoScalePlots();
 
 private slots:
     void onAddCellButtonReleased();

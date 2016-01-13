@@ -15,10 +15,13 @@ public:
 
     virtual size_t size() const override;
     virtual QPointF sample(size_t i) const override;
-    virtual QRectF boundingRect() const override;
+    virtual QRectF boundingRect() const override
+        { return this->getBoundingRect(); }
+    virtual void updateBoundingBox() override;
 
 private:
     size_t m_SampleCount;
+    double m_MaxCurrent;
 };
 
 #endif // IV_POWER_CURVE_H

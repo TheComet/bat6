@@ -70,8 +70,7 @@ BAT6Widget::BAT6Widget(QWidget *parent) :
 
     // create model with no cells
     m_PVArray = QSharedPointer<PVArray>(new PVArray);
-    PVChain pvchain;
-    m_PVArray->addChain("Chain 1", pvchain);
+    m_PVArray->addChain("Chain 1", PVChain());
 
     // add model to plots
     m_cc3d->addPVArray("Array 1", m_PVArray);
@@ -146,6 +145,7 @@ void BAT6Widget::addCell()
         cellWidget->ui->intensity->setValue(templateCell->getExposure() * 100);
     }
 
+    this->autoScalePlots();
     this->updateModel();
 }
 
@@ -163,6 +163,7 @@ void BAT6Widget::removeCell(CellWidget* cell)
     chain->getCells().remove(cell->getName());
 
     this->updateCellNames();
+    this->autoScalePlots();
     this->updateModel();
 }
 
@@ -200,6 +201,13 @@ void BAT6Widget::updateModel()
 {
     m_cc2d->replot();
     m_cc3d->replot();
+}
+
+// ----------------------------------------------------------------------------
+void BAT6Widget::autoScalePlots()
+{
+    m_cc2d->autoScale();
+    m_cc3d->normaliseScale();
 }
 
 // ----------------------------------------------------------------------------

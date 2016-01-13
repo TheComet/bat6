@@ -12,6 +12,8 @@ public:
     CharacteristicsCurve3D(Qwt3D::SurfacePlot* pw, QSharedPointer<PVArray> pvarray);
 
     double operator()(double current, double exposure);
+
+    virtual void updateBoundingBox() override;
 };
 
 #endif // CHARACTERISTICS_CURVE_3D_H

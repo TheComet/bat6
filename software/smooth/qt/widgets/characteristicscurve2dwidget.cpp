@@ -82,10 +82,7 @@ void CharacteristicsCurve2DWidget::removePVArray(const QString& name)
 // ----------------------------------------------------------------------------
 void CharacteristicsCurve2DWidget::autoScale()
 {
-    double maxPower = 0;
-    double maxVoltage = 0;
-    double maxCurrent = 0;
-
+    // update bounding boxes of functions
     IVCharacteristicsCurve* ivCurve = dynamic_cast<IVCharacteristicsCurve*>(m_IVCurve->data());
     PowerCurve* powerCurve = dynamic_cast<PowerCurve*>(m_PowerCurve->data());
     if(!ivCurve || !powerCurve)
@@ -93,23 +90,13 @@ void CharacteristicsCurve2DWidget::autoScale()
     ivCurve->updateBoundingBox();
     powerCurve->updateBoundingBox();
 
-    for(unsigned int i = 0; i != ivCurve->size(); ++i)
-    {
-        const QPointF& iv = ivCurve->sample(i);
-        double power = iv.x() * iv.y();
-        maxPower = (power > maxPower ? power : maxPower);
-        maxVoltage = (ivCurve->getVoltageDomain() > maxVoltage ? ivCurve->getVoltageDomain() : maxVoltage);
-        maxCurrent = (ivCurve->getCurrentDomain() > maxCurrent ? ivCurve->getCurrentDomain() : maxCurrent);
-    }
-
-    this->setAxisScale(QwtPlot::xBottom, 0, maxVoltage);
-    this->setAxisScale(QwtPlot::yLeft, 0, maxCurrent);
-    this->setAxisScale(QwtPlot::yRight, 0, maxPower);
+    this->setAxisScale(QwtPlot::xBottom, ivCurve->boundingRect().x(), ivCurve->boundingRect().width());
+    this->setAxisScale(QwtPlot::yLeft, ivCurve->boundingRect().y(), ivCurve->boundingRect().height());
+    this->setAxisScale(QwtPlot::yRight, powerCurve->boundingRect().x(), powerCurve->boundingRect().height());
 }
 
 // ----------------------------------------------------------------------------
 void CharacteristicsCurve2DWidget::replot()
 {
-    this->autoScale();
     QwtPlot::replot();
 }

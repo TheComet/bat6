@@ -38,13 +38,15 @@ void CharacteristicsCurve3DWidget::normaliseScale()
     for(const auto& model : m_Function)
     {
         model->updateBoundingBox();
-        double temp = max(model->getCurrentDomain(),
-                          model->getExposureDomain(),
-                          model->getVoltageDomain());
-        largestAxis =  (temp > largestAxis ? temp : largestAxis);
-        largestXAxis = (model->getCurrentDomain()  > largestXAxis ? model->getCurrentDomain()  : largestXAxis);
-        largestYAxis = (model->getExposureDomain() > largestYAxis ? model->getExposureDomain() : largestYAxis);
-        largestZAxis = (model->getVoltageDomain()  > largestZAxis ? model->getVoltageDomain()  : largestZAxis);
+        double largestModelAxis = max(model->getBoundingRect().width(),
+                                      model->getBoundingRect().height(),
+                                      100); // exposure max
+        largestAxis =  (largestModelAxis > largestAxis ? largestModelAxis : largestAxis);
+        largestXAxis = (model->getBoundingRect().width() > largestXAxis ?
+                        model->getBoundingRect().width() : largestXAxis);
+        largestYAxis = 100; // exposure is always 100
+        largestZAxis = (model->getBoundingRect().height() > largestZAxis ?
+                        model->getBoundingRect().height() : largestZAxis);
     }
 
     setScale(largestAxis / largestXAxis,

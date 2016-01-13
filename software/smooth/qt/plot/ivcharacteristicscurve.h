@@ -15,7 +15,9 @@ public:
 
     virtual size_t size() const override;
     virtual QPointF sample(size_t i) const override;
-    virtual QRectF boundingRect() const override;
+    virtual void updateBoundingBox() override;
+    virtual QRectF boundingRect() const override
+        { return this->getBoundingRect(); }
 
 private:
     size_t m_SampleCount;
