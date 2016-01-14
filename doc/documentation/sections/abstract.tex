@@ -1,6 +1,6 @@
 % relevance/motivation
 % problem statement
-% approach: how as the problem solved
+% approach: how is the problem solved
 % results
 % conclusions
 % keywords
@@ -9,27 +9,29 @@
 % research problem
 % body
 % results
-% conclution
+% conclusion
 
  % introduction
 Emulating  solar  modules  in  a  laboratory  environment  currently  requires
 expensive  and complex  equipment, hindering  development of  new solar  power
 products. To  facilitate research  into  this area,  a  low-cost solution  for
-emulating solar modules is needed.
+emulating solar modules is required.
 
 % approach
-This  report details  our  efforts in  developing and  building  a device  for
-this  purpose. We  developed a  model  for  describing solar  module  behavior
-mathematically, which is  capabable of describing both a single  solar cell as
-well  as  configurations  of  multiple  cells. The  hardware  is  based  on  a
-microcontroller and  a voltage  converter. The microcontroller  is responsible
-for interacting  with the outside world,  while the converter's purpose  is to
-generate the desired voltages and currents on the device's output.
+This report details our efforts in designing and constructing  a device for this
+purpose.   We   developed   a   model  for  describing  solar  module   behavior
+mathematically,  allowing both single-celled panels  as  well  as  more  complex
+multi-celled panel configurations  to  be  described.  A  microcontroller  and a
+voltage  converter  constitute  the  hardware  design.  The  microcontroller  is
+responsible  for interacting with  the  outside  world,  while  the  converter's
+purpose is to use the mathematical model  to  generate  the desired voltages and
+currents on the device's output.
 
 % results
-At this  point, the  interface and  most of the  circuitry works  as intended.
-However, due to  a design error, our circuit overloads  the voltage converter,
-causing  irreparable  damage.   Based  on  measurements  and  simulations,  we
-consider the likely cause to be overlong connections between the converter and
-other components.  The next step in finalising the device would be to design a
+At this point, the interface  and  most  of  the  circuitry  works  as intended.
+Unfortunately,  due  to  a  design  error,  our  circuit  overloads  the voltage
+converter, causing irreparable damage. Based on measurements and simulations, we
+consider the likely cause to be overlong connections between  the  converter and
+other components. The next step in finalising the device would  be  to  design a
 new circuit board for fixing this issue.
+
