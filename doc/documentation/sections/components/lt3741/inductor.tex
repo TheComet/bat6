@@ -1,5 +1,6 @@
-The size of the inductor $L_1$, as illustrated in Figure \ref{fig:circuit:buck},
-was calculated using the formula below:
+The   size    of   the    inductor   $L_1$,    as   illustrated    in   Figure
+\ref{fig:circuit:buck}  on  the fold-out,  was  calculated  using the  formula
+below:
 
 \begin{equation}
     L_1 = \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{0.3 \cdot f_S \cdot I_O \cdot V_{in}} \right) = \SI{6}{\micro\henry}
@@ -13,9 +14,9 @@ output  current, assumed  to be  $I_O  = \SI{5}{\ampere}$,  allowing for  some
 additional leeway.   A larger  inductor of  $L_1 =  \SI{22}{\micro\henry}$ was
 selected to further decrease ripple current.
 
-In addition to the value inductor's value, the maximum current rating, DCR, and
-saturation  current are also important factors to consider. The inductor's peak
-current is calculated using
+In addition to the inductance, the maximum current rating, DCR, and saturation
+current are also important factors to consider. The inductor's peak current is
+calculated using
 \begin{equation}
     I_{L_{1_{peak}}} = I_O + \left( \frac{V_{in} \cdot V_{out} - V_{out}^2}{2 \cdot f_S \cdot L_1 \cdot V_{in}} \right) = \SI{5.2}{\ampere}
     \label{eq:circuit:buck:inductor_peak}
@@ -27,8 +28,7 @@ $f_S$ is  the switching frequency  \SI{1}{\mega\hertz}, $L_1$ is the  value of
 the selected inductor (\SI{22}{\micro\henry}) and  $I_O$ is the maximum output
 current, assumed  to be  $I_O =  \SI{5}{\ampere}$.  The  inductor's saturation
 current  was  sized  $1.2$  times  higher than  the  peak  current. With  this
-defined,  a list  of  possible inductors  could be  compiled,  shown in  table
-\ref{tab:circuit:buck:inductor}.  \ref{tab:circuit:buck:inductor} in  appendix
-\ref{appendix:inductors} on  page \pageref{appendix:inductors}.  We  chose the
-\emph{732-4237-1-ND} because it has the lowest DCR (direct current resistance)
-of the models listed.
+defined,  a list  of  possible inductors  could be  compiled,  shown in  Table
+\ref{tab:circuit:buck:inductor} in  appendix \ref{appendix:inductors}  on page
+\pageref{appendix:inductors}.   We chose  the \emph{732-4237-1-ND}  because it
+has the lowest DCR (direct current resistance) of the models listed.

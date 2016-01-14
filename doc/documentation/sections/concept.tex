@@ -9,8 +9,8 @@
 %        Wie soll unser Ger\"at bedient werden k\"onnen?
 %\end{itemize}
 
-This section  primrarily deals with  the underlying mathematics used  to model
-the  various configurations  of solar  cells the  device needs  to be  able to
+This section primarily deals with the underlying mathematics used to model the
+various  configurations  of  solar  cells  the device  needs  to  be  able  to
 emulate. Additionally, it presents a brief overview of the hardware.
 
 % **************************************************************************** %
@@ -31,7 +31,7 @@ actual physics  accurately enough to  yield good results.
     The single diode model of the ideal PV cell\cite{ref:villa:pvmodel} serves
     as  a basis  for our  model.   The I-V  characteristic of  this model  can
     be  expressed  with equation  \ref{eq:I-V_old},  whereby  $I_{pv}$ is  the
-    generated current,  $I_o$ is the  diode current  and$ V_T$ is  the thermal
+    generated current,  $I_o$ is the diode  current and $ V_T$  is the thermal
     voltage.
 \end{minipage}
 \begin{minipage}{0.4\textwidth}
@@ -48,13 +48,13 @@ actual physics  accurately enough to  yield good results.
     temperature is equal to the nominal temperature $T_n = 298.15K$.
 
     The  thermal  voltage  is  defined  in  equation  \ref{eq:thermalvoltage},
-    whereby $T$ is the junction temperature, $k$ is the Boltzman-constant, $q$
+    whereby $T$ is the junction temperature, $k$ is the Boltzman constant, $q$
     is  the elementary  charge and  $a$ is  the diode  ideality factor,  which
     typically  lies around  1.2  for silicon  substrates. This  gives us  $V_T
     \approx 30.8mV$ for one cell.
 
     The  current generated  by the  cell is  calcualted according  to equation
-    \label{eq:cellcurrent}, whereby $I_n$  is the nominal current  and $G$ and
+    \ref{eq:cellcurrent}, whereby $I_n$  is the nominal current  and $G$ and
     $G_n$ is the actual and nominal solar irradiation, respectively.
 
     A  common optimisation,  according to\cite{ref:villa:pvmodel},  is to  set
@@ -69,7 +69,7 @@ actual physics  accurately enough to  yield good results.
     If  we  insert  equations  \eqref{eq:I_o} and  \eqref{eq:I_pv}  back  into
     \eqref{eq:I-V_old} we get equation \ref{eq:IAlmostDone}.
 
-    If   we   now   assume   $V_{oc}   >   5  *   V_T$   we   can   say   that
+    If   we  now   assume  $V_{oc}   >   5  \cdot   V_T$  we   can  say   that
     $e^{\frac{V_{oc}}{V_T}}-1  \approx e^{\frac{V_{oc}}{V_T}}$  and our  final
     formula becomes equation \eqref{eq:I-V}.
 \end{minipage}
@@ -104,7 +104,7 @@ If the solar irradiation is the same  for  every  cell in series, then the whole
 array  can be simulated using equation \eqref{eq:I-V}, where $V_{oc}$  and  $V_T$
 are linearly scaled with the number of cells.
 
-If the irradiation isn't the same for all  cells,  such  as  when  one  cell  is
+If the irradiation is not the same for all  cells,  such  as  when  one  cell  is
 shaded, a more complex model must be used.
 
 \begin{minipage}{0.5\textwidth}
@@ -121,9 +121,9 @@ shaded, a more complex model must be used.
 \end{minipage}
 
 
-Figure \ref{fig:model:shaded}  shows varied characteristic curves  of a shaded
+Figure \ref{fig:model:shaded} shows various  characteristic curves of a shaded
 PV  module and  the effect  of bypass  diodes on  them.  In  our model  we can
-imitate the I-V  curve of an array with  a shaded cell and no  bypass diode by
+emulate the I-V  curve of an array with  a shaded cell and no  bypass diode by
 setting $V_T = V_{oc}$.
 
 %Figure \ref{fig:model:shaded}  shows  what  varied  characteristics  of a shaded
@@ -131,12 +131,13 @@ setting $V_T = V_{oc}$.
 %imitate  the  I-V  curve of an array with a shaded cell and no bypass  diode  by
 %setting $V_T = V_{oc}$.
 
-The  characteristic  curves  shown  in  Figure  \ref{fig:model:steps}  show  how
-``steps'' emerge when two or more modules  with bypass diodes, which are exposed
-to different irradiation intensities, get  connected in series. To simulate this
-behaviour, we take  a number of curves with decreasing short circuit current and
-increasing  open  circuit  voltage  and  determine  which curve is applicable by
-checking  what  curve  returns  the  maximum  current  for  the  given  voltage.
+The  characteristic  curves shown  in  Figure  \ref{fig:model:steps} show  how
+``steps'' emerge when  two or more modules with bypass  diodes, which are each
+exposed  to different  irradiation  intensities, are  connected in  series. To
+emulate  this behaviour,  we take  a number  of curves  with decreasing  short
+circuit current and increasing open  circuit voltage and determine which curve
+is applicable by checking what curve returns the maximum current for the given
+voltage.
 
 
 % **************************************************************************** %
@@ -167,7 +168,7 @@ in      section       \ref{subsec:iv-curve-operating-points}      on      page
 \begin{minipage}{0.5\textwidth}
     \center
     \includegraphics[width=\textwidth]{images/vi-curve.png}
-    \captionof{figure}{I-V-Curve with \SI{-45}{\degree} slope indicated}
+    \captionof{figure}{I-V-Curve with \SI{-1}{\ohm} slope indicated}
     \label{fig:controlcircuit:vicurve}
 \end{minipage}
 
@@ -183,9 +184,10 @@ device directly, users can also connect a PC to our device by USB and then use
 our front-end  software \emph{Smooth}  to interface  with the  device (section
 \ref{subsec:frontend}, p. \pageref{subsec:frontend}ff).
 
-With an eye towards  potential serial production, we developed our own PCB. This
-allows  tight  control  over impedances  in  the  connections  between  critical
-components and brings the behavior of the prototype device much closer to a mass
-produced version than a breadboard solution could. This is because trace routing
-lengths and component placement are  crucial factors, as is discussed in section
-\ref{sec:verification}  (p.  \pageref{sec:verification}ff), \emph{Verification}.
+With  an  eye  towards  potential  serial production,  we  developed  our  own
+PCB. This  allows tight  control over  impedances in  the connections  between
+critical  components  and   brings  the  behavior  of   the  prototype  device
+much  closer   to  a  mass   produced  version  than  a   breadboard  solution
+could. This  is because  trace  routing lengths  and  component placement  are
+crucial  factors,  as  is  discussed  in  section  \ref{sec:verification}  (p.
+\pageref{sec:verification}ff), \emph{Verification}.

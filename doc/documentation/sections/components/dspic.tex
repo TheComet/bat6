@@ -1,5 +1,5 @@
 Microchip  was chosen  as manufacturer  because one  of our  team members  was
-already familiar  with their  product.  Additionally, Microchip  provides good
+already familiar  with their  products.  Additionally, Microchip  provides good
 developer  tools  for free. For  selecting  a  specific model,  the  following
 criteria eventually lead us to the \emph{dsPIC33EP16GS506}:
 
@@ -8,13 +8,15 @@ criteria eventually lead us to the \emph{dsPIC33EP16GS506}:
         \SI{120}{\mega\hertz}  clock (60  MIPS): High enough  to allow  a fast
         control loop.
     \item
-        2  ADCs  and  2  DACs with  external  voltage  reference: Required  by
-        the  control  scheme  we use  (see  \ref{subsec:regimplementation}  on
+        2 ADCs  and 2  DACs with external  voltage reference: Required  by the
+        control scheme  we use (see section  \ref{subsec:regimplementation} on
         \pageref{subsec:regimplementation}).
     \item
         PGA    (Programmable    Gain    Amplifier)   (64    $\times$    analog
-        pre-amplifier): Allows measuring the small differential voltages over
-        shunt resistors to measure currents.
+        pre-amplifier): Allows     measuring     the    small     differential
+        voltages     over    shunt     resistors    to     measure    currents
+        (see     section      \ref{subsubsec:lt3741:feedback}     on     pages
+        \pageref{subsubsec:lt3741:feedback}ff).
     \item
         Low cost of 4 CHF
 \end{itemize}

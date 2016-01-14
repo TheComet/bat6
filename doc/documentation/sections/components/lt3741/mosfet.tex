@@ -1,9 +1,10 @@
 In contrast to a non-synchronous  regulator, our design uses two complementary
-MOSFETs $V_2$ and  $V_3$, whereby $V_3$ acts as an  active replacement for the
-free wheeling  diode typically found in  non-synchronous designs. As mentioned
-earlier, a  crucial feature  of this  device is  the ability  to \emph{absorb}
-power.   $V_3$ does  this  by  regulating current  in  the opposite  direction
-through the inductor $L_1$.
+MOSFETs $V_2$ and $V_3$ (in the middle of Figure \ref{fig:circuit:buck} on the
+fold-out) , whereby $V_3$ acts as  an active replacement for the free wheeling
+diode  typically found  in  non-synchronous designs. As  mentioned earlier,  a
+crucial feature of  this device is the ability to  \emph{absorb} power.  $V_3$
+does this by regulating current in the opposite direction through the inductor
+$L_1$.
 
 When  selecting  switching  MOSFETs,  the  following  parameters are critical in
 determining the best devices for a given application: $Q_G$ (Total Gate Charge),
@@ -23,7 +24,7 @@ inductor    current    $I_{L_{1_{peak}}}$    as   calculated    in    equation
 %\end{equation}
 
 The maximum  drain-to-source voltage $V_{DS}$  must be greater than  the input
-voltage  $V_{in}  =  \SI{28}{\volt}$,  including  transients.   Otherwise  the
+voltage  $V_{in}  =  \SI{28}{\volt}$,  including  transients,   otherwise  the
 MOSFETs will be damaged. MOSFETs with $V_{DS} = \SI{40}{\volt}$ were therefore
 selected.
 
@@ -34,11 +35,11 @@ to  ensure that  the  LT3741  recovers properly,  the  maximum gate  threshold
 voltage should  be less than  \SI{2}{\volt}. For a robust design,  the maximum
 gate-to-source voltage $V_{GS}$ should be greater than \SI{7}{\volt}.
 
-Power losses in  the MOSFETs are related to  the on-resistance $R_{DS{(on)}}$;
-the  transition losses  related to  the gate  resistance $R_G$;  gate-to-drain
+Power losses in  the MOSFETs are related to  the on-resistance $R_{DS{(on)}}$,
+the  transition losses  related to  the gate  resistance $R_G$,  gate-to-drain
 capacitance  $Q_{GD}$  and  gate-to-source  capacitance  $Q_{GS}$. Power  loss
 to  the  on-resistance  is  an  Ohmic  loss,  $I^2  R_{DS_{(on)}}$. The  power
-loss  in  the  high  side  MOSFET $V_2$  can  be  approximated  with  Equation
+loss  in  the  high  side  MOSFET $V_2$  can  be  approximated  with  equation
 \ref{eq:circuit:buck:mosfet_ploss}.
 
 \begin{multline}
