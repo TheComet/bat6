@@ -6,21 +6,40 @@ expected results based on simulations.
 
 \subsubsection{Trivial and Non-Trivial I-V Curves}
 
+Reproduction of a custom I-V  curve is tested by using the test fixture depicted
+in figure \ref{fig:verification:iv-circuit-fix}.
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=.4\textwidth]{images/sim/iv-curve-circuit.png}
+    \caption{Test fixture for measuring the device's IV characteristic curve}
+    \label{fig:verification:iv-circuit-fix}
+\end{figure}
+
+The  voltage  and  current  is  measured  using  different resistive loads. This
+measurement is performed twice using two different I-V curve configurations; one
+``simple''  curve (using a single-cell  model)  and  one  ``complicated''  curve
+(using a  multi-cell  model  where  some of the cells are shaded). The resulting
+measurements are then compared with  the  theoretical  curves  seen  in  figures
+\ref{fig:verification:iv-simple}  and  \ref{fig:verification:iv-complicated} and
+thus the device's accuracy can be evaluated.
+
 \begin{figure}[th!]
     \centering
     \begin{minipage}{.4\textwidth}
         \centering
         \includegraphics[width=.95\textwidth]{images/sim/iv-simple.png}
-        \caption{}
+        \caption{Current/voltage characteristic curve (blue) and power/voltage characteristic curve (red) of a single-cell solar panel}
         \label{fig:verification:iv-simple}
     \end{minipage}
     \begin{minipage}{.4\textwidth}
         \centering
         \includegraphics[width=.95\textwidth]{images/sim/iv-complicated.png}
-        \caption{}
+        \caption{Current/voltage characteristic curve (blue) and power/voltage charactersticic curve (red) of a multi-cell solar panel, some cells are shaded, causing the staircase}
         \label{fig:verification:iv-complicated}
     \end{minipage}
 \end{figure}
+
 
 \subsubsection{Ripple Voltage and Ripple Current vs Resistive Load}
 
