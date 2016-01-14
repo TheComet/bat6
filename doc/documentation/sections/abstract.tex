@@ -1,6 +1,6 @@
 % relevance/motivation
 % problem statement
-% approach: how as the problem solved
+% approach: how is the problem solved
 % results
 % conclusions
 % keywords
@@ -9,28 +9,29 @@
 % research problem
 % body
 % results
-% conclution
+% conclusion
 
  % introduction
-Reproducible simulation of photovoltaic modules requires
-advanced and expensive equipment, hindering development of solar power products  
-% research problem
-To facilitate access to this area of research, a low-cost alternative
-to the existing equipment is in demand.
+Emulating  solar  modules  in  a  laboratory  environment  currently  requires
+expensive  and complex  equipment, hindering  development of  new solar  power
+products. To  facilitate research  into  this area,  a  low-cost solution  for
+emulating solar modules is required.
 
 % approach
-The core of our device is a microcontroller which communicates with the outside world and
-regulates a step-down converter to generate an output voltage and current
-
-matching a programmable load curve. The underlying mathematical
- model allows emulation of multiple
-series-connected  cells to generate typical solar  panel  behaviours.
+This report details our efforts in designing and constructing  a device for this
+purpose.   We   developed   a   model  for  describing  solar  module   behavior
+mathematically,  allowing both single-celled panels  as  well  as  more  complex
+multi-celled panel configurations  to  be  described.  A  microcontroller  and a
+voltage  converter  constitute  the  hardware  design.  The  microcontroller  is
+responsible  for interacting with  the  outside  world,  while  the  converter's
+purpose is to use the mathematical model  to  generate  the desired voltages and
+currents on the device's output.
 
 % results
-The  device is not operational  at this point as  the step-down
-converter is damaged with the current circuit board.
+At this point, the interface  and  most  of  the  circuitry  works  as intended.
+Unfortunately,  due  to  a  design  error,  our  circuit  overloads  the voltage
+converter, causing irreparable damage. Based on measurements and simulations, we
+consider the likely cause to be overlong connections between  the  converter and
+other components. The next step in finalising the device would  be  to  design a
+new circuit board for fixing this issue.
 
-TODO: Insert suspicions about causes
-
-The next step in finalising the device would be to design a new circuit board.
-%hardware revision something something

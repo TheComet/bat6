@@ -11,13 +11,14 @@
     outgoing  voltage can  be constantly  changing. It allows  to predict  the
     behavior  of  the output  voltage,  thus  enabling  the device  to  better
     suppress spikes in  output voltage and spikes in the  current through coil
-    $L_1$ (foldout, Figure \ref{fig:circuit:buck}).
+    $L_1$ (Figure \ref{fig:circuit:buck} on fold-out).
 
-    Furthermore,  a controller  regulated by  current can  also be  used as  a
-    constant current source. This property is of importance when the operating
-    point is  in the steeper  part of the  PV module's I-V-curve  (where small
-    changes  in  voltage  can  lead to  drastic  changes  in  current). %TODO:
-    reference to thing
+    Furthermore,  a  controller   regulated  by  current  can   also  be  used
+    as  a  constant  current  source. This  property  is  of  importance  when
+    the  operating  point   is  in  the  steeper  part  of   the  PV  module's
+    I-V-curve  (where   small  changes   in  voltage   can  lead   to  drastic
+    changes  in current,  see section  \ref{subsec:regimplementation} on  page
+    \pageref{subsec:regimplementation}).
 
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
@@ -27,10 +28,6 @@
     \captionof{figure}{Circuit for regulating output voltage by changing reference voltage via $BUCK\_USET$ from the first DAC}
     \label{fig:circuit:buck:uset}
 \end{minipage}
-
-\begin{figure}[th!]
-\end{figure}
-
 
 \begin{minipage}{.4\textwidth}
     The  values for  the feedback  resistors  $R_2$ and  $R_{11}$ were  chosen
@@ -48,7 +45,7 @@
     By  increasing  $BUCK\_USET$  in formula  \ref{eq:circuit:buck:uset},  the
     outgoing  voltage can  then be  modified as  needed.  $BUCK\_USET$  is the
     analog voltage  coming from the  first DAC. The associated circuit  can be
-    found in figure \ref{fig:circuit:buck:uset}.
+    found in Figure \ref{fig:circuit:buck:uset}.
 \end{minipage}
 \begin{minipage}{.60\textwidth}
     \begin{equation}
@@ -62,16 +59,16 @@
     In a manner analogous to regulating the output voltage, the maximum output
     current can  also be  controlled.  By applying  an analog  voltage between
     \SI{0}{\volt}  and \SI{1.5}{\volt}  at  input \code{CTRL1}  of the  LT3741
-    controller, the  maximum \emph{average}  current going through  coil $L_1$
-    and therefore the maximum output current can be directly controlled.
+    controller,  the maximum  average  current going  through  coil $L_1$  and
+    therefore the maximum output current can be directly controlled.
 
-    The     corresponding    circuit     can     be     found    in     figure
+    The     corresponding    circuit     can     be     found    in     Figure
     \ref{fig:circuit:buck:iset}.  The maximum average  output current $I_o$ is
-    calculated using formula \ref{eq:circuit:buck:output_current}.
+    calculated using equation \ref{eq:circuit:buck:output_current}.
 
     For  this, $V_{CTRL1}$  is the  analog reference  voltage coming  from the
     second DAC and  $R_4$ is the shunt  resistor (\SI{10}{\milli\ohm}, visible
-    in fold-out figure \ref{fig:circuit:buck}).
+    on the fold-out in Figure \ref{fig:circuit:buck}).
 
 \end{minipage}
 \begin{minipage}{.50\textwidth}
@@ -89,10 +86,15 @@
 \begin{minipage}{.50\textwidth}
     For  the  microcontroller  to  generate  appropriate  reference  voltages,
     it  needs  to   measure  both  output  voltage   and  output  current. The
-    output    voltage   is    measured    with   the    circuit   in    figure
+    output    voltage   is    measured    with   the    circuit   in    Figure
     \ref{fig:circuit:buck:umeas}. The  values   for  resistors   $R_{12}$  and
     $R_{15}$  are such  that  voltage  $BUCK\_UMEAS$ is  scaled  to the  range
     between \SI{0}{\volt} and \SI{1.5}{\volt}.
+
+    The  output   current  is  measured  differentially   via  shunt  resistor
+    $R_5$. The    corresponding   circuit    can    be    seeen   in    Figure
+    \ref{fig:circuit:buck:imeas}.
+
 \end{minipage}
 \begin{minipage}{.50\textwidth}
     \center
@@ -101,13 +103,10 @@
     \label{fig:circuit:buck:umeas}
 \end{minipage}
 
-The output  current is measured  differentially via shunt  resistor $R_5$. The
-corresponding circuit can be seeen in figure \ref{fig:circuit:buck:imeas}.
-
 \begin{figure}[th!]
     \center
     \includegraphics[width=.85\textwidth]{images/circuit/buck-imeas.pdf}
-    \caption{Messen des Ausgangsstromes}
+    \caption{Measuring output current}
     \label{fig:circuit:buck:imeas}
 \end{figure}
 
@@ -129,11 +128,11 @@ calculated by equation \ref{eq:circuit:buck:shunt_offset}.
     of   \SI{3.3}{\volt},   one  voltage   increment   amounts   to  $V_{step}   =
     \frac{\SI{3.3}{\volt}}{2^{12}} = \SI{806}{\micro\volt}$
 
-    Resistors  $R_9$, $R_{10}$, $R_{13}$ and  $R_{14}$  should be as small as possible %TODO: 2 times R10
-    in order to  reduce disturbances in the  traces, while at the  same time being
-    large enough for $V_{offset}$ to be  smaller than $V_{step}$. In order for the
-    ADC's  holding  time not  to  be  too long  (which  happens  roughly at  $\geq      %TODO What is smaller or equal than 5kohm?
-    \SI{5}{\kilo\ohm}$), they should however also not be too large.
+    Resistors $R_9$,  $R_{10}$, $R_{13}$  and $R_{14}$ should  be as  small as
+    possible in order to reduce disturbances  in the traces, while at the same
+    time being large enough for $V_{offset}$ to be smaller than $V_{step}$. In
+    order for the ADC's holding time not to be too long (which happens roughly
+    at $\geq \SI{5}{\kilo\ohm}$), they should however also not be too large.
 
     Thus, we can now  solve for the four resistor values,  as seen in on the right.
 \end{minipage}
@@ -159,10 +158,11 @@ This yields as its result $\frac{R_x}{2} \approx \SI{22}{\ohm}$.
     A  further  limitation,  especially  for  smaller  resistors,  is  not  to
     dissipate  too  much  power. For  this   reason,  the  resistors  will  be
     dimensioned  slightly   higher  at  \SI{270}{\ohm}. Thus,   the  resulting
-    dissipated power for all four resistors comes to:
+    dissipated  power for  all  four resistors  is  calcualted using  equation
+    \ref{eq:P_loss}.
 \end{minipage}
 \begin{minipage}{.50\textwidth}
-    \begin{equation}
+    \begin{equation} \label{eq:P_loss}
         P_{loss} \approx \frac{\left(\SI{3.3}{\volt}\right)^2}{2\cdot \SI{270}{\ohm}} \approx \SI{20}{\milli\watt}
     \end{equation}
 \end{minipage}

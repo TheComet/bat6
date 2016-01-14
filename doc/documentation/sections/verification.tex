@@ -7,7 +7,7 @@ expected results based on simulations.
 \subsubsection{Trivial and Non-Trivial I-V Curves}
 
 Reproduction of a custom I-V  curve is tested by using the test fixture depicted
-in figure \ref{fig:verification:iv-circuit-fix}.
+in Figure \ref{fig:verification:iv-circuit-fix}.
 
 \begin{figure}[th!]
     \centering
@@ -20,7 +20,7 @@ The  voltage  and  current  is  measured  using  different resistive loads. This
 measurement is performed twice using two different I-V curve configurations; one
 ``simple''  curve (using a single-cell  model)  and  one  ``complicated''  curve
 (using a  multi-cell  model  where  some of the cells are shaded). The resulting
-measurements are then compared with  the  theoretical  curves  seen  in  figures
+measurements are then compared with  the  theoretical  curves  seen  in  Figures
 \ref{fig:verification:iv-simple}  and  \ref{fig:verification:iv-complicated} and
 thus the device's accuracy can be evaluated.
 
@@ -40,7 +40,6 @@ thus the device's accuracy can be evaluated.
     \end{minipage}
 \end{figure}
 
-
 \subsubsection{Ripple Voltage and Ripple Current vs Resistive Load}
 
 Using LTspice\cite{ref:ltspice}, the circuit  of  our  regulator was modeled and
@@ -56,74 +55,80 @@ plot  of  the   ripple   current   and   voltage   versus  the  resistive  load.
     \label{fig:verification:ripple_sim}
 \end{figure}
 
-In  order  to  test this on the  real  device,  a  constant  output  voltage  of
-\SI{12}{\volt} is programmed and a potentiometer  is  attached  to  the device's
-output connectors, as illustrated in figure \ref{fig:verification:ripple_fix}
+\begin{minipage}{0.5\textwidth}
+    In  order   to  test  this   on  the   real  device,  a   constant  output
+    voltage   of  \SI{12}{\volt}   is  programmed   and  a   potentiometer  is
+    attached  to the  device's  output connectors,  as  illustrated in  Figure
+    \ref{fig:verification:ripple_fix}
 
-\begin{figure}[th!]
+    The ripple  current is  measured over a  small sense  resistor $R_{sense}$
+    using  an oscilloscope. The  ripple  voltage is  measured  using a  second
+    channel of the oscilloscope by measuring the output voltage.
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
     \centering
-    \includegraphics[width=.5\textwidth]{images/sim/ripple-fixture.png}
-    \caption{Test fixture for measuring ripple voltage \& ripple current of the device}
+    \includegraphics[width=.9\textwidth]{images/sim/ripple-fixture.png}
+    \captionof{figure}{Test fixture for measuring ripple voltage \& ripple current of the device}
     \label{fig:verification:ripple_fix}
-\end{figure}
-
-The ripple current  is measured over a small sense resistor $R_{sense}$ using an
-oscilloscope. The ripple voltage  is  measured  using  a  second  channel of the
-oscilloscope by measuring the output voltage.
+\end{minipage}
 
 The peak-to-peak ripple voltage  and current is measured for different resistive
 loads ranging from \SI{100}{\milli\ohm} to \SI{1}{\kilo\ohm} and compared to the
 simulated model.
 
-
 \subsubsection{Power Absorbtion}
 
-As stated in the specifications,  the  device  must  have  the  ability  to sink
-current  as  well  as  source  current.  In  order to test this, the  device  is
-programmed  to  output  \SI{12}{\volt} and is connected in series with a current
-limiting resistor  and  a  second  power  source  set  to  a  higher voltage, as
-illustrated      in      figure     \ref{fig:verification:power_absorbtion_fix}.
+\begin{minipage}{0.5\textwidth}
+    As  stated  in  the  specifications,  the device  must  have  the  ability
+    to  sink   current  as  well  as   source  current.   In  order   to  test
+    this,  the   device  is  programmed   to  output  \SI{12}{\volt}   and  is
+    connected  in  series  with  a  current limiting  resistor  and  a  second
+    power  source  set   to  a  higher  voltage,  as   illustrated  in  Figure
+    \ref{fig:verification:power_absorbtion_fix}.
 
-\begin{figure}[th!]
+    The second  voltage source is  slowly increased until  \SI{3}{\ampere} are
+    flowing  through  the  current  limiting  resistor  $R_1$  (which  can  be
+    determined by  measuring the  voltage over said  resistor), all  while the
+    device's  output  voltage  is  closely monitored. The  output  voltage  is
+    expected to remain constant.
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
     \centering
-    \includegraphics[width=.5\textwidth]{images/sim/power-absorbtion-fixture.png}
-    \caption{Test fixture for measuring power absorbtion of the device.}
+    \includegraphics[width=.9\textwidth]{images/sim/power-absorbtion-fixture.png}
+    \captionof{figure}{Test fixture for measuring power absorbtion of the device.}
     \label{fig:verification:power_absorbtion_fix}
-\end{figure}
+\end{minipage}
 
-The second voltage source is slowly increased until \SI{3}{\ampere} are  flowing
-through  the  current  limiting  resistor  $R_1$  (which  can  be determined  by
-measuring the voltage over said resistor), all while the device's output voltage
-is closely monitored. The output voltage is expected to remain constant.
 
 
 \subsubsection{Transient Response}
 
-This test is used  to  determine  the reaction speed of the regulator and the I-V
-control algorithm when switching  quickly  between  two extreme resistive loads.
-The device is programmed to mimic  the  behaviour of a simple solar panel model.
-As illustrated in figure \ref{fig:verification:transient_fix} the output voltage
-is  measured  using  an oscilloscope and various resistive loads are switched on
-and off over the output using a MOSFET and a signal generator.
-
-\begin{figure}[th!]
+\begin{minipage}{0.5\textwidth}
+    This  test is  used  to  determine the  reaction  speed  of the  regulator
+    and  the  I-V  control  algorithm   when  switching  quickly  between  two
+    extreme  resistive  loads.    The  device  is  programmed   to  mimic  the
+    behaviour  of  a simple  solar  panel  model.   As illustrated  in  Figure
+    \ref{fig:verification:transient_fix} the output  voltage is measured using
+    an oscilloscope and  various resistive loads are switched on  and off over
+    the output using a MOSFET and a signal generator.
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
     \centering
-    \includegraphics[width=.5\textwidth]{images/sim/transient-fixture.png}
-    \caption{Test fixture for measuring the transient response of the device}
+    \includegraphics[width=.9\textwidth]{images/sim/transient-fixture.png}
+    \captionof{figure}{Test fixture for measuring the transient response of the device}
     \label{fig:verification:transient_fix}
-\end{figure}
+\end{minipage}
 
-The frequency of the signal generator is set  to  a  low  value  such  that  the
-device's output voltage is always stable before the load is changed.
-
-The results of this measurement will make a statement over the propagation delay
-of  the  algorithm as well as the time it takes for  the  voltage  to  stabilise
+The frequency  of the signal  generator is  set to a  low value such  that the
+device's output  voltage is  always stable  before the  load is  changed.  The
+results of this  measurement will make a statement over  the propagation delay
+of the  algorithm as well as  the time it  takes for the voltage  to stabilise
 again.
 
 
 \subsubsection{Reactive Loads}
 
-In the course specification we  opted to test the device with various capacitive
+In the coarse specification we  opted to test the device with various capacitive
 and  inductive  loads  out  of  curiosity. During the course of the  project  we
 learned that this is not an applicable test because reactive loads are primarily
 used for testing the behaviour of power factor correction -- which, according to
@@ -146,6 +151,7 @@ time to do so were available.
 
 
 \subsection{Analysis of the Issue}
+\label{subsec:analysis_issue}
 
 The  first regulator output the correct voltage  of  \SI{12}{\volt}  when  being
 supplied  with  \SI{32}{\volt}.  Unplugging the device and re-plugging it into a
@@ -172,31 +178,31 @@ seems to align with the transient theory.
 
 \subsection{Simulating the Issue}
 
-The physical layout of  the  regulator  and  the  MOSFETs  is depicted in figure
-\ref{fig:verification:long_traces_pcb}.  The  physical   length  of  the  traces
-connecting the  Switch  (SW),  High  Gate  (HG)  and  Low  Gate (LG) pins of the
-regulator to the switching MOSFETs is fairly  long (>\SI{2}{\centi\metre}). Most
-of the time, the parasitic  inductances and capacitances are negligible. In this
-case, however, it turned out that they are not.
+The physical  layout of the  regulator and the  MOSFETs is depicted  in Figure
+\ref{fig:verification:long_traces_pcb}.   The  traces  connecting  the  Switch
+(SW), High Gate (HG) and Low Gate  (LG) pins of the regulator to the switching
+MOSFETs  are  fairly  long  (>\SI{2}{\centi\metre}). Most  of  the  time,  the
+parasitic inductances and capacitances  are negligible. In this case, however,
+it turned out that they are not.
 
 The series  inductance  and  series  resistance  is  calculated using an on-line
 calculator\cite{ref:trace_inductance}\cite{ref:trace_resistance}   (the   width,
 length,    and    thickness    is    known   to    be    \SI{0.4}{\milli\metre},
 \SI{2}{\centi\metre}  and \SI{35}{\micro\metre} respectively) and added  to  the
-simulation   model  seen  in  figure   \ref{fig:verification:long_traces_model}.
+simulation   model  seen  in  Figure   \ref{fig:verification:long_traces_model}.
 
 \begin{figure}[th!]
     \centering
     \begin{minipage}{.6\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{images/pcb/long-traces.png}
-        \caption{}
+        \caption{Physical layout of MOSFETs and regulator}
         \label{fig:verification:long_traces_pcb}
     \end{minipage}
     \begin{minipage}{.38\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{images/sim/lt3741-transients-circuit-real.png}
-        \caption{}
+        \caption{Simulation model with long traces}
         \label{fig:verification:long_traces_model}
     \end{minipage}
 \end{figure}
@@ -211,7 +217,7 @@ absolute maximum rating on the SW pin (\SI{40}{\volt}).
 \begin{figure}[th!]
     \centering
     \includegraphics[width=.7\textwidth]{images/sim/lt3741-transients-sim.png}
-    \caption{}
+    \caption{Simulation of voltage on SW pin. \emph{Yellow:} Idealised, \emph{blue:} actual, \emph{green}: actual, with series resistors as a fix.}
     \label{fig:verification:long_traces_simulation}
 \end{figure}
 
