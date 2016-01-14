@@ -1,3 +1,12 @@
+% **************************************************************************** %
+\clearpage
+\section{Specifications}
+\label{appendix:specs}
+% **************************************************************************** %
+
+\includepdf[pages=-,scale=1]{images/specs.pdf}
+%\includegraphics[width=\paperwidth]{images/specs.pdf}
+
 {%START A3 PAGES
     \clearpage
     \pdfpagewidth=2\pdfpagewidth
@@ -30,7 +39,27 @@
 \clearpage
 }
 
+\setlength\paperheight{297mm}
+\setlength\paperwidth{420mm}
+\setlength\pdfpageheight{\paperheight}
+\setlength\pdfpagewidth{\paperwidth}
+
+    % **************************************************************************** %
+    \section{List of Components}
+    \label{appendix:components}
+    % **************************************************************************** %
+    \includepdf[pages=-,scale=1]{images/bom.pdf}
+
+\setlength\paperheight{210mm}
+\setlength\paperwidth{297mm}
+\setlength\pdfpageheight{\paperheight}
+\setlength\pdfpagewidth{\paperwidth}
+
+
+
+
 % **************************************************************************** %
+\clearpage
 \section{Inductors}
 \label{appendix:inductors}
 % **************************************************************************** %
@@ -95,3 +124,4 @@ and $P_{LOSS\_LDO}$ were calculated.
 The MOSFET highlighted in grey was selected.  Though it is not the best model,
 it is a lot  cheaper than the best fit and  has better documentation. The same
 MOSFET is used for both the low-side and the high-side switch.
+

@@ -12,25 +12,23 @@
 % conclution
 
  % introduction
-Reproducible simulation of photovoltaic modules requires
-advanced and expensive equipment, hindering development of solar power products  
-% research problem
-To facilitate access to this area of research, a low-cost alternative
-to the existing equipment is in demand.
+Simulating  solar  modules  in  a laboratory  environment  currently  requires
+expensive  and complex  equipment, hindering  development of  new solar  power
+products. To  facilitate  research  into  solar  panel  behavior,  a  low-cost
+solution for simulating solar modules is needed.
 
 % approach
-The core of our device is a microcontroller which communicates with the outside world and
-regulates a step-down converter to generate an output voltage and current
-
-matching a programmable load curve. The underlying mathematical
- model allows emulation of multiple
-series-connected  cells to generate typical solar  panel  behaviours.
+This  report details  our  efforts in  developing and  building  a device  for
+this  purpose. We  developed a  model  for  describing solar  module  behavior
+mathematically, which is  capabable of describing both a single  solar cell as
+well  as  configurations  of  multiple  cells. The  hardware  is  based  on  a
+microcontroller, responsible  for interacting  with the  outside world,  and a
+voltage converter, used  to generate the desired voltages and  currents on the
+device's output.
 
 % results
-The  device is not operational  at this point as  the step-down
-converter is damaged with the current circuit board.
-
-TODO: Insert suspicions about causes
-
-The next step in finalising the device would be to design a new circuit board.
-%hardware revision something something
+At  this point,  the device  is not  operational. Due to  a design  error, our
+circuit  overloads  the  voltage converter,  causing  irreparable  damage. The
+likely cause  of this are  overlong connections between the  voltage converter
+and other  components.  The  next step  in finalising the  device would  be to
+design a new circuit board for fixing this issue.
