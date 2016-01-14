@@ -19,18 +19,20 @@ signals:
     void darkVoltageChange(CellWidget* cell, double darkVoltage);
 
 public:
-    explicit CellWidget(const QString& cellName, QWidget *parent = 0);
+    explicit CellWidget(const QString& m_CellName, QWidget *parent = 0);
     ~CellWidget();
 
     void allowRemovingFromChain(bool allow);
+    void setName(const QString& name);
     const QString& getName() const;
+
+    QScopedPointer<Ui::CellWidget> ui;
 
 private slots:
     void on_intensity_valueChanged(int value);
 
 private:
-    QScopedPointer<Ui::CellWidget> ui;
-    QString cellName;
+    QString m_CellName;
 };
 
 #endif // CELLWIDGET_H

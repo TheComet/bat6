@@ -21,24 +21,39 @@ SOURCES +=  main.cpp \
             widgets/cellwidget.cpp \
             widgets/consolewidget.cpp \
             widgets/bat6widget.cpp \
-            widgets/characteristiccurve2dwidget.cpp \
-            widgets/characteristiccurve3dwidget.cpp \
+            widgets/characteristicscurve2dwidget.cpp \
+            widgets/characteristicscurve3dwidget.cpp \
             models/pvcell.cpp \
             models/pvchain.cpp \
             models/pvarray.cpp \
-            models/COMPort.cpp
+            models/comport.cpp \
+            models/dummycurrentandvoltagesensor.cpp \
+            plot/pvmodelfunctionbase.cpp \
+            plot/ivcharacteristicscurve3d.cpp \
+            plot/ivcharacteristicscurve.cpp \
+            plot/powercurve.cpp \
+            plot/powercurve3d.cpp
 
 HEADERS  += widgets/mainwindow.h \
             widgets/cellwidget.h \
             widgets/consolewidget.h \
             widgets/bat6widget.h \
-            widgets/characteristiccurve2dwidget.h \
-            widgets/characteristiccurve3dwidget.h \
+            widgets/characteristicscurve2dwidget.h \
+            widgets/characteristicscurve3dwidget.h \
+            widgets/pvarrayplotwidgetbase.h \
             models/pvcell.h \
             models/pvchain.h \
             models/pvarray.h \
-            models/COMPort.h \
-            tools/Lambda.h
+            models/comport.h \
+            models/dummycurrentandvoltagesensor.h \
+            tools/Lambda.h \
+            plot/pvmodelfunctionbase.h \
+            plot/curve3dbase.h \
+            plot/curve2dbase.h \
+            plot/ivcharacteristicscurve3d.h \
+            plot/ivcharacteristicscurve.h \
+            plot/powercurve.h \
+            plot/powercurve3d.h
 
 SOURCES +=  qaccordion/qaccordion.cpp \
             qaccordion/clickableframe.cpp \

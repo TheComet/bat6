@@ -3,39 +3,13 @@
 
 #include <QString>
 
+// ----------------------------------------------------------------------------
 PVChain::PVChain() :
-    exposure(1.0)
+    m_ExposureWeight(1.0)
 {
 }
 
-double PVChain::getMaximumSeriesCurrent(double totalVoltage, double exposure) const
-{
-    exposure = (exposure < 0.0 ? 0.0 : exposure);
-    exposure = (exposure > 1.0 ? 1.0 : exposure);
-    double totalExposure = this->exposure * exposure;
-
-    const double voltagePerCell = totalVoltage / cellChain.size();
-    double current = 0.0;
-    for(const auto& cell : cellChain)
-    {
-        double cellCurrent = cell.calculateCurrent(voltagePerCell, totalExposure);
-        current = (cellCurrent > current ? cellCurrent : current);
-    }
-    return current;
-}
-
-void PVChain::setExposure(double exposure)
-{
-    exposure = (exposure <= 0.0 ? 0.0 : exposure);
-    this->exposure = (exposure >= 1.0 ? 1.0 : exposure);
-}
-
-void PVChain::setTemperature(double temperature)
-{
-    for(auto& cell : cellChain)
-        cell.setTemperature(temperature);
-}
-
+// ----------------------------------------------------------------------------
 double PVChain::calculateCurrent(double targetVoltage, double exposure) const
 {
     /*
@@ -44,24 +18,24 @@ double PVChain::calculateCurrent(double targetVoltage, double exposure) const
      * problem is to use an iterative algorithm until the error goes below
      * a certain threshold.
      */
-    int maxIterations = 20;
+    int maxIterations = 10;
 
     // Corner case when voltage is 0. Just return average current.
     if(targetVoltage == 0.0)
         return this->getMaximumSeriesCurrent(targetVoltage, exposure);
 
     // if there is only one cell then there's no need to iterate
-    if(cellChain.size() == 1)
+    if(m_CellChain.size() == 1)
     {
         exposure = (exposure < 0.0 ? 0.0 : exposure);
         exposure = (exposure > 1.0 ? 1.0 : exposure);
-        double totalExposure = exposure * this->exposure;
-        return cellChain.begin()->calculateCurrent(targetVoltage, totalExposure);
+        double totalExposure = exposure * m_ExposureWeight;
+        return m_CellChain.begin()->calculateCurrent(targetVoltage, totalExposure);
     }
 
     // top range of approximation window
     double top = 0.0;
-    for(const auto& cell : cellChain)
+    for(const auto& cell : m_CellChain)
         top = (cell.getShortCircuitCurrent() > top ? cell.getShortCircuitCurrent() : top);
 
     // bottom range
@@ -82,41 +56,63 @@ double PVChain::calculateCurrent(double targetVoltage, double exposure) const
     return current;
 }
 
+// ----------------------------------------------------------------------------
 double PVChain::calculateVoltage(double current, double exposure) const
 {
     exposure = (exposure < 0.0 ? 0.0 : exposure);
     exposure = (exposure > 1.0 ? 1.0 : exposure);
-    double totalExposure = exposure * this->exposure;
+    double totalExposure = exposure * m_ExposureWeight;
 
     // Voltages just add up because the cells are in series
     double voltage = 0.0;
-    for(const auto& cell : cellChain)
+    for(const auto& cell : m_CellChain)
         voltage += cell.calculateVoltage(current, totalExposure);
     return voltage;
 }
 
-void PVChain::addCell(const QString& cellName, const PVCell& cell)
-{
-    if(cellChain.contains(cellName))
-        return;
-    cellChain.insert(cellName, cell);
-}
-
-void PVChain::removeCell(const QString& cellName)
-{
-    cellChain.remove(cellName);
-}
-
-PVCell* PVChain::getCell(const QString& cellName)
-{
-    auto cell = cellChain.find(cellName);
-    return cell.operator->();
-}
-
+// ----------------------------------------------------------------------------
 double PVChain::getOpenCircuitVoltage() const
 {
     double voltage = 0.0;
-    for(const auto& cell : cellChain)
+    for(const auto& cell : m_CellChain)
         voltage += cell.getOpenCircuitVoltage();
     return voltage;
 }
+
+// ----------------------------------------------------------------------------
+double PVChain::getMaximumSeriesCurrent(double totalVoltage, double exposure) const
+{
+    exposure = (exposure < 0.0 ? 0.0 : exposure);
+    exposure = (exposure > 1.0 ? 1.0 : exposure);
+    double totalExposure = m_ExposureWeight * exposure;
+
+    const double voltagePerCell = totalVoltage / m_CellChain.size();
+    double current = 0.0;
+    for(const auto& cell : m_CellChain)
+    {
+        double cellCurrent = cell.calculateCurrent(voltagePerCell, totalExposure);
+        current = (cellCurrent > current ? cellCurrent : current);
+    }
+    return current;
+}
+
+// ----------------------------------------------------------------------------
+void PVChain::addCell(const QString& cellName, const PVCell& cell)
+{
+    if(m_CellChain.contains(cellName))
+        return;
+    m_CellChain.insert(cellName, cell);
+}
+
+// ----------------------------------------------------------------------------
+void PVChain::removeCell(const QString& cellName)
+{
+    m_CellChain.remove(cellName);
+}
+
+// ----------------------------------------------------------------------------
+QMap<QString, PVCell>& PVChain::getCells()
+{
+    return m_CellChain;
+}
+

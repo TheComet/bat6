@@ -155,7 +155,7 @@ void ContentPane::initHeaderFrame(QString header)
     this->header->setFrameStyle(this->headerFrameStyle);
     this->layout()->addWidget(this->header);
 
-    this->connect(this->header, SIGNAL(singleClick()), this, SLOT(headerClicked()));
+    this->connect(this->header, SIGNAL(singleClick(QPoint)), this, SLOT(headerClicked(QPoint)));
 }
 
 void ContentPane::initContainerContentFrame()

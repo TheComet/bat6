@@ -12,7 +12,8 @@ public slots:
     void call() { if(fptr) fptr(); }
 
 public:
-    Lambda(std::function<void()> l, QObject* parent=0) : fptr(l) { (void)parent; }
+    Lambda(std::function<void()> l, QObject* parent=0) : QObject(parent), fptr(l)
+    {}
 
 private:
     std::function<void()> fptr;
