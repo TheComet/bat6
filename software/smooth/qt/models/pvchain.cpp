@@ -35,8 +35,8 @@ double PVChain::calculateCurrent(double targetVoltage, double exposure) const
 
     // top range of approximation window
     double top = 0.0;
-    for(const auto& cell : m_CellChain)
-        top = (cell.getShortCircuitCurrent() > top ? cell.getShortCircuitCurrent() : top);
+    for(QMap<QString, PVCell>::const_iterator it = m_CellChain.begin(); it != m_CellChain.end(); ++it)
+        top = (it.value().getShortCircuitCurrent() > top ? it.value().getShortCircuitCurrent() : top);
 
     // bottom range
     double bottom = 0.0;
@@ -65,8 +65,8 @@ double PVChain::calculateVoltage(double current, double exposure) const
 
     // Voltages just add up because the cells are in series
     double voltage = 0.0;
-    for(const auto& cell : m_CellChain)
-        voltage += cell.calculateVoltage(current, totalExposure);
+    for(QMap<QString, PVCell>::const_iterator it = m_CellChain.begin(); it != m_CellChain.end(); ++it)
+        voltage += it.value().calculateVoltage(current, totalExposure);
     return voltage;
 }
 
@@ -74,8 +74,8 @@ double PVChain::calculateVoltage(double current, double exposure) const
 double PVChain::getOpenCircuitVoltage() const
 {
     double voltage = 0.0;
-    for(const auto& cell : m_CellChain)
-        voltage += cell.getOpenCircuitVoltage();
+    for(QMap<QString, PVCell>::const_iterator it = m_CellChain.begin(); it != m_CellChain.end(); ++it)
+        voltage += it.value().getOpenCircuitVoltage();
     return voltage;
 }
 
@@ -88,9 +88,9 @@ double PVChain::getMaximumSeriesCurrent(double totalVoltage, double exposure) co
 
     const double voltagePerCell = totalVoltage / m_CellChain.size();
     double current = 0.0;
-    for(const auto& cell : m_CellChain)
+    for(QMap<QString, PVCell>::const_iterator it = m_CellChain.begin(); it != m_CellChain.end(); ++it)
     {
-        double cellCurrent = cell.calculateCurrent(voltagePerCell, totalExposure);
+        double cellCurrent = it.value().calculateCurrent(voltagePerCell, totalExposure);
         current = (cellCurrent > current ? cellCurrent : current);
     }
     return current;

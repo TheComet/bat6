@@ -3,15 +3,15 @@
 #include "plot/ivcharacteristicscurve.h"
 #include "plot/powercurve.h"
 
-#include <qwt/qwt_point_data.h>
-#include <qwt/qwt_scale_engine.h>
-#include <qwt/qwt_text_label.h>
-#include <qwt/qwt_legend_data.h>
-#include <qwt/qwt_legend_label.h>
-#include <qwt/qwt_plot_grid.h>
-#include <qwt/qwt_plot_legenditem.h>
-#include <qwt/qwt_plot_marker.h>
-#include <qwt/qwt_symbol.h>
+#include <qwt_point_data.h>
+#include <qwt_scale_engine.h>
+#include <qwt_text_label.h>
+#include <qwt_legend_data.h>
+#include <qwt_legend_label.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_legenditem.h>
+#include <qwt_plot_marker.h>
+#include <qwt_symbol.h>
 
 #include <QColor>
 

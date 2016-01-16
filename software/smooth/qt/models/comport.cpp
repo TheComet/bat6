@@ -1,14 +1,15 @@
 #include "models/comport.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 // ----------------------------------------------------------------------------
 // C code for handling port open/close on linux
 // ----------------------------------------------------------------------------
 
 #ifdef Q_OS_UNIX
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -76,7 +77,12 @@ static int check_fd_fine(int fd)
 
 // ----------------------------------------------------------------------------
 #else
-#   error Platform not supported
+static int open_port(const char* fd_name) { return -1; }
+static void close_port(int fd) {}
+static int check_fd_fine(int fd) { return -1; }
+
+#define read(x, y, z) (-1)
+#define write(x, y, z) (-1)
 #endif
 
 // ----------------------------------------------------------------------------

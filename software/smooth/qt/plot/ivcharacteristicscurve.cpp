@@ -36,11 +36,13 @@ void IVCharacteristicsCurve::updateBoundingBox()
     // set to its maximum
     PVArray tempPVArray = m_PVArray.operator*();
     tempPVArray.setExposure(1);
-    for(PVChain& chain : tempPVArray.getChains())
+    for(QMap<QString, PVChain>::iterator chainIt = tempPVArray.getChains().begin();
+        chainIt != tempPVArray.getChains().end(); ++chainIt)
     {
-        for(PVCell& cell : chain.getCells())
-            cell.setExposure(1);
-        chain.setExposure(1);
+        for(QMap<QString, PVCell>::iterator cellIt = chainIt.value().getCells().begin();
+            cellIt != chainIt.value().getCells().end(); ++cellIt)
+            cellIt.value().setExposure(1);
+        chainIt.value().setExposure(1);
     }
 
     double maxVoltage = tempPVArray.calculateVoltage(0); // 0 amps = open circuit

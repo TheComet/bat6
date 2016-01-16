@@ -15,8 +15,8 @@ double PVArray::calculateCurrent(double voltage) const
 {
     // Current just adds up because the cells are in parallel
     double current = 0.0;
-    for(const auto& chain : m_Chains)
-        current += chain.calculateCurrent(voltage, m_ExposureWeight);
+    for(QMap<QString, PVChain>::const_iterator it = m_Chains.begin(); it != m_Chains.end(); ++it)
+        current += it.value().calculateCurrent(voltage, m_ExposureWeight);
     return current;
 }
 
@@ -39,8 +39,8 @@ double PVArray::calculateVoltage(double targetCurrent) const
 
     // top range of approximation window
     double top = 0.0;
-    for(const auto& chain : m_Chains)
-        top = (chain.getOpenCircuitVoltage() > top ? chain.getOpenCircuitVoltage() : top);
+    for(QMap<QString, PVChain>::const_iterator it = m_Chains.begin(); it != m_Chains.end(); ++it)
+        top = (it.value().getOpenCircuitVoltage() > top ? it.value().getOpenCircuitVoltage() : top);
 
     // bottom range
     double bottom = 0.0;
@@ -85,9 +85,9 @@ double PVArray::calculateAverageParallelVoltage(double totalCurrent) const
 {
     double currentPerCell = totalCurrent / m_Chains.size();
     double voltage = 0.0;
-    for(const auto& chain : m_Chains)
+    for(QMap<QString, PVChain>::const_iterator it = m_Chains.begin(); it != m_Chains.end(); ++it)
     {
-        voltage += chain.calculateVoltage(currentPerCell);
+        voltage += it.value().calculateVoltage(currentPerCell);
     }
     return voltage / m_Chains.size();
 }

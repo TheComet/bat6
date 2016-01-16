@@ -14,8 +14,8 @@
 
 #include "tools/Lambda.h"
 
-#include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_curve.h"
+#include "qwt_plot.h"
+#include "qwt_plot_curve.h"
 
 #include <QPushButton>
 #include <QSplitter>
@@ -193,10 +193,12 @@ void BAT6Widget::updateModelCellNames()
 {
     PVChain newChain;
     int i = 1;
-    for(auto& cell : m_PVArray->getChains().find("Chain 1")->getCells())
+    QMap<QString, PVCell>& cellMap = m_PVArray->getChains().find("Chain 1")->getCells();
+    for(QMap<QString, PVCell>::iterator it = cellMap.begin();
+        it != cellMap.end(); ++it)
     {
         QString name = "Cell " + QString::number(i++);
-        newChain.addCell(name, cell);
+        newChain.addCell(name, it.value());
     }
 
     m_PVArray->removeChain("Chain 1");

@@ -4,7 +4,7 @@
 #include "widgets/pvarrayplotwidgetbase.h"
 
 #include <QObject>
-#include <qwtplot3d/qwt3d_surfaceplot.h>
+#include <qwt3d_surfaceplot.h>
 
 class PVArray;
 class Curve3DBase;

@@ -13,8 +13,21 @@ TARGET = smooth
 TEMPLATE = app
 CONFIG += c++11
 
-unix:!macx: LIBS += -lqwt -lqwtplot3d -lGLU
-unix: QMAKE_CXXFLAGS += -std=c++11
+DEFINES += QWT_DLL
+LIBS += -lqwt -lqwtplot3d
+unix:!macx: LIBS += -lGLU
+
+unix {
+    QMAKE_CXXFLAGS += -std=c++11
+    INCLUDEPATH += "/usr/include/qwt"
+    INCLUDEPATH += "/usr/include/qwtplot3d"
+}
+win32 {
+    QMAKE_LIBDIR += "C:\\Qwt-6.1.2\\lib"
+    QMAKE_LIBDIR += "C:\\QwtPlot3D\\lib"
+    INCLUDEPATH += "C:\\Qwt-6.1.2\\include"
+    INCLUDEPATH += "C:\\QwtPlot3D\\include"
+}
 
 SOURCES +=  main.cpp \
             widgets/mainwindow.cpp \

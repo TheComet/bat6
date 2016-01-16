@@ -2,7 +2,7 @@
 #define CURVE_2D_BASE_H
 
 #include "plot/pvmodelfunctionbase.h"
-#include <qwt/qwt_series_data.h>
+#include <qwt_series_data.h>
 
 class Curve2DBase :
         public QwtSeriesData<QPointF>,

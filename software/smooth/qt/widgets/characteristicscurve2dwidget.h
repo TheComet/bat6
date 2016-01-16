@@ -6,8 +6,9 @@
 #include <QSharedPointer>
 #include <QMap>
 #include <QString>
-#include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_curve.h>
+
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 class CharacteristicsCurve2DWidget :
         public QwtPlot,
